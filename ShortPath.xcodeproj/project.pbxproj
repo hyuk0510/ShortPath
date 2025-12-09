@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		D856AFFB2EDAE7590053E159 /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = D856AFFA2EDAE7590053E159 /* KakaoMapsSDK-SPM */; };
 		D856AFFE2EDB1AF40053E159 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = D856AFFD2EDB1AF40053E159 /* SnapKit */; };
-		D856B0012EDB1BD90053E159 /* Toast in Frameworks */ = {isa = PBXBuildFile; productRef = D856B0002EDB1BD90053E159 /* Toast */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -17,7 +16,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		D856AFED2EDAE2D10053E159 /* Exceptions for "ShortPath" folder in "ShortPath" target */ = {
+		D856B0792EE5635F0053E159 /* Exceptions for "ShortPath" folder in "ShortPath" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -27,10 +26,10 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		D856AFDD2EDAE2CB0053E159 /* ShortPath */ = {
+		D856B06B2EE5635F0053E159 /* ShortPath */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				D856AFED2EDAE2D10053E159 /* Exceptions for "ShortPath" folder in "ShortPath" target */,
+				D856B0792EE5635F0053E159 /* Exceptions for "ShortPath" folder in "ShortPath" target */,
 			);
 			path = ShortPath;
 			sourceTree = "<group>";
@@ -42,7 +41,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D856B0012EDB1BD90053E159 /* Toast in Frameworks */,
 				D856AFFB2EDAE7590053E159 /* KakaoMapsSDK-SPM in Frameworks */,
 				D856AFFE2EDB1AF40053E159 /* SnapKit in Frameworks */,
 			);
@@ -54,7 +52,7 @@
 		D856AFD22EDAE2CB0053E159 = {
 			isa = PBXGroup;
 			children = (
-				D856AFDD2EDAE2CB0053E159 /* ShortPath */,
+				D856B06B2EE5635F0053E159 /* ShortPath */,
 				D856AFDC2EDAE2CB0053E159 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -83,13 +81,12 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				D856AFDD2EDAE2CB0053E159 /* ShortPath */,
+				D856B06B2EE5635F0053E159 /* ShortPath */,
 			);
 			name = ShortPath;
 			packageProductDependencies = (
 				D856AFFA2EDAE7590053E159 /* KakaoMapsSDK-SPM */,
 				D856AFFD2EDB1AF40053E159 /* SnapKit */,
-				D856B0002EDB1BD90053E159 /* Toast */,
 			);
 			productName = ShortPath;
 			productReference = D856AFDB2EDAE2CB0053E159 /* ShortPath.app */;
@@ -122,7 +119,6 @@
 			packageReferences = (
 				D856AFF92EDAE7590053E159 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */,
 				D856AFFC2EDB1AF40053E159 /* XCRemoteSwiftPackageReference "SnapKit" */,
-				D856AFFF2EDB1BD90053E159 /* XCRemoteSwiftPackageReference "Toast-Swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D856AFDC2EDAE2CB0053E159 /* Products */;
@@ -378,14 +374,6 @@
 				minimumVersion = 5.7.1;
 			};
 		};
-		D856AFFF2EDB1BD90053E159 /* XCRemoteSwiftPackageReference "Toast-Swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/scalessec/Toast-Swift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.1.1;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -398,11 +386,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D856AFFC2EDB1AF40053E159 /* XCRemoteSwiftPackageReference "SnapKit" */;
 			productName = SnapKit;
-		};
-		D856B0002EDB1BD90053E159 /* Toast */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D856AFFF2EDB1BD90053E159 /* XCRemoteSwiftPackageReference "Toast-Swift" */;
-			productName = Toast;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
