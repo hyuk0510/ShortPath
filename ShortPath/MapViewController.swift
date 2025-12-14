@@ -42,6 +42,8 @@ final class MapViewController: UIViewController, MapControllerDelegate, GuiEvent
                 
         mapSetupUI()
         addViews()
+        setLM()
+        checkDeviceLocationAuthorization()
     }
     
     var mapContainer: KMViewContainer?
@@ -51,4 +53,26 @@ final class MapViewController: UIViewController, MapControllerDelegate, GuiEvent
     var _auth: Bool = false
     var _appear: Bool = false
     let geocoder = CLGeocoder()
+    let locationManager = CLLocationManager()
+}
+
+extension MapViewController: CLLocationManagerDelegate {
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let coordinate = locations.last?.coordinate {
+            print(coordinate.latitude)
+            print(coordinate.longitude)
+        }
+        
+        locationManager.stopUpdatingLocation()
+    }
+    
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        checkDeviceLocationAuthorization()
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: any Error) {
+        print("ERROR, 위치 정보를 가져오기 못하였습니다.")
+    }
+    
 }
