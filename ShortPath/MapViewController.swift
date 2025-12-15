@@ -54,14 +54,16 @@ final class MapViewController: UIViewController, MapControllerDelegate, GuiEvent
     var _appear: Bool = false
     let geocoder = CLGeocoder()
     let locationManager = CLLocationManager()
+    var lot: Double?
+    var lat: Double?
+    var currentLocation: CLLocation?
 }
 
 extension MapViewController: CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let coordinate = locations.last?.coordinate {
-            print(coordinate.latitude)
-            print(coordinate.longitude)
+        if let location = locations.last {
+            currentLocation = location
         }
         
         locationManager.stopUpdatingLocation()
@@ -75,4 +77,9 @@ extension MapViewController: CLLocationManagerDelegate {
         print("ERROR, 위치 정보를 가져오기 못하였습니다.")
     }
     
+    func moveCameraToCurrentLocation(_ location: CLLocation) {
+        let currentPosition = MapPoint(longitude: location.coordinate.longitude, latitude: location.coordinate.latitude)
+        
+        kakaoMap.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 17, mapView: kakaoMap))
+    }
 }

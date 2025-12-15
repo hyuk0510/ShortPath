@@ -7,6 +7,7 @@
 
 import UIKit
 import KakaoMapsSDK
+import CoreLocation
 
 extension MapViewController {
     
@@ -37,7 +38,7 @@ extension MapViewController {
         manager.addPoiStyle(poiStyle)
     }
     
-    func createPois() {
+    func createPois(_ location: CLLocation) {
         let manager = kakaoMap.getLabelManager()
         
         let layer = manager.getLabelLayer(layerID: "PoiLayer")
@@ -47,7 +48,7 @@ extension MapViewController {
         poiOption.addText(PoiText(text: "testPoi", styleIndex: 0))
         poiOption.clickable = true
         
-        let poi1 = layer?.addPoi(option: poiOption, at: MapPoint(longitude: 126.9136, latitude: 37.5493))
+        let poi1 = layer?.addPoi(option: poiOption, at: MapPoint(longitude: location.coordinate.longitude, latitude: location.coordinate.latitude))
         
         poi1?.show()
     }

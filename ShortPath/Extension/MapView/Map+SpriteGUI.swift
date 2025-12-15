@@ -22,7 +22,7 @@ extension MapViewController {
         spriteGUI.position = CGPoint(x: 50, y: 100)
         
         let button = GuiButton("track_location")
-        button.image = UIImage(named: "noti3")
+        button.image = UIImage(systemName: "star")
         
         spriteGUI.addChild(button)
         
@@ -36,6 +36,12 @@ extension MapViewController {
         
         let guiText = gui.getChild("track_location") as? GuiText
         
+        locationManager.requestLocation()
+        
+        if let location = locationManager.location {
+            moveCameraToCurrentLocation(location)
+            createPois(location)
+        }
         
         gui.updateGui()
         

@@ -46,9 +46,7 @@ extension MapViewController {
         
         mapController?.prepareEngine()
         
-        DispatchQueue.main.async {
-            self.mapController?.addView(mapViewInfo)
-        }
+        mapController?.addView(mapViewInfo)
     }
     
     func viewInit(viewName: String) {
@@ -56,15 +54,20 @@ extension MapViewController {
         
         createLabelLayer()
         createPoiStyle()
-        createPois()
         createSpriteGUI()
     }
     
     //addView 성공 이벤트 delegate. 추가적으로 수행할 작업을 진행한다.
     func addViewSucceeded(_ viewName: String, viewInfoName: String) {
-        print("OK")
+        print("addView OK")
         
         kakaoMap.viewRect = mapContainer!.bounds    //뷰 add 도중에 resize 이벤트가 발생한 경우 이벤트를 받지 못했을 수 있음. 원하는 뷰 사이즈로 재조정.
+        
+        if let location = currentLocation {
+            moveCameraToCurrentLocation(location)
+            createPois(location)
+        }
+        
         viewInit(viewName: viewName)
     }
     
