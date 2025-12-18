@@ -9,7 +9,7 @@ import UIKit
 import KakaoMapsSDK
 import CoreLocation
 
-final class MapViewController: UIViewController, MapControllerDelegate, GuiEventDelegate {
+final class MapViewController: UIViewController, MapControllerDelegate {
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
@@ -52,34 +52,18 @@ final class MapViewController: UIViewController, MapControllerDelegate, GuiEvent
     var _observerAdded: Bool = false
     var _auth: Bool = false
     var _appear: Bool = false
+    
     let geocoder = CLGeocoder()
+    
     let locationManager = CLLocationManager()
-    var lot: Double?
-    var lat: Double?
     var currentLocation: CLLocation?
-}
-
-extension MapViewController: CLLocationManagerDelegate {
+    var currentLocationPoi: Poi?
     
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let location = locations.last {
-            currentLocation = location
-        }
-        
-        locationManager.stopUpdatingLocation()
-    }
+    var spriteGui: SpriteGui = SpriteGui("SpriteGUI")
+    let button = GuiButton("track_location")
+    var isButtonActive = false
+    var normalImage: UIImage!
+    var tappedImage: UIImage!
     
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        checkDeviceLocationAuthorization()
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: any Error) {
-        print("ERROR, 위치 정보를 가져오기 못하였습니다.")
-    }
-    
-    func moveCameraToCurrentLocation(_ location: CLLocation) {
-        let currentPosition = MapPoint(longitude: location.coordinate.longitude, latitude: location.coordinate.latitude)
-        
-        kakaoMap.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 17, mapView: kakaoMap))
-    }
+    var _cameraStartHandler: DisposableEventHandler?
 }

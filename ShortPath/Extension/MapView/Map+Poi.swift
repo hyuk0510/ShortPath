@@ -27,9 +27,9 @@ extension MapViewController {
         let textStyle1 = PoiTextStyle(textLineStyles: [
             PoiTextLineStyle(textStyle: red)
         ])
-        let textStyle2 = PoiTextStyle(textLineStyles: [
-            PoiTextLineStyle(textStyle: blue)
-        ])
+//        let textStyle2 = PoiTextStyle(textLineStyles: [
+//            PoiTextLineStyle(textStyle: blue)
+//        ])
         
         let noti = PoiBadge(badgeID: "badge1", image: poiBadgeView.asImage(), offset: CGPoint(x: 0.9, y: 0.1), zOrder: 0)
         let iconStyle = PoiIconStyle(symbol: poiView.asImage(), anchorPoint: CGPoint(x: 0.5, y: 0.0), badges: [noti])
@@ -40,16 +40,16 @@ extension MapViewController {
     
     func createPois(_ location: CLLocation) {
         let manager = kakaoMap.getLabelManager()
-        
         let layer = manager.getLabelLayer(layerID: "PoiLayer")
         let poiOption = PoiOptions(styleID: "customStyle1")
         poiOption.rank = 0
         
-        poiOption.addText(PoiText(text: "testPoi", styleIndex: 0))
+        poiOption.addText(PoiText(text: "currentPoi", styleIndex: 0))
         poiOption.clickable = true
         
         let poi1 = layer?.addPoi(option: poiOption, at: MapPoint(longitude: location.coordinate.longitude, latitude: location.coordinate.latitude))
         
-        poi1?.show()
+        currentLocationPoi = poi1
+        currentLocationPoi?.show()
     }
 }

@@ -21,18 +21,6 @@ extension MapViewController {
         mapView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-        
-//        button.snp.makeConstraints { make in
-//            make.trailing.equalTo(view.safeAreaLayoutGuide).inset(30)
-//            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(30)
-//            make.size.equalTo(50)
-//        }
-//
-//        button.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
-    }
-    
-    @objc func buttonPressed() {
-        
     }
     
     func addViews() {
@@ -52,9 +40,8 @@ extension MapViewController {
     func viewInit(viewName: String) {
         print("OK")
         
-        createLabelLayer()
-        createPoiStyle()
         createSpriteGUI()
+        updateCameraEventHandler()
     }
     
     //addView 성공 이벤트 delegate. 추가적으로 수행할 작업을 진행한다.
@@ -65,6 +52,8 @@ extension MapViewController {
         
         if let location = currentLocation {
             moveCameraToCurrentLocation(location)
+            createLabelLayer()
+            createPoiStyle()
             createPois(location)
         }
         

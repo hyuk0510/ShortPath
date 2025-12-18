@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import KakaoMapsSDK
 import CoreLocation
 
 extension MapViewController {
@@ -58,5 +59,38 @@ extension MapViewController {
         alert.addAction(cancel)
         
         present(alert, animated: true)
+    }
+}
+
+extension MapViewController: CLLocationManagerDelegate {
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let location = locations.last {
+            currentLocation = location
+            
+            updateCurrentLocationPoi(location)
+        }
+        
+        locationManager.stopUpdatingLocation()
+    }
+    
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        checkDeviceLocationAuthorization()
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: any Error) {
+        print("ERROR, 위치 정보를 가져오기 못하였습니다.")
+    }
+    
+    func moveCameraToCurrentLocation(_ location: CLLocation) {
+        let currentPosition = MapPoint(longitude: location.coordinate.longitude, latitude: location.coordinate.latitude)
+        
+        kakaoMap.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 17, mapView: kakaoMap))
+    }
+    
+    func updateCurrentLocationPoi(_ location: CLLocation) {
+        if let currentPoi = currentLocationPoi {
+            currentPoi.position = MapPoint(longitude: location.coordinate.longitude, latitude: location.coordinate.latitude)
+        }
     }
 }
