@@ -22,7 +22,7 @@ extension MapViewController {
         let manager = kakaoMap.getLabelManager()
         
         let red = TextStyle(fontSize: 20, fontColor: UIColor.white, strokeThickness: 2, strokeColor: UIColor.red)
-        let blue = TextStyle(fontSize: 20, fontColor: UIColor.white, strokeThickness: 2, strokeColor: UIColor.blue)
+//        let blue = TextStyle(fontSize: 20, fontColor: UIColor.white, strokeThickness: 2, strokeColor: UIColor.blue)
         
         let textStyle1 = PoiTextStyle(textLineStyles: [
             PoiTextLineStyle(textStyle: red)

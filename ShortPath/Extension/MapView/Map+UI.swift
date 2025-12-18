@@ -68,4 +68,8 @@ extension MapViewController {
             }
         }
     }
+    
+    func setKakaoMapLogo() {
+        kakaoMap.setLogoPosition(origin: GuiAlignment(vAlign: .bottom, hAlign: .left), position: CGPoint(x: 30, y: 30))
+    }
 }
