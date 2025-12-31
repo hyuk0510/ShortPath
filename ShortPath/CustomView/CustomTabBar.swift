@@ -7,6 +7,36 @@
 
 import UIKit
 
+enum Buttons: CaseIterable {
+    case home
+    case favorite
+    case setting
+    
+    var title: String {
+        switch self {
+        case .home: return "홈"
+        case .favorite: return "즐겨찾기"
+        case .setting: return "설정"
+        }
+    }
+    
+    var defaultImage: String {
+        switch self {
+        case .home: return "pencil.circle"
+        case .favorite: return "star"
+        case .setting: return "square.and.pencil.circle"
+        }
+    }
+    
+    var selectedImage: String {
+        switch self {
+        case .home: return "pencil.circle.fill"
+        case .favorite: return "star.fill"
+        case .setting: return "square.and.pencil.circle.fill"
+        }
+    }
+}
+
 final class CustomTabBar: UIView {
     
     private let stackView: UIStackView = {
@@ -20,16 +50,15 @@ final class CustomTabBar: UIView {
         return view
     }()
     
-    private let homeButton = CustomTabButton(systemName: "pencil.circle", title: "홈", selectedImage: "pencil.circle.fill")
-    private let favoriteButton = CustomTabButton(systemName: "star", title: "즐겨찾기", selectedImage: "star.fill")
-    private let settingButton = CustomTabButton(systemName: "square.and.pencil.circle", title: "설정", selectedImage: "square.and.pencil.circle.fill")
-            
+    private var buttons: [Buttons: CustomTabButton] = [:]
+    private var selectedTab: Buttons?
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
         setUpView()
         setShadow()
-        buttonTapped(homeButton)
+        buttonTapped(buttons[Buttons.home] ?? CustomTabButton())
     }
     
     required init?(coder: NSCoder) {
@@ -38,14 +67,15 @@ final class CustomTabBar: UIView {
     
     private func setUpView() {
         addSubview(stackView)
-        [homeButton, favoriteButton, settingButton].forEach {
-            stackView.addArrangedSubview($0)
-            $0.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
+        
+        Buttons.allCases.forEach { tab in
+            let button = CustomTabButton(defaultImage: tab.defaultImage, title: tab.title, selectedImage: tab.selectedImage)
+            
+            buttons[tab] = button
+            button.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
+            stackView.addArrangedSubview(button)
         }
         
-        homeButton.tag = 0
-        favoriteButton.tag = 1
-        settingButton.tag = 2
         
         stackView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -56,12 +86,25 @@ final class CustomTabBar: UIView {
     
     @objc
     private func buttonTapped(_ sender: CustomTabButton) {
-        select(sender.tag)
+        guard let tab = buttons.first(where: { $0.value == sender })?.key else { return }
+        
+        select(tab)
     }
     
-    private func select(_ index: Int) {
-        for (i, button) in [homeButton, favoriteButton, settingButton].enumerated() {
-            button.isSelected = (i == index)
+    private func select(_ tab: Buttons) {
+        selectedTab = tab
+        
+        for (type, button) in buttons {
+            button.isSelected = (type == tab)
+            button.setNeedsUpdateConfiguration()
+        }
+    }
+    
+    func deselectAll() {
+        selectedTab = nil
+        
+        for button in buttons.values {
+            button.isSelected = false
             button.setNeedsUpdateConfiguration()
         }
     }

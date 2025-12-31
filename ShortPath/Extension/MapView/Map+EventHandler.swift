@@ -21,6 +21,6 @@ extension MapViewController: KakaoMapEventDelegate {
     }
     
     func kakaoMapDidTapped(kakaoMap: KakaoMap, point: CGPoint) {
-        
+        delegate?.mapDidReceiveUserInteraction()
     }
 }

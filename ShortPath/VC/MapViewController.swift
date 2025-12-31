@@ -67,4 +67,6 @@ final class MapViewController: UIViewController, MapControllerDelegate {
     var tappedImage: UIImage!
     
     var _cameraStartHandler: DisposableEventHandler?
+    
+    weak var delegate: MapInteractionDelegate?
 }

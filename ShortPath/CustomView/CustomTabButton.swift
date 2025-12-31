@@ -13,10 +13,10 @@ final class CustomTabButton: UIButton {
     var title: String!
     var selectedImage: String!
     
-    init(systemName: String, title: String, selectedImage: String) {
+    init(defaultImage: String, title: String, selectedImage: String) {
         super.init(frame: .zero)
         
-        self.defaultImage = systemName
+        self.defaultImage = defaultImage
         self.title = title
         self.selectedImage = selectedImage
         

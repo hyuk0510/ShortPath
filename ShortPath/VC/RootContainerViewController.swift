@@ -8,6 +8,7 @@
 import UIKit
 
 final class RootContainerViewController: UIViewController {
+    
     private let mapVC = MapViewController()
     private let customTabBar = CustomTabBar()
     
@@ -26,6 +27,7 @@ final class RootContainerViewController: UIViewController {
     private func setupMap() {
         addChild(mapVC)
         view.addSubview(mapVC.view)
+        mapVC.delegate = self
         mapVC.view.frame = view.bounds
         mapVC.didMove(toParent: self)
     }
@@ -42,5 +44,11 @@ final class RootContainerViewController: UIViewController {
             width: view.bounds.width,
             height: height
         )
+    }
+}
+
+extension RootContainerViewController: MapInteractionDelegate {
+    func mapDidReceiveUserInteraction() {
+        customTabBar.deselectAll()
     }
 }
