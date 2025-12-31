@@ -19,4 +19,8 @@ extension MapViewController: KakaoMapEventDelegate {
     func updateCameraEventHandler() {
         kakaoMap.eventDelegate = self
     }
+    
+    func kakaoMapDidTapped(kakaoMap: KakaoMap, point: CGPoint) {
+        
+    }
 }

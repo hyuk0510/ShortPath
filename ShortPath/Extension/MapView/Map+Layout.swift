@@ -49,13 +49,13 @@ extension MapViewController {
         print("addView OK")
         
         kakaoMap.viewRect = mapContainer!.bounds    //뷰 add 도중에 resize 이벤트가 발생한 경우 이벤트를 받지 못했을 수 있음. 원하는 뷰 사이즈로 재조정.
-        setKakaoMapLogo()
         
         if let location = currentLocation {
             moveCameraToCurrentLocation(location)
             createLabelLayer()
             createPoiStyle()
             createPois(location)
+            positionUI()
         }
         
         viewInit(viewName: viewName)

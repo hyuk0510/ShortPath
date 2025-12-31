@@ -8,6 +8,7 @@
 import UIKit
 import KakaoMapsSDK
 import CoreLocation
+import RxSwift
 
 final class MapViewController: UIViewController, MapControllerDelegate {
     

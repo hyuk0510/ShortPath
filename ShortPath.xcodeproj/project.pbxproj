@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		D856AFFB2EDAE7590053E159 /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = D856AFFA2EDAE7590053E159 /* KakaoMapsSDK-SPM */; };
 		D856AFFE2EDB1AF40053E159 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = D856AFFD2EDB1AF40053E159 /* SnapKit */; };
+		D856B0DD2F012B8C0053E159 /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = D856B0DC2F012B8C0053E159 /* RxRelay */; };
+		D856B0DF2F012B8C0053E159 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D856B0DE2F012B8C0053E159 /* RxSwift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,7 +43,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D856B0DD2F012B8C0053E159 /* RxRelay in Frameworks */,
 				D856AFFB2EDAE7590053E159 /* KakaoMapsSDK-SPM in Frameworks */,
+				D856B0DF2F012B8C0053E159 /* RxSwift in Frameworks */,
 				D856AFFE2EDB1AF40053E159 /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -87,6 +91,8 @@
 			packageProductDependencies = (
 				D856AFFA2EDAE7590053E159 /* KakaoMapsSDK-SPM */,
 				D856AFFD2EDB1AF40053E159 /* SnapKit */,
+				D856B0DC2F012B8C0053E159 /* RxRelay */,
+				D856B0DE2F012B8C0053E159 /* RxSwift */,
 			);
 			productName = ShortPath;
 			productReference = D856AFDB2EDAE2CB0053E159 /* ShortPath.app */;
@@ -119,6 +125,7 @@
 			packageReferences = (
 				D856AFF92EDAE7590053E159 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */,
 				D856AFFC2EDB1AF40053E159 /* XCRemoteSwiftPackageReference "SnapKit" */,
+				D856B0DB2F012B8C0053E159 /* XCRemoteSwiftPackageReference "RxSwift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D856AFDC2EDAE2CB0053E159 /* Products */;
@@ -166,7 +173,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -199,7 +206,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -376,6 +383,14 @@
 				minimumVersion = 5.7.1;
 			};
 		};
+		D856B0DB2F012B8C0053E159 /* XCRemoteSwiftPackageReference "RxSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ReactiveX/RxSwift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.9.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -388,6 +403,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D856AFFC2EDB1AF40053E159 /* XCRemoteSwiftPackageReference "SnapKit" */;
 			productName = SnapKit;
+		};
+		D856B0DC2F012B8C0053E159 /* RxRelay */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D856B0DB2F012B8C0053E159 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxRelay;
+		};
+		D856B0DE2F012B8C0053E159 /* RxSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D856B0DB2F012B8C0053E159 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

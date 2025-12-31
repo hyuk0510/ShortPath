@@ -22,6 +22,14 @@ extension MapViewController {
         }
         
         mapController?.activateEngine()
+        
+        guard let sheet = presentingViewController?.sheetPresentationController, let containerView = sheet.containerView, let mapPan = mapView.gestureRecognizers?.first(where: { $0 is UIPanGestureRecognizer}) else { return }
+    
+        for gesture in containerView.gestureRecognizers ?? [] {
+            if gesture is UIPanGestureRecognizer {
+                mapPan.require(toFail: gesture)
+            }
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
