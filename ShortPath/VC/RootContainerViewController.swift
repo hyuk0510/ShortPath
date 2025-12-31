@@ -27,13 +27,13 @@ final class RootContainerViewController: UIViewController {
     private func setupMap() {
         addChild(mapVC)
         view.addSubview(mapVC.view)
-        mapVC.delegate = self
+        mapVC.mapInterActiveDelegate = self
         mapVC.view.frame = view.bounds
         mapVC.didMove(toParent: self)
     }
     
     private func presentTabBar() {
-        let height: CGFloat = 49 + view.safeAreaInsets.bottom
+        let height: CGFloat = 55 + view.safeAreaInsets.bottom
         
         view.addSubview(customTabBar)
         view.bringSubviewToFront(customTabBar)

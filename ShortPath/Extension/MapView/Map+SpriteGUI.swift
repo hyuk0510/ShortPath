@@ -36,7 +36,7 @@ extension MapViewController: GuiEventDelegate {
     func guiDidTapped(_ gui: KakaoMapsSDK.GuiBase, componentName: String) {
         locationManager.requestLocation()
         
-        isButtonActive = true
+        isGUIButtonActive = true
         updateGuiUI()
         
         if let location = locationManager.location {
@@ -45,7 +45,7 @@ extension MapViewController: GuiEventDelegate {
     }
     
     func updateGuiUI() {
-        button.image = isButtonActive ? tappedImage: normalImage
+        button.image = isGUIButtonActive ? tappedImage: normalImage
         spriteGui.updateGui()
     }
     

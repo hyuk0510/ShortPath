@@ -70,8 +70,8 @@ extension MapViewController {
     }
     
     func positionUI() {
-        positionKaKaoLogo(49 + view.safeAreaInsets.bottom)
-        positionGUI(49 + view.safeAreaInsets.bottom)
+        positionKaKaoLogo(55 + view.safeAreaInsets.bottom)
+        positionGUI(55 + view.safeAreaInsets.bottom)
     }
     
     func positionKaKaoLogo(_ y: CGFloat) {

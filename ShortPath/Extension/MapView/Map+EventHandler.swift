@@ -11,8 +11,10 @@ import KakaoMapsSDK
 extension MapViewController: KakaoMapEventDelegate {
     func cameraWillMove(kakaoMap: KakaoMap, by: MoveBy) {
         if by == .pan {
-            isButtonActive = false
+            isGUIButtonActive = false
             updateGuiUI()
+            
+            mapInterActiveDelegate?.mapDidReceiveUserInteraction()
         }
     }
     
@@ -21,6 +23,9 @@ extension MapViewController: KakaoMapEventDelegate {
     }
     
     func kakaoMapDidTapped(kakaoMap: KakaoMap, point: CGPoint) {
-        delegate?.mapDidReceiveUserInteraction()
+        if isGUIButtonActive {
+            return
+        }
+        mapInterActiveDelegate?.mapDidReceiveUserInteraction()
     }
 }
