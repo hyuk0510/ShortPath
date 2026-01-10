@@ -39,9 +39,6 @@ extension MapViewController {
     
     func viewInit(viewName: String) {
         print("OK")
-        
-        createSpriteGUI()
-        updateCameraEventHandler()
     }
     
     //addView 성공 이벤트 delegate. 추가적으로 수행할 작업을 진행한다.
@@ -55,9 +52,11 @@ extension MapViewController {
             createLabelLayer()
             createPoiStyle()
             createPois(location)
-            positionUI()
+            createSpriteGUI()
+            updateCameraEventHandler()
         }
         
+        setKaKaoLogo()
         viewInit(viewName: viewName)
     }
     

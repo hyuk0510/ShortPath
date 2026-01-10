@@ -7,10 +7,23 @@
 
 import UIKit
 
-final class HomeTabViewController: BottomSheetViewController {
+final class HomeTabViewController: UIViewController {
+    
+    private let label = {
+        let view = UILabel()
+        view.text = "홈"
+        view.textColor = .black
+        return view
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-                
+             
+        view.addSubview(label)
+        
+        label.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(10)
+            make.leading.equalToSuperview().offset(10)
+        }
     }
 }

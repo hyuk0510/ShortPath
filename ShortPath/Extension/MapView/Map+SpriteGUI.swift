@@ -20,6 +20,7 @@ extension MapViewController: GuiEventDelegate {
         spriteGui.splitLineColor = UIColor.white
         
         spriteGui.origin = GuiAlignment(vAlign: .bottom, hAlign: .right)
+        spriteGui.position = CGPoint(x: 30, y: 200)
         
         normalImage = makeCirculaerButtonImage(iconAlpha: 0.2)
         tappedImage = makeCirculaerButtonImage(iconAlpha: 1.0)

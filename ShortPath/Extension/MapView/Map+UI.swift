@@ -69,16 +69,7 @@ extension MapViewController {
         }
     }
     
-    func positionUI() {
-        positionKaKaoLogo(55 + view.safeAreaInsets.bottom)
-        positionGUI(55 + view.safeAreaInsets.bottom)
-    }
-    
-    func positionKaKaoLogo(_ y: CGFloat) {
-        kakaoMap.setLogoPosition(origin: GuiAlignment(vAlign: .bottom, hAlign: .left), position: CGPoint(x: 30, y: y + 50))
-    }
-    
-    func positionGUI(_ y: CGFloat) {
-        spriteGui.position = CGPoint(x: 30, y: y + 50)
+    func setKaKaoLogo() {
+        kakaoMap.setLogoPosition(origin: GuiAlignment(vAlign: .bottom, hAlign: .left), position: CGPoint(x: 30, y: 100))
     }
 }

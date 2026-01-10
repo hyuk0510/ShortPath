@@ -41,7 +41,7 @@ final class CustomTabButton: UIButton {
         config.attributedTitle = AttributedString(title, attributes: titleContainer)
         config.baseForegroundColor = .black
         config.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 15)
-        config.imagePadding = 2
+        config.imagePadding = 5
         config.imagePlacement = .top
         
         self.configuration = config

@@ -13,5 +13,11 @@ extension UIView {
             self.layer.render(in: $0.cgContext)
         }
     }
+    
+    func setShadow() {
+        layer.shadowOpacity = 0.08
+        layer.shadowColor = UIColor.black.cgColor
+        layer.shadowRadius = 3
+    }
 }
 

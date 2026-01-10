@@ -53,6 +53,8 @@ final class CustomTabBar: UIView {
     private var buttons: [Buttons: CustomTabButton] = [:]
     private var selectedTab: Buttons?
     
+    weak var tabButtonDelegate: CustomTabBarDelegate?
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -67,6 +69,7 @@ final class CustomTabBar: UIView {
     
     private func setUpView() {
         addSubview(stackView)
+        translatesAutoresizingMaskIntoConstraints = false
         
         Buttons.allCases.forEach { tab in
             let button = CustomTabButton(defaultImage: tab.defaultImage, title: tab.title, selectedImage: tab.selectedImage)
@@ -89,6 +92,8 @@ final class CustomTabBar: UIView {
         guard let tab = buttons.first(where: { $0.value == sender })?.key else { return }
         
         select(tab)
+        
+        tabButtonDelegate?.didSelectTab(tab)
     }
     
     private func select(_ tab: Buttons) {
@@ -107,10 +112,5 @@ final class CustomTabBar: UIView {
             button.isSelected = false
             button.setNeedsUpdateConfiguration()
         }
-    }
-    
-    private func setShadow() {
-        layer.shadowOpacity = 0.08
-        layer.shadowColor = UIColor.black.cgColor
     }
 }
