@@ -123,7 +123,7 @@ final class RootContainerViewController: UIViewController {
             recognizer.setTranslation(.zero, in: view)
             
         case .ended, .cancelled:
-            let targetMode: Mode = resolveTargetMode(currentMode: mode, velocityY: velocityY, currentTop: clampedY)
+            let targetMode: Mode = nearestMode(currentTop: clampedY, currentMode: mode, velocityY: velocityY)
             setMode(targetMode)
             
         default:
@@ -192,43 +192,33 @@ final class RootContainerViewController: UIViewController {
     
     private func nearestMode(
         currentTop: CGFloat,
+        currentMode: Mode,
         velocityY: CGFloat
     ) -> Mode {
         
-        // 빠르게 튕기면 방향 우선
-        if abs(velocityY) > 700 {
-            return velocityY > 0 ? .tip : .max
-        }
+        let maxTop = Const.bottomSheetYPosition(.max)
+        let mediumTop = Const.bottomSheetYPosition(.medium)
         
-        let candidates: [(Mode, CGFloat)] = [
-            (.max, abs(currentTop - Const.bottomSheetYPosition(.max))),
-            (.medium, abs(currentTop - Const.bottomSheetYPosition(.medium))),
-            (.tip, abs(currentTop - Const.bottomSheetYPosition(.tip)))
-        ]
+        let margin: CGFloat = 5
         
-        return candidates.min(by: { $0.1 < $1.1 })!.0
-    }
-    
-    private func resolveTargetMode(
-        currentMode: Mode,
-        velocityY: CGFloat,
-        currentTop: CGFloat
-    ) -> Mode {
-        
-        // 🔴 max 상태에서 아래로 드래그 → 무조건 medium
-        if currentMode == .max, velocityY > 0 {
-            return .medium
-        }
-        
-        // 🔴 max 상태에서 위로 드래그 → 그대로 max
-        if currentMode == .max, velocityY <= 0 {
+        switch currentMode {
+        case .max:
+            if currentTop > maxTop + margin {
+                return .medium
+            }
             return .max
+        case .medium:
+            if currentTop < mediumTop - margin {
+                return .max
+            }
+            if currentTop > mediumTop + margin {
+                return .tip
+            }
+            return .medium
+        case .tip:
+            break
         }
-        
-        // 🔵 그 외 상태에서는 기존 스냅 규칙 사용
-        return nearestMode(
-            currentTop: currentTop,
-            velocityY: velocityY
-        )
+    
+        return currentMode
     }
 }
