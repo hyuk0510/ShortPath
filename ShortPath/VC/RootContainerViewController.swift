@@ -13,34 +13,35 @@ final class RootContainerViewController: UIViewController {
     private let mapVC = MapViewController()
     let customTabBar = CustomTabBar()
     private let bottomSheetViewContainer = BottomSheetView()
-            
-    private let mapOverlayView = UIView()
+    private let searchBarContainer = SearchBarContainerView()
     
     private var currentBottomSheetVC: UIViewController?
         
     private var sheetTopConstraint: Constraint!
         
     private(set) var mode: Mode = .medium
-    
-    var testView: UIView {
-        let view = UIView()
-        view.backgroundColor = .red
-        view.frame = CGRect(x: 30, y: 300, width: 20, height: 20)
-        return view
-    }
                 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setUpMap()
-//        setUpOverlay()
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(true)
-        
+        setUpSearchBar()
         setUpBottomSheet()
         setUpTabBar()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+                
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        
+        guard let nav = navigationController?.navigationBar else { return }
+        nav.standardAppearance = appearance
+        nav.scrollEdgeAppearance = appearance
+        nav.isHidden = false
+        
+        self.navigationItem.titleView = searchBarContainer
     }
     
     private func setUpMap() {
@@ -56,7 +57,7 @@ final class RootContainerViewController: UIViewController {
     }
     
     private func setUpTabBar() {
-        let height: CGFloat = 60 + view.safeAreaInsets.bottom
+        let height: CGFloat = UIScreen.main.bounds.height - Const.bottomSheetYPosition(.tip) + view.safeAreaInsets.bottom
         
         view.addSubview(customTabBar)
         view.bringSubviewToFront(customTabBar)
@@ -91,19 +92,14 @@ final class RootContainerViewController: UIViewController {
         selectTab(.home)
     }
     
-//    private func setUpOverlay() {
-//        mapOverlayView.isUserInteractionEnabled = false
-//        mapOverlayView.backgroundColor = .clear
-//        
-//        view.addSubview(mapOverlayView)
-//        view.bringSubviewToFront(mapOverlayView)
-//        
-//        mapOverlayView.snp.makeConstraints { make in
-//            make.edges.equalToSuperview()
-//        }
-//        
-//        mapOverlayView.addSubview(testView)
-//    }
+    private func setUpSearchBar() {
+        searchBarContainer.setShadow()
+                
+        searchBarContainer.onTap = {
+            let vc = SearchViewController()
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+    }
     
     @objc
     private func didPan(_ recognizer: UIPanGestureRecognizer) {

@@ -21,11 +21,6 @@ extension MapViewController {
         mapView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-    }
-    
-    func addViews() {
-        let defaultPosition: MapPoint = MapPoint(longitude: 126.9137, latitude: 37.5491)
-        let mapViewInfo: MapviewInfo = MapviewInfo(viewName: "mapview", viewInfoName: "map", defaultPosition: defaultPosition, defaultLevel: 17)
         
         mapContainer = mapView
         
@@ -33,6 +28,11 @@ extension MapViewController {
         mapController!.delegate = self
         
         mapController?.prepareEngine()
+    }
+    
+    func addViews() {
+        let defaultPosition: MapPoint = MapPoint(longitude: 126.9137, latitude: 37.5491)
+        let mapViewInfo: MapviewInfo = MapviewInfo(viewName: "mapview", viewInfoName: "map", defaultPosition: defaultPosition, defaultLevel: 17)
         
         mapController?.addView(mapViewInfo)
     }

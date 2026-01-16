@@ -12,6 +12,10 @@ extension MapViewController {
     override func viewWillAppear(_ animated: Bool) {
         addObservers()
         _appear = true
+        
+        if mapController?.isEngineActive == false {
+            mapController?.activateEngine()
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -20,9 +24,7 @@ extension MapViewController {
         if mapController == nil {
             addViews()
         }
-        
-        mapController?.activateEngine()
-        
+                
         guard let sheet = presentingViewController?.sheetPresentationController, let containerView = sheet.containerView, let mapPan = mapView.gestureRecognizers?.first(where: { $0 is UIPanGestureRecognizer}) else { return }
     
         for gesture in containerView.gestureRecognizers ?? [] {
@@ -39,6 +41,5 @@ extension MapViewController {
     
     override func viewDidDisappear(_ animated: Bool) {
         removeObservers()
-        mapController?.resetEngine()
     }
 }
