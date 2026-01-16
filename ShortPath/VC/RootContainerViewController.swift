@@ -39,9 +39,22 @@ final class RootContainerViewController: UIViewController {
         guard let nav = navigationController?.navigationBar else { return }
         nav.standardAppearance = appearance
         nav.scrollEdgeAppearance = appearance
-        nav.isHidden = false
+        nav.isHidden = true
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         
-        self.navigationItem.titleView = searchBarContainer
+        view.setNeedsLayout()
+        view.layoutIfNeeded()
+    }
+    
+    override func viewSafeAreaInsetsDidChange() {
+        super.viewSafeAreaInsetsDidChange()
+        
+        searchBarContainer.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+        }
     }
     
     private func setUpMap() {
@@ -93,8 +106,15 @@ final class RootContainerViewController: UIViewController {
     }
     
     private func setUpSearchBar() {
+        view.addSubview(searchBarContainer)
         searchBarContainer.setShadow()
                 
+        searchBarContainer.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.height.equalTo(48)
+        }
+        
         searchBarContainer.onTap = {
             let vc = SearchViewController()
             self.navigationController?.pushViewController(vc, animated: true)

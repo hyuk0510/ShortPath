@@ -27,18 +27,21 @@ final class SearchViewController: UIViewController {
         guard let nav = navigationController?.navigationBar else { return }
         nav.standardAppearance = appearance
         nav.scrollEdgeAppearance = appearance
+        nav.isHidden = false
         
         self.navigationItem.titleView = navView
     }
     
     private func setNavBar() {
         navigationItem.hidesBackButton = true
+        navigationItem.largeTitleDisplayMode = .always
+        self.navigationController?.navigationBar.prefersLargeTitles = true
         
         navView.backButton.addTarget(self, action: #selector(popVC), for: .touchUpInside)
     }
     
     @objc
     private func popVC() {
-        navigationController?.popViewController(animated: false)
+        self.navigationController?.popViewController(animated: false)
     }
 }

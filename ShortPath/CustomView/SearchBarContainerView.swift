@@ -9,22 +9,23 @@ import UIKit
 
 final class SearchBarContainerView: UIView {
     
-    private let searchBar = {
+    private let container = CustomLeftViewContainer()
+    
+    private lazy var searchBar = {
         let view = UISearchBar()
         view.backgroundColor = .white
         view.barTintColor = .black
         view.searchBarStyle = .minimal
-        view.searchTextField.attributedPlaceholder = NSAttributedString(string: "장소 ･ 주소 검색", attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
-        view.searchTextField.leftView?.tintColor = .black
+        view.searchTextField.attributedPlaceholder = NSAttributedString(string: "장소 ･ 주소 검색", attributes: [
+            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16.0, weight: .medium),
+            NSAttributedString.Key.foregroundColor: UIColor.gray])
+        view.searchTextField.leftView = container
+        view.searchTextField.leftViewMode = .always
         view.searchTextField.borderStyle = .none
         return view
     }()
     
     var onTap: (() -> Void)?
-    
-    override var intrinsicContentSize: CGSize {
-        CGSize(width: UIScreen.main.bounds.width - 16, height: 44)
-    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -38,14 +39,14 @@ final class SearchBarContainerView: UIView {
     
     private func configure() {
         addSubview(searchBar)
-        
+
         searchBar.clipsToBounds = true
         searchBar.layer.cornerRadius = 12
         
         searchBar.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(8)
+            make.leading.trailing.equalToSuperview()
             make.centerY.equalToSuperview()
-            make.height.equalTo(44)
+            make.height.equalToSuperview()
         }
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(didTap))

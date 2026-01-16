@@ -23,14 +23,14 @@ final class CustomNavView: UIView {
     }
     
     override var intrinsicContentSize: CGSize {
-        CGSize(width: UIScreen.main.bounds.width - 16, height: 44)
+        CGSize(width: UIScreen.main.bounds.width, height: 80)
     }
     
     private func configure() {
         backButton.tintColor = .black
         backButton.setImage(UIImage(systemName: "chevron.left"), for: .normal)
         
-        textField.placeholder = "장소 ･ 주소 검색"
+        textField.attributedPlaceholder = NSAttributedString(string: "장소 ･ 주소 검색", attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
         textField.tintColor = .systemBlue
         textField.textColor = .black
         
@@ -41,16 +41,19 @@ final class CustomNavView: UIView {
         stackView.backgroundColor = .white
         stackView.layer.borderColor = UIColor.black.cgColor
         stackView.layer.borderWidth = 1
-        stackView.layer.cornerRadius = 15
+        stackView.layer.cornerRadius = 12
+        stackView.isLayoutMarginsRelativeArrangement = true
+        stackView.layoutMargins = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
         
         addSubview(stackView)
         
         stackView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(8)
+            make.top.equalToSuperview().offset(8)
+            make.height.equalTo(48)
         }
         
         backButton.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(8)
             make.width.height.equalTo(32)
         }
     }
