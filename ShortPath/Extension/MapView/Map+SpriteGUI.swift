@@ -11,6 +11,8 @@ import KakaoMapsSDK
 extension MapViewController: GuiEventDelegate {
         
     func createSpriteGUI() {
+        guard let kakaoMap = kakaoMap else { return }
+        
         let spriteLayer = kakaoMap.getGuiManager().spriteGuiLayer
         let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
         let safeAreaBottom = windowScene?.windows.first?.safeAreaInsets.bottom ?? 0
@@ -20,7 +22,7 @@ extension MapViewController: GuiEventDelegate {
         spriteGui.splitLineColor = UIColor.white
         
         spriteGui.origin = GuiAlignment(vAlign: .bottom, hAlign: .right)
-        spriteGui.position = CGPoint(x: 30, y: 200)
+        spriteGui.position = CGPoint(x: 30, y: 100)
         
         normalImage = makeCirculaerButtonImage(iconAlpha: 0.2)
         tappedImage = makeCirculaerButtonImage(iconAlpha: 1.0)
@@ -40,9 +42,11 @@ extension MapViewController: GuiEventDelegate {
         isGUIButtonActive = true
         updateGuiUI()
         
-        if let location = locationManager.location {
-            moveCameraToCurrentLocation(location)
+        if let _ = locationManager.location {
+            moveCameraToCurrentLocation()
         }
+        
+        isPanned = false
     }
     
     func updateGuiUI() {

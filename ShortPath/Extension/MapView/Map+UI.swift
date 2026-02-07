@@ -70,6 +70,52 @@ extension MapViewController {
     }
     
     func setKaKaoLogo() {
-        kakaoMap.setLogoPosition(origin: GuiAlignment(vAlign: .bottom, hAlign: .left), position: CGPoint(x: 30, y: 100))
+        kakaoMap?.setLogoPosition(origin: GuiAlignment(vAlign: .top, hAlign: .left), position: CGPoint(x: 30, y: 150))
+    }
+    
+    func applyVisualOffset(offset: CGFloat) {
+        mapContainer?.transform = CGAffineTransform(translationX: 0, y: -offset)
+    }
+    
+    func bottomSheetDidSnap(to mode: Mode, height: CGFloat) {
+        mapContainer?.transform = .identity
+        guard mode != .max, !isPanned else { return }
+                
+//        snapCameraToVisibleCenter(bottomSheetHeight: height)
+        updateBottomMargin(bottomSheetHeight: height)
+        moveCameraToCurrentLocation()
+    }
+    
+    func snapCameraToVisibleCenter(bottomSheetHeight: CGFloat) {
+        guard let location = currentLocation, let kakaoMap = kakaoMap else { return }
+                        
+        let centerY = bottomSheetHeight / 2
+        
+        if let _ = targetMapPoint {
+        
+        } else {
+            targetMapPoint = kakaoMap.getPosition(CGPoint(x: view.bounds.midX, y: view.bounds.midY + centerY))
+        }
+        
+        let targetLon = targetMapPoint?.wgsCoord.longitude ?? location.coordinate.longitude
+        let targetLat = targetMapPoint?.wgsCoord.latitude ?? location.coordinate.latitude
+        
+        kakaoMap.moveCamera(CameraUpdate.make(cameraPosition: CameraPosition(target: MapPoint(longitude: targetLon, latitude: targetLat), zoomLevel: 17, rotation: 0, tilt: 0)))
+    }
+//    
+//    func tryApplyInitialCameraIfPossible() {
+//        guard hasInitialLocation, isMapReady, let _ = currentLocation else { return }
+//        
+//        initialLocationDelegate?.mapViewControllerDidReceivedInitialLocation(self)
+//        
+//        hasInitialLocation = true
+//    }
+    
+    func updateBottomMargin(bottomSheetHeight: CGFloat) {
+        kakaoMap?.setMargins(UIEdgeInsets(top: 0, left: 0, bottom: bottomSheetHeight, right: 0))
+    }
+    
+    func resetMargin() {
+        kakaoMap?.resetMargins()
     }
 }

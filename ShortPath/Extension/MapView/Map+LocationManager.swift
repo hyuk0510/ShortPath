@@ -67,8 +67,11 @@ extension MapViewController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.last {
             currentLocation = location
-            
             updateCurrentLocationPoi(location)
+            
+            if let _ = currentLocation {
+                hasInitialLocation = true
+            }
         }
         
         locationManager.stopUpdatingLocation()
@@ -82,10 +85,18 @@ extension MapViewController: CLLocationManagerDelegate {
         print("ERROR, 위치 정보를 가져오기 못하였습니다.")
     }
     
-    func moveCameraToCurrentLocation(_ location: CLLocation) {
+//    func firstCameraMove(bottomSheetY: CGFloat) {
+//        if !isPanned {
+//            containerDidResized(CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height - bottomSheetY))
+//        }
+//    }
+    
+    func moveCameraToCurrentLocation() {
+        guard let location = currentLocation else { return }
+        
         let currentPosition = MapPoint(longitude: location.coordinate.longitude, latitude: location.coordinate.latitude)
         
-        kakaoMap.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 17, mapView: kakaoMap))
+        kakaoMap?.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 17, mapView: kakaoMap!))
     }
     
     func updateCurrentLocationPoi(_ location: CLLocation) {

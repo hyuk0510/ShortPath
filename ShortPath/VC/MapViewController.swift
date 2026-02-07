@@ -32,26 +32,28 @@ final class MapViewController: UIViewController, MapControllerDelegate {
         print("deinit")
     }
     
-    lazy var mapView: KMViewContainer = {
-            let view = KMViewContainer()
-            return view
-    }()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
                 
         mapSetupUI()
-        addViews()
         setLM()
         checkDeviceLocationAuthorization()
     }
     
     var mapContainer: KMViewContainer?
     var mapController: KMController?
-    lazy var kakaoMap: KakaoMap = mapController?.getView("mapview") as! KakaoMap
+    var kakaoMap: KakaoMap?
+    
     var _observerAdded: Bool = false
     var _auth: Bool = false
     var _appear: Bool = false
+    
+    var isMapReady: Bool = false
+    var isPanned: Bool = false
+    var didApplyInitialCamera: Bool = false
+    var hasInitialLocation: Bool = false
+    
+    var targetMapPoint: MapPoint?
     
     let geocoder = CLGeocoder()
     
@@ -68,4 +70,5 @@ final class MapViewController: UIViewController, MapControllerDelegate {
     var _cameraStartHandler: DisposableEventHandler?
     
     weak var mapInterActiveDelegate: MapInteractionDelegate?
+    weak var initialLocationDelegate: MapInitialLocationDelegate?
 }

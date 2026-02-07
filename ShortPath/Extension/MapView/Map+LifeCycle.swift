@@ -25,7 +25,7 @@ extension MapViewController {
             addViews()
         }
                 
-        guard let sheet = presentingViewController?.sheetPresentationController, let containerView = sheet.containerView, let mapPan = mapView.gestureRecognizers?.first(where: { $0 is UIPanGestureRecognizer}) else { return }
+        guard let sheet = presentingViewController?.sheetPresentationController, let containerView = sheet.containerView, let mapPan = mapContainer?.gestureRecognizers?.first(where: { $0 is UIPanGestureRecognizer}) else { return }
     
         for gesture in containerView.gestureRecognizers ?? [] {
             if gesture is UIPanGestureRecognizer {

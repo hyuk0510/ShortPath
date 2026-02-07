@@ -23,7 +23,7 @@ final class CustomNavView: UIView {
     }
     
     override var intrinsicContentSize: CGSize {
-        CGSize(width: UIScreen.main.bounds.width, height: 80)
+        CGSize(width: UIScreen.main.bounds.width, height: 48)
     }
     
     private func configure() {
@@ -48,9 +48,8 @@ final class CustomNavView: UIView {
         addSubview(stackView)
         
         stackView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(8)
-            make.top.equalToSuperview().offset(8)
-            make.height.equalTo(48)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalToSuperview()
         }
         
         backButton.snp.makeConstraints { make in

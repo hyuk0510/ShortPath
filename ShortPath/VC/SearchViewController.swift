@@ -22,7 +22,7 @@ final class SearchViewController: UIViewController {
         super.viewWillAppear(animated)
         
         let appearance = UINavigationBarAppearance()
-        appearance.configureWithDefaultBackground()
+        appearance.configureWithTransparentBackground()
         
         guard let nav = navigationController?.navigationBar else { return }
         nav.standardAppearance = appearance

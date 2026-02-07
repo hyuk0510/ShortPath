@@ -14,25 +14,25 @@ extension MapViewController {
     func mapSetupUI() {
         view.backgroundColor = .white
         
-        [mapView].forEach {
+        mapContainer = KMViewContainer()
+        
+        [mapContainer!].forEach {
             self.view.addSubview($0)
         }
         
-        mapView.snp.makeConstraints {
+        mapContainer?.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-        
-        mapContainer = mapView
-        
+                
         mapController = KMController(viewContainer: mapContainer!)
-        mapController!.delegate = self
+        mapController?.delegate = self
         
         mapController?.prepareEngine()
     }
     
     func addViews() {
         let defaultPosition: MapPoint = MapPoint(longitude: 126.9137, latitude: 37.5491)
-        let mapViewInfo: MapviewInfo = MapviewInfo(viewName: "mapview", viewInfoName: "map", defaultPosition: defaultPosition, defaultLevel: 17)
+        let mapViewInfo: MapviewInfo = MapviewInfo(viewName: "mapview", viewInfoName: "map", defaultPosition: defaultPosition, defaultLevel: 6)
         
         mapController?.addView(mapViewInfo)
     }
@@ -44,19 +44,22 @@ extension MapViewController {
     //addView 성공 이벤트 delegate. 추가적으로 수행할 작업을 진행한다.
     func addViewSucceeded(_ viewName: String, viewInfoName: String) {
         print("addView OK")
+        kakaoMap = mapController?.getView("mapview") as? KakaoMap
+
+        kakaoMap?.viewRect = mapContainer!.bounds    //뷰 add 도중에 resize 이벤트가 발생한 경우 이벤트를 받지 못했을 수 있음. 원하는 뷰 사이즈로 재조정.
         
-        kakaoMap.viewRect = mapContainer!.bounds    //뷰 add 도중에 resize 이벤트가 발생한 경우 이벤트를 받지 못했을 수 있음. 원하는 뷰 사이즈로 재조정.
+        createLabelLayer()
+        createPoiStyle()
+        createSpriteGUI()
+        updateCameraEventHandler()
+        setKaKaoLogo()
         
         if let location = currentLocation {
-            moveCameraToCurrentLocation(location)
-            createLabelLayer()
-            createPoiStyle()
             createPois(location)
-            createSpriteGUI()
-            updateCameraEventHandler()
+            updateBottomMargin(bottomSheetHeight: Const.bottomSheetYPosition(.medium))
+            moveCameraToCurrentLocation()
         }
         
-        setKaKaoLogo()
         viewInit(viewName: viewName)
     }
     

@@ -12,6 +12,7 @@ import CoreLocation
 extension MapViewController {
     
     func createLabelLayer() {
+        guard let kakaoMap = kakaoMap else { return }
         let manager = kakaoMap.getLabelManager()
         
         let layerOption = LabelLayerOptions(layerID: "PoiLayer", competitionType: .none, competitionUnit: .symbolFirst, orderType: .rank, zOrder: 10001)
@@ -19,6 +20,7 @@ extension MapViewController {
     }
     
     func createPoiStyle() {
+        guard let kakaoMap = kakaoMap else { return }
         let manager = kakaoMap.getLabelManager()
         
         let red = TextStyle(fontSize: 20, fontColor: UIColor.white, strokeThickness: 2, strokeColor: UIColor.red)
@@ -39,6 +41,8 @@ extension MapViewController {
     }
     
     func createPois(_ location: CLLocation) {
+        guard let kakaoMap = kakaoMap else { return }
+        
         let manager = kakaoMap.getLabelManager()
         let layer = manager.getLabelLayer(layerID: "PoiLayer")
         let poiOption = PoiOptions(styleID: "customStyle1")
