@@ -28,8 +28,6 @@ final class RootContainerViewController: UIViewController {
         setUpSearchBar()
         setUpBottomSheet()
         setUpTabBar()
-        
-        mapViewControllerDidReceivedInitialLocation(mapVC)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -63,7 +61,6 @@ final class RootContainerViewController: UIViewController {
         addChild(mapVC)
         view.addSubview(mapVC.view)
         mapVC.mapInterActiveDelegate = self
-        mapVC.initialLocationDelegate = self
 
         mapVC.view.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -144,8 +141,6 @@ final class RootContainerViewController: UIViewController {
             let containerHeight = view.bounds.height
             let visibleMapheight = containerHeight - bottomSheetheight
             let offset = (containerHeight - visibleMapheight) * 0.5 - (Const.bottomSheetYPosition(.medium) * 0.5)
-            let maxOffset = bottomSheetheight * 0.5 - (Const.bottomSheetYPosition(.medium) * 0.5)
-            let clampedOffset = min(offset, maxOffset)
             
             if mode != .max, !mapVC.isPanned {
                 mapVC.applyVisualOffset(offset: offset)
@@ -155,14 +150,10 @@ final class RootContainerViewController: UIViewController {
             
         case .ended, .cancelled:
             let targetMode: Mode = nearestMode(currentTop: clampedY, currentMode: mode, velocityY: velocityY)
+            
+            mapVC.bottomSheetDidSnap(to: targetMode, height: view.bounds.height - Const.bottomSheetYPosition(targetMode))
             setMode(targetMode)
                         
-//            if targetMode == .medium {
-//                mapVC.kakaoMapMarginUpdate(bottomSheetHeight: Const.bottomSheetYPosition(targetMode))
-//            } else {
-//                mapVC.kakaoMapResetMargin()
-//            }
-            
         default:
             break
         }
@@ -205,7 +196,7 @@ final class RootContainerViewController: UIViewController {
         let targetTop = Const.bottomSheetYPosition(targetMode)
                 
         UIView.animate(
-            withDuration: 0.35,
+            withDuration: 0.4,
             delay: 0,
             usingSpringWithDamping: 0.9,
             initialSpringVelocity: 0.4,
@@ -213,10 +204,6 @@ final class RootContainerViewController: UIViewController {
         ) {
             self.sheetTopConstraint.update(offset: targetTop)
             self.view.layoutIfNeeded()
-        } completion: { _ in
-            let targetBottomSheetHeight = self.view.bounds.height - targetTop
-
-            self.mapVC.bottomSheetDidSnap(to: targetMode, height: targetBottomSheetHeight)
         }
     }
     

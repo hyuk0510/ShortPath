@@ -70,5 +70,4 @@ final class MapViewController: UIViewController, MapControllerDelegate {
     var _cameraStartHandler: DisposableEventHandler?
     
     weak var mapInterActiveDelegate: MapInteractionDelegate?
-    weak var initialLocationDelegate: MapInitialLocationDelegate?
 }

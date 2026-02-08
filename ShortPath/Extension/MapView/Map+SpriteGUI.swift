@@ -14,15 +14,12 @@ extension MapViewController: GuiEventDelegate {
         guard let kakaoMap = kakaoMap else { return }
         
         let spriteLayer = kakaoMap.getGuiManager().spriteGuiLayer
-        let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
-        let safeAreaBottom = windowScene?.windows.first?.safeAreaInsets.bottom ?? 0
         
         spriteGui.arrangement = .horizontal
         spriteGui.bgColor = UIColor.clear
         spriteGui.splitLineColor = UIColor.white
         
         spriteGui.origin = GuiAlignment(vAlign: .bottom, hAlign: .right)
-        spriteGui.position = CGPoint(x: 30, y: 100)
         
         normalImage = makeCirculaerButtonImage(iconAlpha: 0.2)
         tappedImage = makeCirculaerButtonImage(iconAlpha: 1.0)

@@ -69,8 +69,11 @@ extension MapViewController {
         }
     }
     
-    func setKaKaoLogo() {
-        kakaoMap?.setLogoPosition(origin: GuiAlignment(vAlign: .top, hAlign: .left), position: CGPoint(x: 30, y: 150))
+    func positionLogoGUI() {
+        let safeAreaBottom = view.safeAreaInsets.bottom
+        
+        spriteGui.position = CGPoint(x: 15, y: safeAreaBottom)
+        kakaoMap?.setLogoPosition(origin: GuiAlignment(vAlign: .bottom, hAlign: .left), position: CGPoint(x: 15, y: safeAreaBottom))
     }
     
     func applyVisualOffset(offset: CGFloat) {
@@ -81,38 +84,29 @@ extension MapViewController {
         mapContainer?.transform = .identity
         guard mode != .max, !isPanned else { return }
                 
-//        snapCameraToVisibleCenter(bottomSheetHeight: height)
         updateBottomMargin(bottomSheetHeight: height)
         moveCameraToCurrentLocation()
     }
     
-    func snapCameraToVisibleCenter(bottomSheetHeight: CGFloat) {
-        guard let location = currentLocation, let kakaoMap = kakaoMap else { return }
-                        
-        let centerY = bottomSheetHeight / 2
-        
-        if let _ = targetMapPoint {
-        
-        } else {
-            targetMapPoint = kakaoMap.getPosition(CGPoint(x: view.bounds.midX, y: view.bounds.midY + centerY))
-        }
-        
-        let targetLon = targetMapPoint?.wgsCoord.longitude ?? location.coordinate.longitude
-        let targetLat = targetMapPoint?.wgsCoord.latitude ?? location.coordinate.latitude
-        
-        kakaoMap.moveCamera(CameraUpdate.make(cameraPosition: CameraPosition(target: MapPoint(longitude: targetLon, latitude: targetLat), zoomLevel: 17, rotation: 0, tilt: 0)))
-    }
-//    
-//    func tryApplyInitialCameraIfPossible() {
-//        guard hasInitialLocation, isMapReady, let _ = currentLocation else { return }
+//    func snapCameraToVisibleCenter(bottomSheetHeight: CGFloat) {
+//        guard let location = currentLocation, let kakaoMap = kakaoMap else { return }
+//                        
+//        let centerY = bottomSheetHeight / 2
 //        
-//        initialLocationDelegate?.mapViewControllerDidReceivedInitialLocation(self)
+//        if let _ = targetMapPoint {
 //        
-//        hasInitialLocation = true
+//        } else {
+//            targetMapPoint = kakaoMap.getPosition(CGPoint(x: view.bounds.midX, y: view.bounds.midY + centerY))
+//        }
+//        
+//        let targetLon = targetMapPoint?.wgsCoord.longitude ?? location.coordinate.longitude
+//        let targetLat = targetMapPoint?.wgsCoord.latitude ?? location.coordinate.latitude
+//        
+//        kakaoMap.moveCamera(CameraUpdate.make(cameraPosition: CameraPosition(target: MapPoint(longitude: targetLon, latitude: targetLat), zoomLevel: 17, rotation: 0, tilt: 0)))
 //    }
     
     func updateBottomMargin(bottomSheetHeight: CGFloat) {
-        kakaoMap?.setMargins(UIEdgeInsets(top: 0, left: 0, bottom: bottomSheetHeight, right: 0))
+        kakaoMap?.setMargins(UIEdgeInsets(top: 48, left: 0, bottom: bottomSheetHeight, right: 0))
     }
     
     func resetMargin() {

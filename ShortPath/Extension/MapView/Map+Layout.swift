@@ -52,7 +52,7 @@ extension MapViewController {
         createPoiStyle()
         createSpriteGUI()
         updateCameraEventHandler()
-        setKaKaoLogo()
+        positionLogoGUI()
         
         if let location = currentLocation {
             createPois(location)
