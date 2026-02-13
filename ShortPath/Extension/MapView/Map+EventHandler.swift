@@ -14,8 +14,8 @@ extension MapViewController: KakaoMapEventDelegate {
             isGUIButtonActive = false
             updateGuiUI()
             
-            isPanned = true
             mapInterActiveDelegate?.mapDidReceiveUserInteraction()
+            isPanned = true
         }
     }
     
@@ -24,9 +24,6 @@ extension MapViewController: KakaoMapEventDelegate {
     }
     
     func kakaoMapDidTapped(kakaoMap: KakaoMap, point: CGPoint) {
-        if isGUIButtonActive {
-            return
-        }
         mapInterActiveDelegate?.mapDidReceiveUserInteraction()
     }
     

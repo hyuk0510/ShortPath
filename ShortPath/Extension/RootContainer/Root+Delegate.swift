@@ -11,6 +11,7 @@ extension RootContainerViewController: MapInteractionDelegate {
     func mapDidReceiveUserInteraction() {
         setMode(.tip)
         customTabBar.deselectAll()
+        mapVC.bottomSheetDidSnap(to: .tip, height: view.bounds.height - Const.bottomSheetYPosition(.tip))
     }
 }
 

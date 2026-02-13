@@ -10,7 +10,7 @@ import UIKit
 final class CustomNavView: UIView {
     
     let backButton = UIButton(type: .system)
-    let textField = UITextField()
+    let searchTextField = UITextField()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -30,11 +30,13 @@ final class CustomNavView: UIView {
         backButton.tintColor = .black
         backButton.setImage(UIImage(systemName: "chevron.left"), for: .normal)
         
-        textField.attributedPlaceholder = NSAttributedString(string: "장소 ･ 주소 검색", attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
-        textField.tintColor = .systemBlue
-        textField.textColor = .black
+        searchTextField.attributedPlaceholder = NSAttributedString(string: "장소 ･ 주소 검색", attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
+        searchTextField.tintColor = .systemBlue
+        searchTextField.textColor = .black
+        searchTextField.delegate = self
         
-        let stackView = UIStackView(arrangedSubviews: [backButton, textField])
+        let stackView = UIStackView(arrangedSubviews: [backButton, searchTextField])
+        
         stackView.axis = .horizontal
         stackView.spacing = 8
         stackView.alignment = .center
@@ -55,5 +57,21 @@ final class CustomNavView: UIView {
         backButton.snp.makeConstraints { make in
             make.width.height.equalTo(32)
         }
+    }
+}
+
+extension CustomNavView: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textField == searchTextField {
+            textField.becomeFirstResponder()
+        } else {
+            textField.resignFirstResponder()
+        }
+        
+        return true
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        
     }
 }

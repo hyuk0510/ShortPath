@@ -63,7 +63,7 @@ final class MapViewController: UIViewController, MapControllerDelegate {
     
     var spriteGui: SpriteGui = SpriteGui("SpriteGUI")
     let button = GuiButton("track_location")
-    var isGUIButtonActive = false
+    var isGUIButtonActive = true
     var normalImage: UIImage!
     var tappedImage: UIImage!
     
