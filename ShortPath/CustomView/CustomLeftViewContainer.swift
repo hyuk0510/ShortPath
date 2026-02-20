@@ -9,12 +9,11 @@ import UIKit
 
 final class CustomLeftViewContainer: UIView {
     
-    private let customLeftView = {
+    var customLeftView = {
         let view = UIImageView()
         view.image = UIImage(systemName: "magnifyingglass")
         view.tintColor = .black
         view.contentMode = .scaleAspectFit
-//        view.backgroundColor = .brown
         return view
     }()
     
@@ -40,6 +39,15 @@ final class CustomLeftViewContainer: UIView {
             make.centerY.equalToSuperview()
             make.width.equalTo(24)
             make.height.equalTo(24)
+        }
+    }
+    
+    func update(sheetMode: SheetMode) {
+        switch sheetMode {
+        case .home:
+            customLeftView.image = UIImage(systemName: "magnifyingglass")
+        case .placeDetail(_):
+            customLeftView.image = UIImage(systemName: "chevron.left")
         }
     }
 }

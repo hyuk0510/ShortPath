@@ -1,0 +1,50 @@
+//
+//  KakaoLocalManager.swift
+//  ShortPath
+//
+//  Created by 선상혁 on 2/13/26.
+//
+
+import Foundation
+
+enum NetworkError: Error {
+    case APIKeyError
+    case invalidURL
+    case invalidResponse
+}
+
+final class KakaoLocalManager {
+    static let shared = KakaoLocalManager()
+    
+    func fetchData(text: String) async throws -> PlaceInfo  {
+        var urlComponents = URLComponents(string: "https://dapi.kakao.com/v2/local/search/keyword.json")
+        
+        urlComponents?.queryItems = [
+            URLQueryItem(name: "query", value: text)
+        ]
+        
+        guard let url = urlComponents?.url else { throw NetworkError.invalidURL }
+        
+        var request: URLRequest = URLRequest(url: url)
+        
+        request.httpMethod = "GET"
+        request.setValue("KakaoAK \(APIKey.kakaoAPI)", forHTTPHeaderField: "Authorization")
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw NetworkError.invalidResponse
+        }
+        
+        print("statusCode:", httpResponse.statusCode)
+        print(String(data: data, encoding: .utf8) ?? "no body")
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw NetworkError.APIKeyError
+        }
+        
+        let result = try JSONDecoder().decode(PlaceInfo.self, from: data)
+        
+        return result
+    }
+}

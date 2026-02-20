@@ -9,9 +9,9 @@ import UIKit
 
 final class CustomTabButton: UIButton {
     
-    var defaultImage: String!
-    var title: String!
-    var selectedImage: String!
+    var defaultImage: String?
+    var title: String?
+    var selectedImage: String?
     
     init(defaultImage: String, title: String, selectedImage: String) {
         super.init(frame: .zero)
@@ -38,7 +38,7 @@ final class CustomTabButton: UIButton {
         var titleContainer = AttributeContainer()
         
         titleContainer.font = UIFont.systemFont(ofSize: 10, weight: .regular)
-        config.attributedTitle = AttributedString(title, attributes: titleContainer)
+        config.attributedTitle = AttributedString(title ?? "no title", attributes: titleContainer)
         config.baseForegroundColor = .black
         config.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 15)
         config.imagePadding = 5
@@ -58,16 +58,16 @@ final class CustomTabButton: UIButton {
             switch button.state {
             case .selected:
                 selectedContainer.foregroundColor = .black
-                configuration?.image = UIImage(systemName: selectedImage)
+                configuration?.image = UIImage(systemName: selectedImage ?? "xmark")
                 configuration?.background.backgroundColor = .white
-                configuration?.attributedTitle = AttributedString(self.title, attributes: selectedContainer)
+                configuration?.attributedTitle = AttributedString(self.title ?? "no title", attributes: selectedContainer)
             case .highlighted:
                 break
             default:
                 container.foregroundColor = .black
-                configuration?.image = UIImage(systemName: defaultImage)
+                configuration?.image = UIImage(systemName: defaultImage ?? "xmark")
                 configuration?.background.backgroundColor = .white
-                configuration?.attributedTitle = AttributedString(self.title, attributes: container)
+                configuration?.attributedTitle = AttributedString(self.title ?? "no title", attributes: container)
             }
             
             button.configuration = configuration

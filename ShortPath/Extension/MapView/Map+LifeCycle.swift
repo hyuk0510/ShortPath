@@ -9,6 +9,15 @@ import UIKit
 import KakaoMapsSDK
 
 extension MapViewController {
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+                
+        mapSetupUI()
+        setLM()
+        checkDeviceLocationAuthorization()
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         addObservers()
         _appear = true

@@ -32,14 +32,6 @@ final class MapViewController: UIViewController, MapControllerDelegate {
         print("deinit")
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-                
-        mapSetupUI()
-        setLM()
-        checkDeviceLocationAuthorization()
-    }
-    
     var mapContainer: KMViewContainer?
     var mapController: KMController?
     var kakaoMap: KakaoMap?

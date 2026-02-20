@@ -11,7 +11,10 @@ final class CustomNavView: UIView {
     
     let backButton = UIButton(type: .system)
     let searchTextField = UITextField()
+    let clearButton = CustomClearButton()
     
+    weak var textFieldDelegate: CustomNavViewDelegate?
+        
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -34,6 +37,13 @@ final class CustomNavView: UIView {
         searchTextField.tintColor = .systemBlue
         searchTextField.textColor = .black
         searchTextField.delegate = self
+        searchTextField.rightView = clearButton
+        searchTextField.rightViewMode = .whileEditing
+        searchTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
+
+        clearButton.isTouched = {
+            self.searchTextField.text = ""
+        }
         
         let stackView = UIStackView(arrangedSubviews: [backButton, searchTextField])
         
@@ -45,7 +55,7 @@ final class CustomNavView: UIView {
         stackView.layer.borderWidth = 1
         stackView.layer.cornerRadius = 12
         stackView.isLayoutMarginsRelativeArrangement = true
-        stackView.layoutMargins = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
+        stackView.layoutMargins = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 16)
         
         addSubview(stackView)
         
@@ -58,9 +68,32 @@ final class CustomNavView: UIView {
             make.width.height.equalTo(32)
         }
     }
+    
+    @objc
+    private func textDidChange(_ textField: UITextField) {
+        if textField.markedTextRange != nil { return }
+        
+        guard let text = textField.text, text.count >= 2 else { return }
+        
+        textFieldDelegate?.didChangeSearchText(text: text)
+    }
 }
 
 extension CustomNavView: UITextFieldDelegate {
+//    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+//        let currentText = textField.text ?? ""
+//        guard let stringRange = Range(range, in: currentText) else { return true }
+//        let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
+//        
+//        if textField.markedTextRange != nil { return true }
+//        
+//        guard updatedText.count >= 2 else { return true }
+//        
+//        textFieldDelegate?.didChangeSearchText(text: updatedText)
+//        
+//        return true
+//    }
+    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField == searchTextField {
             textField.becomeFirstResponder()
@@ -69,9 +102,5 @@ extension CustomNavView: UITextFieldDelegate {
         }
         
         return true
-    }
-    
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        
     }
 }

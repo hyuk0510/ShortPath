@@ -85,23 +85,34 @@ extension MapViewController: CLLocationManagerDelegate {
         print("ERROR, 위치 정보를 가져오기 못하였습니다.")
     }
     
-//    func firstCameraMove(bottomSheetY: CGFloat) {
-//        if !isPanned {
-//            containerDidResized(CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height - bottomSheetY))
-//        }
-//    }
-    
     func moveCameraToCurrentLocation() {
         guard let location = currentLocation else { return }
+        guard let kakaoMap = kakaoMap else { return }
         
         let currentPosition = MapPoint(longitude: location.coordinate.longitude, latitude: location.coordinate.latitude)
         
-        kakaoMap?.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 17, mapView: kakaoMap!))
+        kakaoMap.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 17, mapView: kakaoMap))
     }
     
     func updateCurrentLocationPoi(_ location: CLLocation) {
         if let currentPoi = currentLocationPoi {
             currentPoi.position = MapPoint(longitude: location.coordinate.longitude, latitude: location.coordinate.latitude)
         }
+    }
+    
+    func distance(from: CLLocationCoordinate2D) -> CLLocationDistance {
+        guard let to = currentLocation else { return CLLocationDistance() }
+        let from = CLLocation(latitude: from.latitude, longitude: from.longitude)
+        
+        return from.distance(from: to)
+    }
+}
+
+extension CLLocationCoordinate2D {
+    func distance(from: CLLocationCoordinate2D) -> CLLocationDistance {
+        let from = CLLocation(latitude: from.latitude, longitude: from.longitude)
+        let to = CLLocation(latitude: self.latitude, longitude: self.longitude)
+        
+        return from.distance(from: to)
     }
 }

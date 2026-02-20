@@ -6,11 +6,18 @@
 //
 
 import UIKit
+import CoreLocation
 
 final class SearchViewController: UIViewController {
     
-    private let navView = CustomNavView()
+    var navView = CustomNavView()
     private let recentSearchTableView = UITableView()
+    
+    var documents: [Document]?
+    private var searchTask: Task<Void, Never>?
+    
+    weak var delegate: SearchViewControllerDelegate?
+    var coordinate: CLLocation?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,11 +42,24 @@ final class SearchViewController: UIViewController {
         self.navigationItem.titleView = navView
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        navView.searchTextField.becomeFirstResponder()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        navView.searchTextField.text = ""
+    }
+    
     private func setNavBar() {
         navigationItem.hidesBackButton = true
         navigationItem.largeTitleDisplayMode = .always
         self.navigationController?.navigationBar.prefersLargeTitles = true
         
+        navView.textFieldDelegate = self
         navView.backButton.addTarget(self, action: #selector(popVC), for: .touchUpInside)
     }
     
@@ -63,26 +83,59 @@ final class SearchViewController: UIViewController {
             make.edges.equalToSuperview()
         }
     }
+    
+    func debounceSearch(text: String) {
+        searchTask?.cancel()
+        
+        searchTask = Task {
+            try? await Task.sleep(nanoseconds: 300000000)
+            guard !Task.isCancelled else { return }
+            
+            do {
+                let result = try await KakaoLocalManager.shared.fetchData(text: text)
+                
+                await MainActor.run {
+                    documents = result.documents
+                    recentSearchTableView.reloadData()
+                }
+            } catch {
+                print(error)
+            }
+        }
+    }
 }
 
 extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 20
+        guard let documents = documents else { return 0 }
+        
+        return documents.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: CustomTableViewCell.identifier, for: indexPath) as? CustomTableViewCell else { return CustomTableViewCell() }
         
-        cell.bind()
+        guard let documents = documents, let coord = coordinate else { return CustomTableViewCell() }
+        
+        cell.bind(data: documents[indexPath.row], currentLocation: coord)
         
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("select", indexPath)
+        print("select", indexPath.row)
+        guard let documents = documents else { return }
+                
+        delegate?.didSelectedPlace(place: documents[indexPath.row])
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 56
+    }
+}
+
+extension SearchViewController: CustomNavViewDelegate {
+    func didChangeSearchText(text: String) {
+        debounceSearch(text: text)
     }
 }

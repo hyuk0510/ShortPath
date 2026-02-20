@@ -95,4 +95,12 @@ extension MapViewController {
     func resetMargin() {
         kakaoMap?.resetMargins()
     }
+    
+    func moveToSelectedPlaceLocation(_ coordinate: (lon: Double, lat: Double)) {
+        guard let kakaoMap = kakaoMap else { return }
+        
+        let placeLocation = MapPoint(longitude: coordinate.lon, latitude: coordinate.lat)
+        
+        kakaoMap.moveCamera(CameraUpdate.make(target: placeLocation, zoomLevel: 17, mapView: kakaoMap))
+    }
 }

@@ -1,63 +1,15 @@
 //
-//  RootContainerViewController.swift
+//  Root+UI.swift
 //  ShortPath
 //
-//  Created by 선상혁 on 12/23/25.
+//  Created by 선상혁 on 2/17/26.
 //
 
 import UIKit
-import SnapKit
 
-final class RootContainerViewController: UIViewController {
+extension RootContainerViewController {
     
-    let mapVC = MapViewController()
-    let customTabBar = CustomTabBar()
-    private let bottomSheetViewContainer = BottomSheetView()
-    private let searchBarContainer = SearchBarContainerView()
-    
-    private var currentBottomSheetVC: UIViewController?
-        
-    private var sheetTopConstraint: Constraint!
-        
-    private(set) var mode: Mode = .medium
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        setUpMap()
-        setUpSearchBar()
-        setUpBottomSheet()
-        setUpTabBar()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(true)
-                
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithTransparentBackground()
-        
-        guard let nav = navigationController?.navigationBar else { return }
-        nav.standardAppearance = appearance
-        nav.scrollEdgeAppearance = appearance
-        nav.isHidden = true
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-        view.setNeedsLayout()
-        view.layoutIfNeeded()
-    }
-    
-    override func viewSafeAreaInsetsDidChange() {
-        super.viewSafeAreaInsetsDidChange()
-        
-        searchBarContainer.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-        }
-    }
-    
-    private func setUpMap() {
+    func setUpMap() {
         addChild(mapVC)
         view.addSubview(mapVC.view)
         mapVC.mapInterActiveDelegate = self
@@ -69,7 +21,7 @@ final class RootContainerViewController: UIViewController {
         mapVC.didMove(toParent: self)
     }
     
-    private func setUpTabBar() {
+    func setUpTabBar() {
         let height: CGFloat = UIScreen.main.bounds.height - Const.bottomSheetYPosition(.tip) + view.safeAreaInsets.bottom
         
         view.addSubview(customTabBar)
@@ -84,7 +36,7 @@ final class RootContainerViewController: UIViewController {
         }
     }
     
-    private func setUpBottomSheet() {
+    func setUpBottomSheet() {
         view.addSubview(bottomSheetViewContainer)
         
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(didPan))
@@ -105,7 +57,7 @@ final class RootContainerViewController: UIViewController {
         selectTab(.home)
     }
     
-    private func setUpSearchBar() {
+    func setUpSearchBar() {
         view.addSubview(searchBarContainer)
         searchBarContainer.setShadow()
                 
@@ -115,14 +67,17 @@ final class RootContainerViewController: UIViewController {
             make.height.equalTo(48)
         }
         
+        searchVC.delegate = self
+        
         searchBarContainer.onTap = {
-            let vc = SearchViewController()
-            self.navigationController?.pushViewController(vc, animated: true)
+            self.searchVC.coordinate = self.mapVC.currentLocation
+            self.navigationController?.pushViewController(self.searchVC, animated: true)
         }
+
     }
     
     @objc
-    private func didPan(_ recognizer: UIPanGestureRecognizer) {
+    func didPan(_ recognizer: UIPanGestureRecognizer) {
         let translationY = recognizer.translation(in: view).y
         let velocityY = recognizer.velocity(in: view).y
         let newY = sheetTopConstraint.layoutConstraints.first!.constant + translationY
@@ -175,7 +130,7 @@ final class RootContainerViewController: UIViewController {
         switchBottomSheet(targetVC)
     }
     
-    private func switchBottomSheet(_ newVC: UIViewController) {
+    func switchBottomSheet(_ newVC: UIViewController) {
         if let current = currentBottomSheetVC {
             current.willMove(toParent: nil)
             current.view.removeFromSuperview()
@@ -248,5 +203,35 @@ final class RootContainerViewController: UIViewController {
         }
     
         return currentMode
+    }
+    
+    func updateSheetState(_ newMode: SheetMode) {
+        viewModel.sheetMode = newMode
+        render()
+    }
+    
+    func render() {
+        switch viewModel.sheetMode {
+        case .home:
+            customTabBar.isHidden = false
+            searchBarContainer.configureHome()
+
+//            searchBarContainer.onTap = { [weak self] in
+//                guard let self = self else { return }
+//                
+//                self.navigationController?.pushViewController(self.searchVC, animated: true)
+//            }
+            
+        case .placeDetail(let document):
+            searchBarContainer.configurePlaceDetail(document)
+            customTabBar.isHidden = true
+            
+            searchBarContainer.onTap = { [weak self] in
+                guard let self = self else { return }
+
+                self.updateSheetState(.home)
+                self.navigationController?.pushViewController(self.searchVC, animated: true)
+            }
+        }
     }
 }

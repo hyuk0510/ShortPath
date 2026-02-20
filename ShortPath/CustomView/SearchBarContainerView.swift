@@ -9,7 +9,7 @@ import UIKit
 
 final class SearchBarContainerView: UIView {
     
-    private let container = CustomLeftViewContainer()
+    private var container = CustomLeftViewContainer()
     
     private lazy var searchBar = {
         let view = UISearchBar()
@@ -58,5 +58,20 @@ final class SearchBarContainerView: UIView {
     @objc
     private func didTap() {
         onTap?()
+    }
+    
+    func configureHome() {
+        searchBar.searchTextField.text = ""
+        
+        container.customLeftView.image = UIImage(systemName: "magnifyingglass")
+        searchBar.searchTextField.leftView = container
+    }
+    
+    func configurePlaceDetail(_ place: Document) {
+        searchBar.searchTextField.textColor = .black
+        searchBar.searchTextField.text = place.placeName
+        
+        container.customLeftView.image = UIImage(systemName: "chevron.left")
+        searchBar.searchTextField.leftView = container
     }
 }

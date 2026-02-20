@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreLocation
 
 final class CustomTableViewCell: UITableViewCell {
     
@@ -106,12 +107,18 @@ final class CustomTableViewCell: UITableViewCell {
 }
 
 extension CustomTableViewCell {
-    func bind() {
-        let dis = "123.456"
-        let add = "관악구 관악로"
+    func bind(data: Document, currentLocation: CLLocation) {
         
-        placeNameLabel.text = "장소이름"
-        categoryLabel.text = "장소"
-        distanceAddressLabel.text = "\(dis) ･ \(add)"
+        let dis = CLLocation(latitude: Double(data.y) ?? 0.0, longitude: Double(data.x) ?? 0.0).distance(from: currentLocation) / 100
+        let disKM = round(dis) / 10
+        let add = data.roadAddressName
+        var category = ""
+        let categoryArr = data.categoryName.split(separator: " ")
+        
+        category = categoryArr.count == 3 ? String(categoryArr[2]) : String(categoryArr[4])
+        
+        placeNameLabel.text = "\(data.placeName)"
+        categoryLabel.text = "\(category)"
+        distanceAddressLabel.text = "\(disKM)km ･ \(add)"
     }
 }
