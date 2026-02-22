@@ -22,6 +22,7 @@ final class SearchBarContainerView: UIView {
         view.searchTextField.leftView = container
         view.searchTextField.leftViewMode = .always
         view.searchTextField.borderStyle = .none
+        view.searchTextField.clearButtonMode = .never
         return view
     }()
     

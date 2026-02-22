@@ -22,6 +22,7 @@ extension MapViewController {
         
         mapContainer?.snp.makeConstraints {
             $0.edges.equalToSuperview()
+//            $0.edges.equalToSuperview().inset(UIEdgeInsets(top: -200, left: 0, bottom: 0, right: 0))
         }
                 
         mapController = KMController(viewContainer: mapContainer!)
@@ -56,7 +57,7 @@ extension MapViewController {
         
         if let location = currentLocation {
             createPois(location)
-            updateBottomMargin(bottomSheetHeight: Const.bottomSheetYPosition(.medium))
+            updateBottomMargin(bottomSheetHeight: Const.bottomSheetYPosition(.medium, .home))
             moveCameraToCurrentLocation()
         }
         

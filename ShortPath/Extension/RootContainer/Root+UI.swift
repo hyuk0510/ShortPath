@@ -22,7 +22,7 @@ extension RootContainerViewController {
     }
     
     func setUpTabBar() {
-        let height: CGFloat = UIScreen.main.bounds.height - Const.bottomSheetYPosition(.tip) + view.safeAreaInsets.bottom
+        let height: CGFloat = UIScreen.main.bounds.height - Const.bottomSheetYPosition(.tip, .home) + view.safeAreaInsets.bottom
         
         view.addSubview(customTabBar)
         view.bringSubviewToFront(customTabBar)
@@ -40,6 +40,7 @@ extension RootContainerViewController {
         view.addSubview(bottomSheetViewContainer)
         
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(didPan))
+        panGesture.cancelsTouchesInView = false
         bottomSheetViewContainer.addGestureRecognizer(panGesture)
                 
         bottomSheetViewContainer.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
@@ -49,7 +50,7 @@ extension RootContainerViewController {
         bottomSheetViewContainer.setShadow()
 
         bottomSheetViewContainer.snp.makeConstraints { make in
-            sheetTopConstraint = make.top.equalToSuperview().offset(Const.bottomSheetYPosition(.medium)).constraint
+            sheetTopConstraint = make.top.equalToSuperview().offset(Const.bottomSheetYPosition(.medium, .home)).constraint
             make.horizontalEdges.equalToSuperview()
             make.bottom.equalToSuperview()
         }
@@ -83,8 +84,8 @@ extension RootContainerViewController {
         let newY = sheetTopConstraint.layoutConstraints.first!.constant + translationY
 
         let clampedY = min(
-            max(Const.bottomSheetYPosition(.max), newY),
-            Const.bottomSheetYPosition(.tip)
+            max(Const.bottomSheetYPosition(.max, viewModel.sheetMode), newY),
+            Const.bottomSheetYPosition(.tip, viewModel.sheetMode)
         )
         
         switch recognizer.state {
@@ -93,20 +94,24 @@ extension RootContainerViewController {
             view.layoutIfNeeded()
             
             let bottomSheetheight = view.bounds.height - clampedY
-            let containerHeight = view.bounds.height
-            let visibleMapheight = containerHeight - bottomSheetheight
-            let offset = (containerHeight - visibleMapheight) * 0.5 - (Const.bottomSheetYPosition(.medium) * 0.5)
             
-            if mode != .max, !mapVC.isPanned {
-                mapVC.applyVisualOffset(offset: offset)
+            if case .home = viewModel.sheetMode {
+                if mode != .max, !mapVC.isPanned {
+                    mapVC.updateBottomMargin(bottomSheetHeight: bottomSheetheight)
+                    mapVC.moveCameraToCurrentLocation()
+                }
             }
-            
+                        
             recognizer.setTranslation(.zero, in: view)
             
         case .ended, .cancelled:
             let targetMode: Mode = nearestMode(currentTop: clampedY, currentMode: mode, velocityY: velocityY)
             
-            mapVC.bottomSheetDidSnap(to: targetMode, height: view.bounds.height - Const.bottomSheetYPosition(targetMode))
+            mapVC.bottomSheetDidSnap(to: targetMode, to: viewModel.sheetMode, height: view.bounds.height - Const.bottomSheetYPosition(targetMode, viewModel.sheetMode))
+            if targetMode == .max {
+                mapVC.resetMargin()
+                mapVC.moveCameraToCurrentLocation()
+            }
             setMode(targetMode)
                         
         default:
@@ -148,10 +153,10 @@ extension RootContainerViewController {
     }
     
     func moveBottomSheet(to targetMode: Mode) {
-        let targetTop = Const.bottomSheetYPosition(targetMode)
+        let targetTop = Const.bottomSheetYPosition(targetMode, viewModel.sheetMode)
                 
         UIView.animate(
-            withDuration: 0.4,
+            withDuration: 0.5,
             delay: 0,
             usingSpringWithDamping: 0.9,
             initialSpringVelocity: 0.4,
@@ -179,8 +184,9 @@ extension RootContainerViewController {
         velocityY: CGFloat
     ) -> Mode {
         
-        let maxTop = Const.bottomSheetYPosition(.max)
-        let mediumTop = Const.bottomSheetYPosition(.medium)
+        let maxTop = Const.bottomSheetYPosition(.max, viewModel.sheetMode)
+        let mediumTop = Const.bottomSheetYPosition(.medium, viewModel.sheetMode)
+        let minTop = Const.bottomSheetYPosition(.tip, viewModel.sheetMode)
         
         let margin: CGFloat = 5
         
@@ -199,10 +205,12 @@ extension RootContainerViewController {
             }
             return .medium
         case .tip:
-            break
+            if currentTop < minTop - margin {
+                return .medium
+            }
+            return .tip
         }
     
-        return currentMode
     }
     
     func updateSheetState(_ newMode: SheetMode) {
@@ -215,12 +223,6 @@ extension RootContainerViewController {
         case .home:
             customTabBar.isHidden = false
             searchBarContainer.configureHome()
-
-//            searchBarContainer.onTap = { [weak self] in
-//                guard let self = self else { return }
-//                
-//                self.navigationController?.pushViewController(self.searchVC, animated: true)
-//            }
             
         case .placeDetail(let document):
             searchBarContainer.configurePlaceDetail(document)
@@ -230,6 +232,8 @@ extension RootContainerViewController {
                 guard let self = self else { return }
 
                 self.updateSheetState(.home)
+                self.selectTab(remainedTab ?? .home)
+                self.moveBottomSheet(to: mode)
                 self.navigationController?.pushViewController(self.searchVC, animated: true)
             }
         }

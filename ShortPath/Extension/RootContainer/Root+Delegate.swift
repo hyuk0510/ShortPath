@@ -11,7 +11,7 @@ extension RootContainerViewController: MapInteractionDelegate {
     func mapDidReceiveUserInteraction() {
         setMode(.tip)
         customTabBar.deselectAll()
-        mapVC.bottomSheetDidSnap(to: .tip, height: view.bounds.height - Const.bottomSheetYPosition(.tip))
+        mapVC.bottomSheetDidSnap(to: .tip, to: viewModel.sheetMode, height: view.bounds.height - Const.bottomSheetYPosition(.tip, .home))
     }
 }
 
@@ -19,7 +19,8 @@ extension RootContainerViewController: CustomTabBarDelegate {
     func didSelectTab(_ tab: Buttons) {
         setMode(.medium)
         selectTab(tab)
-        mapVC.bottomSheetDidSnap(to: .medium, height: view.bounds.height - Const.bottomSheetYPosition(.medium))
+        remainedTab = tab
+        mapVC.bottomSheetDidSnap(to: .medium, to: viewModel.sheetMode, height: view.bounds.height - Const.bottomSheetYPosition(.medium, .home))
     }
 }
 
@@ -28,8 +29,12 @@ extension RootContainerViewController: SearchViewControllerDelegate {
         let coordinate = (Double(place.x) ?? 0.0, Double(place.y) ?? 0.0)
                 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            self.mapVC.isPanned = true
+            self.mapVC.isGUIButtonActive = false
+            self.mapVC.updateGuiUI()
             self.updateSheetState(.placeDetail(place))
             self.switchBottomSheet(PlaceDetailViewController())
+            self.setMode(.medium)
             self.mapVC.moveToSelectedPlaceLocation(coordinate)
         }
         

@@ -45,7 +45,9 @@ final class SearchViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        navView.searchTextField.becomeFirstResponder()
+        DispatchQueue.main.async {
+            self.navView.searchTextField.becomeFirstResponder()
+        }
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -102,6 +104,10 @@ final class SearchViewController: UIViewController {
                 print(error)
             }
         }
+    }
+    
+    func focusOnSearchTextField() {
+        navView.searchTextField.becomeFirstResponder()
     }
 }
 

@@ -82,7 +82,13 @@ extension MapViewController: CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: any Error) {
-        print("ERROR, 위치 정보를 가져오기 못하였습니다.")
+        let clError = error as? CLError
+        
+        if clError?.code == .locationUnknown {
+            return
+        }
+        
+        errorAlert(title: "위치 정보 에러", message: "위치 정보를 가져오지 못하였습니다.")
     }
     
     func moveCameraToCurrentLocation() {

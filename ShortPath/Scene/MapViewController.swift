@@ -45,7 +45,7 @@ final class MapViewController: UIViewController, MapControllerDelegate {
     var didApplyInitialCamera: Bool = false
     var hasInitialLocation: Bool = false
     
-    var targetMapPoint: MapPoint?
+//    lazy var centerMapPoint: MapPoint? = kakaoMap?.getPosition(CGPoint(x: view.bounds.midX, y: view.bounds.midY))
     
     let geocoder = CLGeocoder()
     

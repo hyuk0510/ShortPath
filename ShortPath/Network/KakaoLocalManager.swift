@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreLocation
 
 enum NetworkError: Error {
     case APIKeyError
@@ -20,7 +21,7 @@ final class KakaoLocalManager {
         var urlComponents = URLComponents(string: "https://dapi.kakao.com/v2/local/search/keyword.json")
         
         urlComponents?.queryItems = [
-            URLQueryItem(name: "query", value: text)
+            URLQueryItem(name: "query", value: text),
         ]
         
         guard let url = urlComponents?.url else { throw NetworkError.invalidURL }

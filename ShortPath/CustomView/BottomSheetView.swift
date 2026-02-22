@@ -14,19 +14,21 @@ enum Mode {
 }
 
 enum Const {
-    static let bottomSheetRatio: (Mode) -> Double = { mode in
-        switch mode {
-        case .max:
+    static let bottomSheetRatio: (Mode, SheetMode) -> Double = { (mode, sheetMode) in
+        switch (mode, sheetMode) {
+        case (.max, .home), (.max, .placeDetail):
             return 0.2
-        case .medium:
+        case (.medium, .home), (.medium, .placeDetail):
             return 0.5
-        case .tip:
+        case (.tip, .home):
             return 0.9
+        case (.tip, .placeDetail):
+            return 0.75
         }
     }
     
-    static let bottomSheetYPosition: (Mode) -> Double = { mode in
-        Self.bottomSheetRatio(mode) * UIScreen.main.bounds.height
+    static let bottomSheetYPosition: (Mode, SheetMode) -> Double = { (mode, sheetMode) in
+        Self.bottomSheetRatio(mode, sheetMode) * UIScreen.main.bounds.height
     }
 }
 

@@ -23,6 +23,7 @@ final class RootContainerViewController: UIViewController {
     
     var mode: Mode = .medium
     var currentBottomSheetVC: UIViewController?
+    var remainedTab: Buttons?
     
     var sheetTopConstraint: Constraint!
     

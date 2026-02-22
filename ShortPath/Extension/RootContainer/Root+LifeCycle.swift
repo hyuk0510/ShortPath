@@ -47,5 +47,9 @@ extension RootContainerViewController {
         searchBarContainer.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
         }
+        
+        let guiBottomInset = view.bounds.height - sheetTopConstraint.layoutConstraints.first!.constant        
+        
+        mapVC.updateGUI(bottomInset: guiBottomInset)
     }
 }
