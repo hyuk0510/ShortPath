@@ -92,9 +92,10 @@ final class SearchViewController: UIViewController {
         searchTask = Task {
             try? await Task.sleep(nanoseconds: 300000000)
             guard !Task.isCancelled else { return }
+            guard let coord = coordinate else { return }
             
             do {
-                let result = try await KakaoLocalManager.shared.fetchData(text: text)
+                let result = try await KakaoLocalManager.shared.fetchData(text: text, coordinate: coord.coordinate)
                 
                 await MainActor.run {
                     documents = result.documents

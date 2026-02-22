@@ -17,11 +17,14 @@ enum NetworkError: Error {
 final class KakaoLocalManager {
     static let shared = KakaoLocalManager()
     
-    func fetchData(text: String) async throws -> PlaceInfo  {
+    func fetchData(text: String, coordinate: CLLocationCoordinate2D) async throws -> PlaceInfo  {
         var urlComponents = URLComponents(string: "https://dapi.kakao.com/v2/local/search/keyword.json")
         
         urlComponents?.queryItems = [
             URLQueryItem(name: "query", value: text),
+            URLQueryItem(name: "x", value: "\(coordinate.longitude)"),
+            URLQueryItem(name: "y", value: "\(coordinate.latitude)"),
+            URLQueryItem(name: "sort", value: "distance")
         ]
         
         guard let url = urlComponents?.url else { throw NetworkError.invalidURL }

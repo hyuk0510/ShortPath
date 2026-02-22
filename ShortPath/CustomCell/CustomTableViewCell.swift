@@ -109,8 +109,8 @@ final class CustomTableViewCell: UITableViewCell {
 extension CustomTableViewCell {
     func bind(data: Document, currentLocation: CLLocation) {
         
-        let dis = CLLocation(latitude: Double(data.y) ?? 0.0, longitude: Double(data.x) ?? 0.0).distance(from: currentLocation) / 100
-        let disKM = round(dis) / 10
+        let dis = data.distance
+        var disKM = round((Double(dis) ?? 0.0) / 100) / 10
         let add = data.roadAddressName
         var category = ""
         let categoryArr = data.categoryName.split(separator: " ")
