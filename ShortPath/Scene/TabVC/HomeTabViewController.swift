@@ -7,7 +7,14 @@
 
 import UIKit
 
-final class HomeTabViewController: UIViewController {
+final class HomeTabViewController: UIViewController, BottomSheetInteractable {
+    
+    var scrollView = UIScrollView()
+    private var contentStackView = UIStackView()
+    
+    var trackingScrollView: UIScrollView? {
+        return scrollView
+    }
     
     private let label = {
         let view = UILabel()
@@ -19,7 +26,29 @@ final class HomeTabViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
              
-        view.addSubview(label)
+        configure()
+    }
+    
+    private func configure() {
+        view.addSubview(scrollView)
+        
+        scrollView.addSubview(contentStackView)
+        
+        scrollView.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(16)
+            make.horizontalEdges.equalToSuperview()
+            make.bottom.equalToSuperview()
+        }
+                
+        contentStackView.axis = .vertical
+        contentStackView.spacing = 24
+        
+        contentStackView.snp.makeConstraints { make in
+            make.verticalEdges.equalToSuperview().inset(24)
+            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(20)
+        }
+        
+        contentStackView.addArrangedSubview(label)
         
         label.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(10)

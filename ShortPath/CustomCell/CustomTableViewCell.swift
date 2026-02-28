@@ -110,7 +110,7 @@ extension CustomTableViewCell {
     func bind(data: Document, currentLocation: CLLocation) {
         
         let dis = data.distance
-        var disKM = round((Double(dis) ?? 0.0) / 100) / 10
+        let disKM = round((Double(dis) ?? 0.0) / 100) / 10
         let add = data.roadAddressName
         var category = ""
         let categoryArr = data.categoryName.split(separator: " ")

@@ -7,7 +7,14 @@
 
 import UIKit
 
-final class SettingTabViewController: UIViewController {
+final class SettingTabViewController: UIViewController, BottomSheetInteractable {
+    
+    var scrollView = UIScrollView()
+    private var contentStackView = UIStackView()
+
+    var trackingScrollView: UIScrollView? {
+        return scrollView
+    }
     
     private let label = {
         let view = UILabel()
@@ -19,7 +26,8 @@ final class SettingTabViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.addSubview(label)
+        view.addSubview(scrollView)
+        scrollView.addSubview(label)
         
         label.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(10)

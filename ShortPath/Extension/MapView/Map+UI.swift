@@ -122,6 +122,7 @@ extension MapViewController {
     
     func resetMargin() {
         kakaoMap?.resetMargins()
+        kakaoMap?.setMargins(UIEdgeInsets(top: 48, left: 0, bottom: 48, right: 0))
     }
     
     func moveToSelectedPlaceLocation(_ coordinate: (lon: Double, lat: Double)) {

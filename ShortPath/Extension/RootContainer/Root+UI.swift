@@ -39,9 +39,13 @@ extension RootContainerViewController {
     func setUpBottomSheet() {
         view.addSubview(bottomSheetViewContainer)
         
-        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(didPan))
-        panGesture.cancelsTouchesInView = false
-        bottomSheetViewContainer.addGestureRecognizer(panGesture)
+        bottomSheetPanGesture = UIPanGestureRecognizer(target: self, action: #selector(didPan))
+        
+        guard let bottomSheetPanGesture = bottomSheetPanGesture else { return }
+        
+        bottomSheetPanGesture.cancelsTouchesInView = false
+        
+        bottomSheetViewContainer.addGestureRecognizer(bottomSheetPanGesture)
                 
         bottomSheetViewContainer.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         bottomSheetViewContainer.layer.cornerRadius = 12
@@ -109,9 +113,17 @@ extension RootContainerViewController {
             
             mapVC.bottomSheetDidSnap(to: targetMode, to: viewModel.sheetMode, height: view.bounds.height - Const.bottomSheetYPosition(targetMode, viewModel.sheetMode))
             if targetMode == .max {
-                mapVC.resetMargin()
-                mapVC.moveCameraToCurrentLocation()
+                if !mapVC.isPanned {
+                    mapVC.resetMargin()
+                    mapVC.moveCameraToCurrentLocation()
+                }
+                
+                if velocityY < 0 {
+                    guard let vc = currentBottomSheetVC as? BottomSheetInteractable else { return }
+                    vc.trackingScrollView?.isScrollEnabled = true
+                }
             }
+            
             setMode(targetMode)
                         
         default:
@@ -150,11 +162,12 @@ extension RootContainerViewController {
         newVC.didMove(toParent: self)
         
         currentBottomSheetVC = newVC
+        scrollViewTracking()
     }
     
     func moveBottomSheet(to targetMode: Mode) {
         let targetTop = Const.bottomSheetYPosition(targetMode, viewModel.sheetMode)
-                
+        
         UIView.animate(
             withDuration: 0.5,
             delay: 0,
@@ -236,6 +249,41 @@ extension RootContainerViewController {
                 self.moveBottomSheet(to: mode)
                 self.navigationController?.pushViewController(self.searchVC, animated: true)
             }
+        }
+    }
+    
+    func scrollViewTracking() {
+        guard let vc = currentBottomSheetVC as? BottomSheetInteractable, let scrollView = vc.trackingScrollView else { return }
+        
+        scrollView.panGestureRecognizer.addTarget(self, action: #selector(handleScrollPan))
+    }
+    
+    @objc
+    private func handleScrollPan(_ gesture: UIPanGestureRecognizer) {
+        guard let vc = currentBottomSheetVC as? BottomSheetInteractable, let scrollView = vc.trackingScrollView else { return }
+        
+        let velocityY = gesture.velocity(in: view).y
+        let offsetY = scrollView.contentOffset.y
+
+        switch gesture.state {
+
+        case .changed:
+            if velocityY < 0 {
+                scrollView.isScrollEnabled = true
+                return
+            }
+
+        case .ended, .cancelled:
+            if offsetY <= 0 && velocityY >= 0 {
+                scrollView.isScrollEnabled = false
+                
+                if mode == .max {
+                    scrollView.contentOffset = .zero
+                    moveBottomSheet(to: .medium)
+                }
+            }
+        default:
+            break
         }
     }
 }

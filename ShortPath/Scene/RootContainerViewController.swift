@@ -25,6 +25,8 @@ final class RootContainerViewController: UIViewController {
     var currentBottomSheetVC: UIViewController?
     var remainedTab: Buttons?
     
+    var bottomSheetPanGesture: UIPanGestureRecognizer?
+    
     var sheetTopConstraint: Constraint!
     
     let viewModel = RootViewModel()

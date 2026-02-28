@@ -23,7 +23,7 @@ enum Const {
         case (.tip, .home):
             return 0.9
         case (.tip, .placeDetail):
-            return 0.75
+            return 0.85
         }
     }
     
@@ -55,6 +55,7 @@ final class BottomSheetView: UIView {
     private func configure() {
         addSubview(barView)
         backgroundColor = .white
+        translatesAutoresizingMaskIntoConstraints = false
         
         barView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()

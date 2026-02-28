@@ -27,13 +27,16 @@ extension RootContainerViewController: CustomTabBarDelegate {
 extension RootContainerViewController: SearchViewControllerDelegate {
     func didSelectedPlace(place: Document) {
         let coordinate = (Double(place.x) ?? 0.0, Double(place.y) ?? 0.0)
+        let placeDetailVC = PlaceDetailViewController()
+        
+        placeDetailVC.place = place
                 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             self.mapVC.isPanned = true
             self.mapVC.isGUIButtonActive = false
             self.mapVC.updateGuiUI()
             self.updateSheetState(.placeDetail(place))
-            self.switchBottomSheet(PlaceDetailViewController())
+            self.switchBottomSheet(placeDetailVC)
             self.setMode(.medium)
             self.mapVC.moveToSelectedPlaceLocation(coordinate)
         }

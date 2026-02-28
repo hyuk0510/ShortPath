@@ -44,9 +44,7 @@ final class MapViewController: UIViewController, MapControllerDelegate {
     var isPanned: Bool = false
     var didApplyInitialCamera: Bool = false
     var hasInitialLocation: Bool = false
-    
-//    lazy var centerMapPoint: MapPoint? = kakaoMap?.getPosition(CGPoint(x: view.bounds.midX, y: view.bounds.midY))
-    
+        
     let geocoder = CLGeocoder()
     
     let locationManager = CLLocationManager()
@@ -56,8 +54,8 @@ final class MapViewController: UIViewController, MapControllerDelegate {
     var spriteGui: SpriteGui = SpriteGui("SpriteGUI")
     let button = GuiButton("track_location")
     var isGUIButtonActive = true
-    var normalImage: UIImage!
-    var tappedImage: UIImage!
+    var normalImage: UIImage?
+    var tappedImage: UIImage?
     
     var _cameraStartHandler: DisposableEventHandler?
     
