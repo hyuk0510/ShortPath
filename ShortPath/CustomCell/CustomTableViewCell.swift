@@ -108,17 +108,21 @@ final class CustomTableViewCell: UITableViewCell {
 
 extension CustomTableViewCell {
     func bind(data: Document, currentLocation: CLLocation) {
-        
         let dis = data.distance
-        let disKM = round((Double(dis) ?? 0.0) / 100) / 10
+        var disKM = Int(dis) ?? 0
+        var disStr = ""
+        disStr = disKM >= 1000 ? "\(round(Double(disKM / 100)) / 10)km" : "\(Int(round(Double(disKM))))m"
+        
         let add = data.roadAddressName
         var category = ""
         let categoryArr = data.categoryName.split(separator: " ")
         
-        category = categoryArr.count == 3 ? String(categoryArr[2]) : String(categoryArr[4])
+        if categoryArr.count > 1 {
+            category = categoryArr.count == 3 ? String(categoryArr[2]) : String(categoryArr[4])
+        }
         
-        placeNameLabel.text = "\(data.placeName)"
-        categoryLabel.text = "\(category)"
-        distanceAddressLabel.text = "\(disKM)km ･ \(add)"
+        placeNameLabel.text = data.placeName
+        categoryLabel.text = category
+        distanceAddressLabel.text = disStr + " ･ \(add)"
     }
 }

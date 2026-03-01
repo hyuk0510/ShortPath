@@ -45,8 +45,17 @@ final class SearchViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        DispatchQueue.main.async {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             self.navView.searchTextField.becomeFirstResponder()
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        if let _ = documents {
+            documents?.removeAll()
+            recentSearchTableView.reloadData()
         }
     }
     
@@ -108,9 +117,9 @@ final class SearchViewController: UIViewController {
         }
     }
     
-    func focusOnSearchTextField() {
-        navView.searchTextField.becomeFirstResponder()
-    }
+//    func focusOnSearchTextField() {
+//        navView.searchTextField.becomeFirstResponder()
+//    }
 }
 
 extension SearchViewController: UITableViewDelegate, UITableViewDataSource {

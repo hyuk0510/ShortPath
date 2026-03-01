@@ -49,10 +49,5 @@ final class HomeTabViewController: UIViewController, BottomSheetInteractable {
         }
         
         contentStackView.addArrangedSubview(label)
-        
-        label.snp.makeConstraints { make in
-            make.top.equalToSuperview().inset(10)
-            make.leading.equalToSuperview().offset(10)
-        }
     }
 }
