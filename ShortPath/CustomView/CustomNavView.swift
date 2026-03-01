@@ -80,19 +80,6 @@ final class CustomNavView: UIView {
 }
 
 extension CustomNavView: UITextFieldDelegate {
-//    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-//        let currentText = textField.text ?? ""
-//        guard let stringRange = Range(range, in: currentText) else { return true }
-//        let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
-//        
-//        if textField.markedTextRange != nil { return true }
-//        
-//        guard updatedText.count >= 2 else { return true }
-//        
-//        textFieldDelegate?.didChangeSearchText(text: updatedText)
-//        
-//        return true
-//    }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField == searchTextField {

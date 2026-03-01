@@ -67,6 +67,7 @@ final class SearchViewController: UIViewController {
     
     @objc
     private func popVC() {
+        delegate?.didDisappear()
         self.navigationController?.popViewController(animated: false)
     }
     
@@ -130,7 +131,6 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("select", indexPath.row)
         guard let documents = documents else { return }
                 
         delegate?.didSelectedPlace(place: documents[indexPath.row])

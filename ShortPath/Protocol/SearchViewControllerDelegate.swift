@@ -9,4 +9,5 @@ import Foundation
 
 protocol SearchViewControllerDelegate: AnyObject {
     func didSelectedPlace(place: Document)
+    func didDisappear()
 }

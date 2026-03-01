@@ -50,6 +50,7 @@ final class MapViewController: UIViewController, MapControllerDelegate {
     let locationManager = CLLocationManager()
     var currentLocation: CLLocation?
     var currentLocationPoi: Poi?
+    var placeDetailPoiID: String?
     
     var spriteGui: SpriteGui = SpriteGui("SpriteGUI")
     let button = GuiButton("track_location")

@@ -38,9 +38,14 @@ extension RootContainerViewController: SearchViewControllerDelegate {
             self.updateSheetState(.placeDetail(place))
             self.switchBottomSheet(placeDetailVC)
             self.setMode(.medium)
+            self.mapVC.createPlaceDetailPoi(coordinate: coordinate)
             self.mapVC.moveToSelectedPlaceLocation(coordinate)
         }
         
         navigationController?.popViewController(animated: true)
+    }
+    
+    func didDisappear() {
+        mapVC.removePlaceDetailPoi()
     }
 }

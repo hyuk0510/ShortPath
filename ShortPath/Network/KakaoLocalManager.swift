@@ -40,8 +40,7 @@ final class KakaoLocalManager {
             throw NetworkError.invalidResponse
         }
         
-        print("statusCode:", httpResponse.statusCode)
-        print(String(data: data, encoding: .utf8) ?? "no body")
+//        print(String(data: data, encoding: .utf8) ?? "no body")
         
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
             throw NetworkError.APIKeyError
