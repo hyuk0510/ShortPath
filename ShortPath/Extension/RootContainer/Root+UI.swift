@@ -104,7 +104,6 @@ extension RootContainerViewController {
     @objc
     func didPan(_ recognizer: UIPanGestureRecognizer) {
         let translationY = recognizer.translation(in: view).y
-        let velocityY = recognizer.velocity(in: view).y
         let newY = sheetTopConstraint.layoutConstraints.first!.constant + translationY
 
         let clampedY = min(
@@ -112,7 +111,10 @@ extension RootContainerViewController {
             Const.bottomSheetYPosition(.tip, viewModel.sheetMode)
         )
         
+        
         switch recognizer.state {
+        case .began:
+            dragStartTop = sheetTopConstraint.layoutConstraints.first?.constant ?? CGFloat(Const.bottomSheetYPosition(mode, viewModel.sheetMode))
         case .changed:
             sheetTopConstraint.update(offset: clampedY)
             view.layoutIfNeeded()
@@ -129,7 +131,7 @@ extension RootContainerViewController {
             recognizer.setTranslation(.zero, in: view)
             
         case .ended, .cancelled:
-            let targetMode: Mode = nearestMode(currentTop: clampedY, currentMode: mode, velocityY: velocityY)
+            let targetMode: Mode = nearestMode(startTop: dragStartTop, currentTop: clampedY, currentMode: mode, containerHeight: view.bounds.height)
             
             mapVC.bottomSheetDidSnap(to: targetMode, to: viewModel.sheetMode, height: view.bounds.height - Const.bottomSheetYPosition(targetMode, viewModel.sheetMode))
             
@@ -137,10 +139,6 @@ extension RootContainerViewController {
                 if !mapVC.isPanned {
                     mapVC.resetMargin()
                     mapVC.moveCameraToCurrentLocation()
-                }
-                
-                if velocityY < 0, let vc = currentBottomSheetVC as? BottomSheetInteractable {
-                    vc.trackingScrollView?.isScrollEnabled = true
                 }
             }
             
@@ -218,39 +216,50 @@ extension RootContainerViewController {
     }
     
     private func nearestMode(
+        startTop: CGFloat,
         currentTop: CGFloat,
         currentMode: Mode,
-        velocityY: CGFloat
+        containerHeight: CGFloat
     ) -> Mode {
         
-        let maxTop = Const.bottomSheetYPosition(.max, viewModel.sheetMode)
-        let mediumTop = Const.bottomSheetYPosition(.medium, viewModel.sheetMode)
-        let minTop = Const.bottomSheetYPosition(.tip, viewModel.sheetMode)
+        let delta = currentTop - startTop
         
-        let margin: CGFloat = 5
+        let oneStepDist = containerHeight * 0.06
+        let twoStepDist = containerHeight * 0.18
         
-//        let velocityThreshold: CGFloat = 50
-//
-//        if abs(velocityY) > velocityThreshold {
-//            if velocityY > 0 {
-//                return (currentMode == .max) ? .medium : .tip
-//            } else {
-//                return (currentMode == .tip) ? .medium : .max
-//            }
-//        }
-        
-        switch currentMode {
-        case .max:
-            return (currentTop > maxTop + margin) ? .medium : .max
-        case .medium:
-            if currentTop < mediumTop - margin { return .max }
-            if currentTop > mediumTop + margin { return .tip }
-            
-            return .medium
-        case .tip:
-            return (currentTop < minTop - margin) ? .medium : .tip
+        if delta >= twoStepDist {
+            switch currentMode {
+            case .max:    return .tip
+            case .medium: return .tip
+            case .tip:    return .tip
+            }
         }
-    
+        
+        if delta >= oneStepDist {
+            switch currentMode {
+            case .max:    return .medium
+            case .medium: return .tip
+            case .tip:    return .tip
+            }
+        }
+        
+        if delta <= -twoStepDist {
+            switch currentMode {
+            case .tip:    return .max
+            case .medium: return .max
+            case .max:    return .max
+            }
+        }
+        
+        if delta <= -oneStepDist {
+            switch currentMode {
+            case .tip:    return .medium
+            case .medium: return .max
+            case .max:    return .max
+            }
+        }
+        
+        return currentMode
     }
     
     func updateSheetState(_ newMode: SheetMode) {
@@ -324,8 +333,11 @@ extension RootContainerViewController {
         case .ended, .cancelled:
             guard isScrollDragged else { return }
 
+            let currentTop = sheetTopConstraint.layoutConstraints.first?.constant ?? CGFloat(Const.bottomSheetYPosition(mode, viewModel.sheetMode))
+            let target = nearestMode(startTop: scrollViewSheetStartTop, currentTop: currentTop, currentMode: .max, containerHeight: view.bounds.height)
+            
             scrollView.setContentOffset(.zero, animated: false)
-            setMode(.medium)
+            setMode(target)
             
             isScrollDragged = false
             gesture.setTranslation(.zero, in: view)

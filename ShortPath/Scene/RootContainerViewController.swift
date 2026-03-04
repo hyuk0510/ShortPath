@@ -33,6 +33,8 @@ final class RootContainerViewController: UIViewController {
     var isScrollDragged = false
     var scrollViewSheetStartTop: CGFloat = 0
     
+    var dragStartTop: CGFloat = 0
+    
     var sheetTopConstraint: Constraint!
     
     let viewModel = RootViewModel()
