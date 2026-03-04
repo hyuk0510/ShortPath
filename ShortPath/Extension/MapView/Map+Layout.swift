@@ -50,9 +50,8 @@ extension MapViewController {
         
         createLabelLayer()
         createPoiStyle()
-        createSpriteGUI()
         updateCameraEventHandler()
-        positionLogoGUI()
+        positionLogo()
         
         if let location = currentLocation {
             createCurrentLocationPoi(location)

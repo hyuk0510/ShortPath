@@ -11,6 +11,7 @@ extension RootContainerViewController: MapInteractionDelegate {
     func mapDidReceiveUserInteraction() {
         setMode(.tip)
         customTabBar.deselectAll()
+        currentLocationButton.isSelected = false
         mapVC.bottomSheetDidSnap(to: .tip, to: viewModel.sheetMode, height: view.bounds.height - Const.bottomSheetYPosition(.tip, .home))
     }
 }
@@ -33,8 +34,6 @@ extension RootContainerViewController: SearchViewControllerDelegate {
                 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             self.mapVC.isPanned = true
-            self.mapVC.isGUIButtonActive = false
-            self.mapVC.updateGuiUI()
             self.updateSheetState(.placeDetail(place))
             self.switchBottomSheet(placeDetailVC)
             self.setMode(.medium)

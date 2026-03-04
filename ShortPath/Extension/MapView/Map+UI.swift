@@ -11,8 +11,8 @@ import KakaoMapsSDK
 extension MapViewController {
     
     var currentLocationPoiView: UIView {
-        let view = UIView(frame: .init(x: 20, y: 20, width: 20, height: 20))
-        
+        let view = UIView(frame: .init(x: 0, y: 0, width: 20, height: 20))
+
         let imageView = UIImageView()
         imageView.image = UIImage(named: "pin_green(custom)")
         imageView.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
@@ -24,7 +24,7 @@ extension MapViewController {
     }
     
     var currentLocationPoiBadgeView: UIView {
-        let view = UIView(frame: .init(x: 5, y: 5, width: 5, height: 5))
+        let view = UIView(frame: .init(x: 0, y: 0, width: 5, height: 5))
         
         let imageView = UIImageView()
         imageView.image = UIImage(named: "noti")
@@ -48,45 +48,9 @@ extension MapViewController {
         return view
     }
     
-    func makeCirculaerButtonImage(
-        buttonSize: CGFloat = 25,
-        shadowRadius: CGFloat = 3,
-        shadowOffset: CGSize = CGSize(width: 0, height: 1),
-        iconAlpha: CGFloat
-    ) -> UIImage {
-        
-        let padding = shadowRadius + abs(shadowOffset.height)
-        let size = buttonSize + padding * 2
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: size, height: size))
-        
-        return renderer.image { ctx in
-            let context = ctx.cgContext
-            context.setAllowsAntialiasing(true)
-            context.setShouldAntialias(true)
-            
-            let center = CGPoint(x: size / 2, y: size / 2)
-            let circleRect = CGRect(x: center.x - buttonSize / 2, y: center.y - buttonSize / 2, width: buttonSize, height: buttonSize)
-            
-            context.setShadow(offset: shadowOffset, blur: shadowRadius, color: UIColor.black.withAlphaComponent(0.3).cgColor)
-            
-            context.setFillColor(UIColor.white.cgColor)
-            context.fillEllipse(in: circleRect)
-            
-            context.setShadow(offset: .zero, blur: 0)
-            
-            if let image = UIImage(named: "Compass_Icon") {
-                let iconRect = CGRect(x: center.x - buttonSize / 2, y: center.y - buttonSize / 2, width: buttonSize, height: buttonSize)
-                
-                image.withTintColor(UIColor.black.withAlphaComponent(iconAlpha), renderingMode: .alwaysOriginal).draw(in: iconRect)
-            }
-        }
-    }
-    
-    func positionLogoGUI() {
-        let safeAreaBottom = view.safeAreaInsets.bottom
+    func positionLogo() {
         let safeAreaTop = view.safeAreaInsets.top
         
-        spriteGui.position = CGPoint(x: 15, y: safeAreaBottom)
         kakaoMap?.setLogoPosition(origin: GuiAlignment(vAlign: .top, hAlign: .left), position: CGPoint(x: 15, y: safeAreaTop + 15))
     }
     
@@ -114,14 +78,10 @@ extension MapViewController {
         guard let kakaoMap = kakaoMap else { return }
         
         let placeLocation = MapPoint(longitude: coordinate.lon, latitude: coordinate.lat)
+        let targetPosition = kakaoMap.getPosition(CGPoint(x: UIScreen.main.bounds.width * 0.5, y: (UIScreen.main.bounds.height * 0.5 + 48) * 0.5))
+        let distance = CameraTransformDelta(deltaLon: coordinate.lon - targetPosition.wgsCoord.longitude, deltaLat: coordinate.lat - targetPosition.wgsCoord.latitude)
+        let cameraTransForm = CameraUpdate.make(transform: CameraTransform(deltaPos: distance, deltaHeight: 0, deltaRotation: 0, deltaTilt: 0))
         
-        kakaoMap.moveCamera(CameraUpdate.make(target: placeLocation, zoomLevel: 17, mapView: kakaoMap))
-    }
-    
-    func updateGUI(bottomInset: CGFloat) {
-        let safeAreaBottom = view.safeAreaInsets.bottom
-        let totalInset = safeAreaBottom + bottomInset
-        
-        spriteGui.position = CGPoint(x: 15, y: totalInset)
+        kakaoMap.moveCamera(cameraTransForm)
     }
 }

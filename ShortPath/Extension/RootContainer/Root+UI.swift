@@ -81,6 +81,26 @@ extension RootContainerViewController {
 
     }
     
+    func setUpCurrentLocationButton() {
+        view.addSubview(currentLocationButton)
+        
+        currentLocationButton.isSelected = true
+        currentLocationButton.addTarget(self, action: #selector(currentLocationButtonPressed(_:)), for: .touchUpInside)
+        
+        currentLocationButton.snp.makeConstraints { make in
+            make.bottom.equalTo(bottomSheetViewContainer.snp.top).offset(-16)
+            make.trailing.equalTo(view.safeAreaLayoutGuide).inset(16)
+            make.width.height.equalTo(48)
+        }
+    }
+    
+    @objc
+    func currentLocationButtonPressed(_ sender: UIButton) {
+        sender.isSelected = true
+        mapVC.isPanned = false
+        mapVC.moveCameraToCurrentLocation()
+    }
+    
     @objc
     func didPan(_ recognizer: UIPanGestureRecognizer) {
         let translationY = recognizer.translation(in: view).y
@@ -182,6 +202,9 @@ extension RootContainerViewController {
     
     func setMode(_ newMode: Mode, animated: Bool = true) {
         guard mode != newMode else { return }
+        
+        currentLocationButton.isHidden = newMode == .max ? true : false
+        
         mode = newMode
         
         if newMode == .tip {

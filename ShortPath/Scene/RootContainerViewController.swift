@@ -21,6 +21,8 @@ final class RootContainerViewController: UIViewController {
     let searchBarContainer = SearchBarContainerView()
     lazy var searchVC = SearchViewController()
     
+    var currentLocationButton = CurrentLocationButton()
+    
     var mode: Mode = .medium
     var currentBottomSheetVC: UIViewController?
     var remainedTab: Buttons?

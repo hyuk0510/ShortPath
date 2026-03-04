@@ -52,12 +52,6 @@ final class MapViewController: UIViewController, MapControllerDelegate {
     var currentLocationPoi: Poi?
     var placeDetailPoiID: String?
     
-    var spriteGui: SpriteGui = SpriteGui("SpriteGUI")
-    let button = GuiButton("track_location")
-    var isGUIButtonActive = true
-    var normalImage: UIImage?
-    var tappedImage: UIImage?
-    
     var _cameraStartHandler: DisposableEventHandler?
     
     weak var mapInterActiveDelegate: MapInteractionDelegate?

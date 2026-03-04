@@ -96,8 +96,9 @@ extension MapViewController: CLLocationManagerDelegate {
         guard let kakaoMap = kakaoMap else { return }
         
         let currentPosition = MapPoint(longitude: location.coordinate.longitude, latitude: location.coordinate.latitude)
+        let cameraUpdate = CameraUpdate.make(target: currentPosition, zoomLevel: 17, mapView: kakaoMap)
         
-        kakaoMap.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 17, mapView: kakaoMap))
+        kakaoMap.moveCamera(cameraUpdate)
     }
     
     func updateCurrentLocationPoi(_ location: CLLocation) {

@@ -17,6 +17,10 @@ extension RootContainerViewController {
         setUpBottomSheet()
         setUpTabBar()
         
+        DispatchQueue.main.async {
+            self.setUpCurrentLocationButton()
+        }
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             _ = self.searchVC.view
         }
@@ -47,9 +51,5 @@ extension RootContainerViewController {
         searchBarContainer.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
         }
-        
-        let guiBottomInset = view.bounds.height - sheetTopConstraint.layoutConstraints.first!.constant        
-        
-        mapVC.updateGUI(bottomInset: guiBottomInset)
     }
 }
