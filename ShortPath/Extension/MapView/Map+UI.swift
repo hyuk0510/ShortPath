@@ -77,7 +77,6 @@ extension MapViewController {
     func moveToSelectedPlaceLocation(_ coordinate: (lon: Double, lat: Double)) {
         guard let kakaoMap = kakaoMap else { return }
         
-        let placeLocation = MapPoint(longitude: coordinate.lon, latitude: coordinate.lat)
         let targetPosition = kakaoMap.getPosition(CGPoint(x: UIScreen.main.bounds.width * 0.5, y: (UIScreen.main.bounds.height * 0.5 + 48) * 0.5))
         let distance = CameraTransformDelta(deltaLon: coordinate.lon - targetPosition.wgsCoord.longitude, deltaLat: coordinate.lat - targetPosition.wgsCoord.latitude)
         let cameraTransForm = CameraUpdate.make(transform: CameraTransform(deltaPos: distance, deltaHeight: 0, deltaRotation: 0, deltaTilt: 0))

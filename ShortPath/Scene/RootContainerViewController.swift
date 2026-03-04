@@ -29,6 +29,10 @@ final class RootContainerViewController: UIViewController {
     
     var bottomSheetPanGesture: UIPanGestureRecognizer?
     
+    weak var trackedScrollView: UIScrollView?
+    var isScrollDragged = false
+    var scrollViewSheetStartTop: CGFloat = 0
+    
     var sheetTopConstraint: Constraint!
     
     let viewModel = RootViewModel()

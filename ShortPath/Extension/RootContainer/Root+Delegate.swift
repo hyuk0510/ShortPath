@@ -32,16 +32,12 @@ extension RootContainerViewController: SearchViewControllerDelegate {
         
         placeDetailVC.place = place
                 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            self.mapVC.isPanned = true
-            self.updateSheetState(.placeDetail(place))
-            self.switchBottomSheet(placeDetailVC)
-            self.setMode(.medium)
-            self.mapVC.createPlaceDetailPoi(coordinate: coordinate)
-            self.mapVC.moveToSelectedPlaceLocation(coordinate)
+        navigationController?.popViewController(animated: true)
+
+        DispatchQueue.main.async {
+            self.showPlaceDetail(place: place, vc: placeDetailVC, coordinate: coordinate)
         }
         
-        navigationController?.popViewController(animated: true)
     }
     
     func didDisappear() {

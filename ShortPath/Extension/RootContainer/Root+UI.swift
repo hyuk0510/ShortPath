@@ -132,14 +132,14 @@ extension RootContainerViewController {
             let targetMode: Mode = nearestMode(currentTop: clampedY, currentMode: mode, velocityY: velocityY)
             
             mapVC.bottomSheetDidSnap(to: targetMode, to: viewModel.sheetMode, height: view.bounds.height - Const.bottomSheetYPosition(targetMode, viewModel.sheetMode))
+            
             if targetMode == .max {
                 if !mapVC.isPanned {
                     mapVC.resetMargin()
                     mapVC.moveCameraToCurrentLocation()
                 }
                 
-                if velocityY < 0 {
-                    guard let vc = currentBottomSheetVC as? BottomSheetInteractable else { return }
+                if velocityY < 0, let vc = currentBottomSheetVC as? BottomSheetInteractable {
                     vc.trackingScrollView?.isScrollEnabled = true
                 }
             }
@@ -183,6 +183,7 @@ extension RootContainerViewController {
         
         currentBottomSheetVC = newVC
         scrollViewTracking()
+        updateScrollPermission(for: mode)
     }
     
     func moveBottomSheet(to targetMode: Mode) {
@@ -201,11 +202,13 @@ extension RootContainerViewController {
     }
     
     func setMode(_ newMode: Mode, animated: Bool = true) {
-        guard mode != newMode else { return }
-        
-        currentLocationButton.isHidden = newMode == .max ? true : false
-        
         mode = newMode
+
+        updateOverlay(mode: mode, sheetMode: viewModel.sheetMode)
+        view.layoutIfNeeded()
+        
+        updateScrollPermission(for: mode)
+        
         
         if newMode == .tip {
             customTabBar.deselectAll()
@@ -226,31 +229,33 @@ extension RootContainerViewController {
         
         let margin: CGFloat = 5
         
+//        let velocityThreshold: CGFloat = 50
+//
+//        if abs(velocityY) > velocityThreshold {
+//            if velocityY > 0 {
+//                return (currentMode == .max) ? .medium : .tip
+//            } else {
+//                return (currentMode == .tip) ? .medium : .max
+//            }
+//        }
+        
         switch currentMode {
         case .max:
-            if currentTop > maxTop + margin {
-                return .medium
-            }
-            return .max
+            return (currentTop > maxTop + margin) ? .medium : .max
         case .medium:
-            if currentTop < mediumTop - margin {
-                return .max
-            }
-            if currentTop > mediumTop + margin {
-                return .tip
-            }
+            if currentTop < mediumTop - margin { return .max }
+            if currentTop > mediumTop + margin { return .tip }
+            
             return .medium
         case .tip:
-            if currentTop < minTop - margin {
-                return .medium
-            }
-            return .tip
+            return (currentTop < minTop - margin) ? .medium : .tip
         }
     
     }
     
     func updateSheetState(_ newMode: SheetMode) {
         viewModel.sheetMode = newMode
+        setMode(mode)
         render()
     }
     
@@ -269,44 +274,105 @@ extension RootContainerViewController {
 
                 self.updateSheetState(.home)
                 self.selectTab(remainedTab ?? .home)
-                self.moveBottomSheet(to: mode)
                 self.navigationController?.pushViewController(self.searchVC, animated: true)
             }
         }
     }
     
     func scrollViewTracking() {
+        if let prev = trackedScrollView {
+            prev.panGestureRecognizer.removeTarget(self, action: #selector(handleScrollPan))
+        }
+        
         guard let vc = currentBottomSheetVC as? BottomSheetInteractable, let scrollView = vc.trackingScrollView else { return }
         
+        trackedScrollView = scrollView
         scrollView.panGestureRecognizer.addTarget(self, action: #selector(handleScrollPan))
     }
     
     @objc
     private func handleScrollPan(_ gesture: UIPanGestureRecognizer) {
-        guard let vc = currentBottomSheetVC as? BottomSheetInteractable, let scrollView = vc.trackingScrollView else { return }
+        guard mode == .max, let scrollView = trackedScrollView else { return }
         
         let velocityY = gesture.velocity(in: view).y
         let offsetY = scrollView.contentOffset.y
+        let translationy = gesture.translation(in: view).y
 
         switch gesture.state {
-
+        case .began:
+            scrollViewSheetStartTop = sheetTopConstraint.layoutConstraints.first?.constant ?? 0
+            isScrollDragged = false
         case .changed:
-            if velocityY < 0 {
-                scrollView.isScrollEnabled = true
-                return
-            }
-
-        case .ended, .cancelled:
-            if offsetY <= 0 && velocityY >= 0 {
-                scrollView.isScrollEnabled = false
+            if offsetY <= 0, velocityY > 0 {
+                isScrollDragged = true
                 
-                if mode == .max {
+                if scrollView.contentOffset.y != 0 {
                     scrollView.contentOffset = .zero
-                    moveBottomSheet(to: .medium)
                 }
+                
+                let newTop = scrollViewSheetStartTop + translationy
+                let clampedTop = min(
+                    max(Const.bottomSheetYPosition(.max, viewModel.sheetMode), newTop),
+                    Const.bottomSheetYPosition(.tip, viewModel.sheetMode)
+                )
+                
+                sheetTopConstraint.update(offset: clampedTop)
+                view.layoutIfNeeded()
+            } else {
+                isScrollDragged = false
             }
+        case .ended, .cancelled:
+            guard isScrollDragged else { return }
+
+            scrollView.setContentOffset(.zero, animated: false)
+            setMode(.medium)
+            
+            isScrollDragged = false
+            gesture.setTranslation(.zero, in: view)
+            
         default:
             break
         }
+    }
+    
+    func currentLocationButtonState(mode: Mode, sheetMode: SheetMode) -> Bool {
+        switch sheetMode {
+        case .home, .placeDetail:
+            return mode != .max
+        }
+    }
+    
+    func updateOverlay(mode: Mode, sheetMode: SheetMode) {
+        let state = currentLocationButtonState(mode: mode, sheetMode: sheetMode)
+        currentLocationButton.isHidden = !state
+        
+        if state {
+            view.bringSubviewToFront(currentLocationButton)
+        }
+    }
+    
+    func updateScrollPermission(for mode: Mode) {
+        guard let vc = currentBottomSheetVC as? BottomSheetInteractable, let scrollView = vc.trackingScrollView else { return }
+        
+        let enabled = (mode == .max)
+        
+        scrollView.isScrollEnabled = enabled
+        
+        if !enabled {
+            scrollView.setContentOffset(.zero, animated: false)
+        }
+    }
+    
+    func showPlaceDetail(place: Document, vc: UIViewController, coordinate: (Double, Double)) {
+        mapVC.isPanned = true
+
+        updateSheetState(.placeDetail(place))
+        
+        switchBottomSheet(vc)
+        
+        setMode(.medium, animated: true)
+        
+        mapVC.createPlaceDetailPoi(coordinate: coordinate)
+        mapVC.moveToSelectedPlaceLocation(coordinate)
     }
 }
