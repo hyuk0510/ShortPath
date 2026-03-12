@@ -11,7 +11,7 @@ final class RootViewModel {
     
     var sheetMode: SheetMode = .home
     
-    func selectedPlace(_ place: Document) {
+    func selectedPlace(_ place: Place) {
         sheetMode = .placeDetail(place)
     }
     

@@ -197,6 +197,8 @@ extension RootContainerViewController {
             self.sheetTopConstraint.update(offset: targetTop)
             self.view.layoutIfNeeded()
         }
+        
+        (currentBottomSheetVC as? BottomSheetStateApplicable)?.changedBottomSheetState(targetMode)
     }
     
     func setMode(_ newMode: Mode, animated: Bool = true) {
@@ -274,15 +276,17 @@ extension RootContainerViewController {
             customTabBar.isHidden = false
             searchBarContainer.configureHome()
             
-        case .placeDetail(let document):
-            searchBarContainer.configurePlaceDetail(document)
+        case .placeDetail(let place):
+            searchBarContainer.configurePlaceDetail(place)
             customTabBar.isHidden = true
             
             searchBarContainer.onTap = { [weak self] in
                 guard let self = self else { return }
 
                 self.updateSheetState(.home)
-                self.selectTab(remainedTab ?? .home)
+                if let tab = remainedTab {
+                    self.selectTab(tab)
+                }
                 self.navigationController?.pushViewController(self.searchVC, animated: true)
             }
         }
@@ -375,16 +379,15 @@ extension RootContainerViewController {
         }
     }
     
-    func showPlaceDetail(place: Document, vc: UIViewController, coordinate: (Double, Double)) {
+    func showPlaceDetail(place: Place, vc: UIViewController, coordinate: (Double, Double)) {
         mapVC.isPanned = true
 
         updateSheetState(.placeDetail(place))
         
         switchBottomSheet(vc)
-        
         setMode(.medium, animated: true)
-        
-        mapVC.createPlaceDetailPoi(coordinate: coordinate)
+                
+        mapVC.createPlaceDetailPoi(coordinate: coordinate, placeName: place.name)
         mapVC.moveToSelectedPlaceLocation(coordinate)
     }
 }

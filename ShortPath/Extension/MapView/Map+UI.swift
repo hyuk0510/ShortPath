@@ -14,7 +14,7 @@ extension MapViewController {
         let view = UIView(frame: .init(x: 0, y: 0, width: 20, height: 20))
 
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "pin_green(custom)")
+        imageView.image = UIImage(named: "CurrentLocation")
         imageView.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
         imageView.contentMode = .scaleAspectFit
         
@@ -23,24 +23,11 @@ extension MapViewController {
         return view
     }
     
-    var currentLocationPoiBadgeView: UIView {
-        let view = UIView(frame: .init(x: 0, y: 0, width: 5, height: 5))
-        
-        let imageView = UIImageView()
-        imageView.image = UIImage(named: "noti")
-        imageView.frame = CGRect(x: 0, y: 0, width: 5, height: 5)
-        imageView.contentMode = .scaleAspectFit
-        
-        view.addSubview(imageView)
-        
-        return view
-    }
-    
     var placeDetailPoiView: UIView {
-        let view = UIView(frame: .init(x: 0, y: 0, width: 50, height: 50))
+        let view = UIView(frame: .init(x: 0, y: 0, width: 36, height: 36))
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "PlaceDetailIcon")
-        imageView.frame = CGRect(x: 0, y: 0, width: 50, height: 50)
+        imageView.image = UIImage(named: "PlacePin")
+        imageView.frame = CGRect(x: 0, y: 0, width: 36, height: 36)
         imageView.contentMode = .scaleAspectFit
         
         view.addSubview(imageView)

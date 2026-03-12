@@ -27,14 +27,9 @@ extension MapViewController {
         let manager = kakaoMap.getLabelManager()
         
         // 현재 위치 Poi
-        let red = TextStyle(fontSize: 20, fontColor: UIColor.white, strokeThickness: 2, strokeColor: UIColor.red)
-        let currentLocationTextStyle = PoiTextStyle(textLineStyles: [
-            PoiTextLineStyle(textStyle: red)
-        ])
-        
-        let noti = PoiBadge(badgeID: "badge1", image: currentLocationPoiBadgeView.asImage(), offset: CGPoint(x: 0.9, y: 0.1), zOrder: 0)
-        let currentLocationIconStyle = PoiIconStyle(symbol: currentLocationPoiView.asImage(), anchorPoint: CGPoint(x: 0.5, y: 0.5), badges: [noti])
-        let perLevelCurrentLocationStyle = PerLevelPoiStyle(iconStyle: currentLocationIconStyle, textStyle: currentLocationTextStyle, level: 0)
+        let currentLocationImage = UIImage(named: "CurrentLocation")?.resized(to: CGSize(width: 24, height: 24))
+        let currentLocationIconStyle = PoiIconStyle(symbol: currentLocationImage, anchorPoint: CGPoint(x: 0.5, y: 0.5))
+        let perLevelCurrentLocationStyle = PerLevelPoiStyle(iconStyle: currentLocationIconStyle, level: 0)
         let currentLocationStyle = PoiStyle(styleID: "CurrentLocationStyle", styles: [perLevelCurrentLocationStyle])
         
         manager.addPoiStyle(currentLocationStyle)
@@ -55,18 +50,15 @@ extension MapViewController {
         let poiOption = PoiOptions(styleID: "CurrentLocationStyle")
         
         poiOption.rank = 0
-        poiOption.addText(PoiText(text: "현재 위치", styleIndex: 0))
         poiOption.clickable = true
         
         let poi = layer?.addPoi(option: poiOption, at: MapPoint(longitude: location.coordinate.longitude, latitude: location.coordinate.latitude))
         
         currentLocationPoi = poi
         currentLocationPoi?.show()
-        
-//        currentLocationPoi?.addPoiTappedEventHandler(target: <#T##AnyObject#>, handler: <#T##(AnyObject) -> (PoiInteractionEventParam) -> Void#>)
     }
     
-    func createPlaceDetailPoi(coordinate: (longitude: Double, latitude: Double)) {
+    func createPlaceDetailPoi(coordinate: (longitude: Double, latitude: Double), placeName: String) {
         guard let kakaoMap = kakaoMap else { return }
         
         let manager = kakaoMap.getLabelManager()

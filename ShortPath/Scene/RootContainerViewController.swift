@@ -10,7 +10,7 @@ import SnapKit
 
 enum SheetMode {
     case home
-    case placeDetail(Document)
+    case placeDetail(Place)
 }
 
 final class RootContainerViewController: UIViewController {

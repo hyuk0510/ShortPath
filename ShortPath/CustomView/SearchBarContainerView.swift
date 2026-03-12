@@ -68,9 +68,9 @@ final class SearchBarContainerView: UIView {
         searchBar.searchTextField.leftView = container
     }
     
-    func configurePlaceDetail(_ place: Document) {
+    func configurePlaceDetail(_ place: Place) {
         searchBar.searchTextField.textColor = .black
-        searchBar.searchTextField.text = place.placeName
+        searchBar.searchTextField.text = place.name
         
         container.customLeftView.image = UIImage(systemName: "chevron.left")
         searchBar.searchTextField.leftView = container

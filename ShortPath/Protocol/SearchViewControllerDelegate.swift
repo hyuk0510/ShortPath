@@ -8,6 +8,6 @@
 import Foundation
 
 protocol SearchViewControllerDelegate: AnyObject {
-    func didSelectedPlace(place: Document)
+    func didSelectedPlace(place: Place)
     func didDisappear()
 }

@@ -16,14 +16,14 @@ enum Mode {
 enum Const {
     static let bottomSheetRatio: (Mode, SheetMode) -> Double = { (mode, sheetMode) in
         switch (mode, sheetMode) {
-        case (.max, .home), (.max, .placeDetail):
+        case (.max, .home):
             return 0.2
-        case (.medium, .home), (.medium, .placeDetail):
+        case (.medium, .home), (.medium, .placeDetail), (.max, .placeDetail):
             return 0.5
         case (.tip, .home):
             return 0.9
         case (.tip, .placeDetail):
-            return 0.85
+            return 0.7
         }
     }
     

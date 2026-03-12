@@ -13,12 +13,13 @@ final class SearchViewController: UIViewController {
     var navView = CustomNavView()
     private let recentSearchTableView = UITableView()
     
-    var documents: [Document]?
+    var places: [Place] = []
+    
     private var searchTask: Task<Void, Never>?
     
     weak var delegate: SearchViewControllerDelegate?
     var coordinate: CLLocation?
-    
+        
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -53,8 +54,8 @@ final class SearchViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-        if let _ = documents {
-            documents?.removeAll()
+        if !places.isEmpty {
+            places.removeAll()
             recentSearchTableView.reloadData()
         }
     }
@@ -108,7 +109,7 @@ final class SearchViewController: UIViewController {
                 let result = try await KakaoLocalManager.shared.fetchData(text: text, coordinate: coord.coordinate)
                 
                 await MainActor.run {
-                    documents = result.documents
+                    self.places = result.documents.map{ $0.toPlace() }
                     recentSearchTableView.reloadData()
                 }
             } catch {
@@ -116,33 +117,26 @@ final class SearchViewController: UIViewController {
             }
         }
     }
-    
-//    func focusOnSearchTextField() {
-//        navView.searchTextField.becomeFirstResponder()
-//    }
 }
 
 extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard let documents = documents else { return 0 }
-        
-        return documents.count
+        return places.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: CustomTableViewCell.identifier, for: indexPath) as? CustomTableViewCell else { return CustomTableViewCell() }
         
-        guard let documents = documents, let coord = coordinate else { return CustomTableViewCell() }
-        
-        cell.bind(data: documents[indexPath.row], currentLocation: coord)
+        let place = places[indexPath.row]
+                
+        cell.bind(place: place)
         
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let documents = documents else { return }
                 
-        delegate?.didSelectedPlace(place: documents[indexPath.row])
+        delegate?.didSelectedPlace(place: places[indexPath.row])
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

@@ -26,12 +26,12 @@ extension RootContainerViewController: CustomTabBarDelegate {
 }
 
 extension RootContainerViewController: SearchViewControllerDelegate {
-    func didSelectedPlace(place: Document) {
-        let coordinate = (Double(place.x) ?? 0.0, Double(place.y) ?? 0.0)
-        let placeDetailVC = PlaceDetailViewController()
+    func didSelectedPlace(place: Place) {
+        let coordinate = (Double(place.longitude), Double(place.latitude))
+        let placeDetailVC = PlaceDetailViewController(place: place)
         
-        placeDetailVC.place = place
-                
+        placeDetailVC.delegate = self
+                        
         navigationController?.popViewController(animated: true)
 
         DispatchQueue.main.async {
@@ -41,6 +41,15 @@ extension RootContainerViewController: SearchViewControllerDelegate {
     }
     
     func didDisappear() {
+        mapVC.removePlaceDetailPoi()
+    }
+}
+
+extension RootContainerViewController: PlaceDetailViewControllerDelegate {
+    func closeButtonPressed() {
+        self.updateSheetState(.home)
+        self.selectTab(remainedTab ?? .home)
+        self.navigationController?.pushViewController(self.searchVC, animated: false)
         mapVC.removePlaceDetailPoi()
     }
 }

@@ -38,3 +38,9 @@ struct Meta: Codable {
         case totalCount = "total_count"
     }
 }
+
+extension Document {
+    func toPlace() -> Place {
+        Place(id: id, name: placeName, category: categoryName, address: addressName, roadAddress: roadAddressName.isEmpty ? nil : roadAddressName, longitude: Double(x) ?? 0, latitude: Double(y) ?? 0, distance: Int(distance), phone: phone.isEmpty ? nil : phone, placeURL: placeURL.isEmpty ? nil : placeURL)
+    }
+}
