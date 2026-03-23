@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Place {
+struct Place: Equatable {
     let id: String
     let name: String
     let category: String

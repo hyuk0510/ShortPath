@@ -16,6 +16,7 @@ extension RootContainerViewController {
         setUpSearchBar()
         setUpBottomSheet()
         setUpTabBar()
+        setUpRouting()
         
         DispatchQueue.main.async {
             self.setUpCurrentLocationButton()
@@ -29,13 +30,14 @@ extension RootContainerViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
                 
+        navigationController?.setNavigationBarHidden(true, animated: false)
+
         let appearance = UINavigationBarAppearance()
         appearance.configureWithTransparentBackground()
         
         guard let nav = navigationController?.navigationBar else { return }
         nav.standardAppearance = appearance
         nav.scrollEdgeAppearance = appearance
-        nav.isHidden = true
     }
     
     override func viewDidAppear(_ animated: Bool) {

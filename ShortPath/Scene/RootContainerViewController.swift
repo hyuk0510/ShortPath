@@ -8,18 +8,22 @@
 import UIKit
 import SnapKit
 
-enum SheetMode {
+enum SheetMode: Equatable {
     case home
     case placeDetail(Place)
+    case routing
 }
 
 final class RootContainerViewController: UIViewController {
     
     let mapVC = MapViewController()
     let customTabBar = CustomTabBar()
+    
     let bottomSheetViewContainer = BottomSheetView()
     let searchBarContainer = SearchBarContainerView()
-    lazy var searchVC = SearchViewController()
+    let routingContainer = RoutingPanelView()
+    
+    lazy var searchVC = SearchViewController(mode: .main)
     
     var currentLocationButton = CurrentLocationButton()
     
@@ -35,7 +39,9 @@ final class RootContainerViewController: UIViewController {
     
     var dragStartTop: CGFloat = 0
     
+    var routingContainerHeightConstraint: Constraint?
     var sheetTopConstraint: Constraint!
     
-    let viewModel = RootViewModel()
+    let rootViewModel = RootViewModel()
+    let routingViewModel = RoutingViewModel()
 }

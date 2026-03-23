@@ -15,6 +15,8 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
     var trackingScrollView: UIScrollView? {
         return scrollView
     }
+    
+    var buttonEnabled: Bool = false
         
     private let place: Place
         
@@ -145,7 +147,7 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
         container.font = .systemFont(ofSize: 14, weight: .semibold)
         configuration.attributedTitle = AttributedString("카카오맵에서 열기", attributes: container)
         configuration.cornerStyle = .capsule
-        configuration.baseBackgroundColor = .yellow
+        configuration.baseBackgroundColor = .init(hex: "FEE500")
         configuration.baseForegroundColor = .black
         
         view.configuration = configuration
@@ -299,7 +301,8 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
         contentStackView.spacing = 16
         
         contentStackView.snp.makeConstraints { make in
-            make.verticalEdges.equalToSuperview().inset(24)
+            make.top.equalToSuperview()
+            make.bottom.equalToSuperview().inset(12)
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(20)
         }
         
@@ -321,7 +324,7 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
         
         let buttonStack = UIStackView()
         buttonStack.axis = .horizontal
-        buttonStack.spacing = 16
+        buttonStack.spacing = 6
         
         placeNameLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         favoriteButton.addTarget(self, action: #selector(favoriteButtonPressed), for: .touchUpInside)
@@ -337,7 +340,7 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
         
         [favoriteButton, closeButton].forEach {
             $0.snp.makeConstraints { make in
-                make.width.height.equalTo(24)
+                make.width.height.equalTo(44)
             }
         }
         
@@ -350,6 +353,7 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
     
     @objc
     private func favoriteButtonPressed() {
+        guard buttonEnabled else { return }
         let vc = SaveFavoriteViewController()
         
         vc.modalPresentationStyle = .formSheet
@@ -358,6 +362,8 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
     
     @objc
     private func closeButtonPressed() {
+        guard buttonEnabled else { return }
+
         delegate?.closeButtonPressed()
     }
     
@@ -378,8 +384,8 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
             verticalStack.addArrangedSubview(view)
         }
         
-        [startButton, wayPointButton, destinationButton, wayPointButton].forEach {
-            $0.snp.makeConstraints { make in
+        [startButton, wayPointButton, destinationButton, wayPointButton].forEach { view in
+            view.snp.makeConstraints { make in
                 make.height.equalTo(44)
             }
         }
@@ -404,30 +410,29 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
     
     @objc
     private func startButtonPressed() {
-        let vc = RoutingViewController()
-        
-        vc.addStartPlace(place: place)
-        navigationController?.pushViewController(vc, animated: true)
+        guard buttonEnabled else { return }
+
+        delegate?.didSelectRouteAction(place: place, action: .start)
     }
     
     @objc
     private func wayPointButtonPressed() {
-        let vc = RoutingViewController()
+        guard buttonEnabled else { return }
 
-        vc.addWayPoint(place: place)
-        navigationController?.pushViewController(vc, animated: true)
+        delegate?.didSelectRouteAction(place: place, action: .wayPoints)
     }
     
     @objc
     private func destinationButtonPrseed() {
-        let vc = RoutingViewController()
-        
-        vc.addDestination(place: place)
-        navigationController?.pushViewController(vc, animated: true)
+        guard buttonEnabled else { return }
+
+        delegate?.didSelectRouteAction(place: place, action: .destination)
     }
     
     @objc
     private func callButtonPressed() {
+        guard buttonEnabled else { return }
+
         let alert = UIAlertController(title: "\(String(place.phone ?? ""))로 전화 걸기", message: nil, preferredStyle: .actionSheet)
         
         alert.addAction(UIAlertAction(title: "전화", style: .default, handler: { _ in
@@ -450,6 +455,8 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
     
     @objc
     private func openOnKakaoMapButtonPressed() {
+        guard buttonEnabled else { return }
+
         let appURL: URL?
         let webURL: URL?
         
@@ -585,6 +592,8 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
     
     @objc
     private func addressDetailButtonPressed(_ sender: UIButton) {
+        guard buttonEnabled else { return }
+
         sender.isSelected.toggle()
         addressDetailView.isHidden.toggle()
     }
@@ -618,7 +627,7 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
     
     func bind() {
         placeNameLabel.text = place.name
-        categoryNameLabel.text = place.category
+        categoryNameLabel.text = CategoryFormatter.string(from: place.category)
         distanceLabel.text = DistanceFormatter.string(from: place.distance ?? 0) + " ･"
         placeAddressLabel.text = place.roadAddress
         roadAddressLabel.text = place.roadAddress

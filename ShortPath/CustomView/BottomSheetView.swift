@@ -24,6 +24,8 @@ enum Const {
             return 0.9
         case (.tip, .placeDetail):
             return 0.7
+        case (_, .routing):
+            return 0
         }
     }
     

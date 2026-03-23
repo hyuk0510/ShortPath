@@ -11,8 +11,4 @@ struct RouteDraft {
     var start: Place?
     var waypoints: [Place] = []
     var destination: Place?
-    
-    func routeCount() -> Int {
-        return waypoints.count + 2
-    }
 }

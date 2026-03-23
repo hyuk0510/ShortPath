@@ -9,4 +9,5 @@ import Foundation
 
 protocol BottomSheetStateApplicable: AnyObject {
     func changedBottomSheetState(_ state: Mode)
+    var buttonEnabled: Bool { get set }
 }

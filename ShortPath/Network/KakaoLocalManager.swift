@@ -32,7 +32,7 @@ final class KakaoLocalManager {
         var request: URLRequest = URLRequest(url: url)
         
         request.httpMethod = "GET"
-        request.setValue("KakaoAK \(APIKey.kakaoAPI)", forHTTPHeaderField: "Authorization")
+        request.setValue("KakaoAK \(APIKey.kakaoAPI2)", forHTTPHeaderField: "Authorization")
         
         let (data, response) = try await URLSession.shared.data(for: request)
 

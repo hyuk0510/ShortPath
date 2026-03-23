@@ -9,4 +9,5 @@ import Foundation
 
 protocol PlaceDetailViewControllerDelegate: AnyObject {
     func closeButtonPressed()
+    func didSelectRouteAction(place: Place, action: RouteSection)
 }

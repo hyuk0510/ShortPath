@@ -48,6 +48,8 @@ final class CustomLeftViewContainer: UIView {
             customLeftView.image = UIImage(systemName: "magnifyingglass")
         case .placeDetail(_):
             customLeftView.image = UIImage(systemName: "chevron.left")
+        case .routing:
+            break
         }
     }
 }

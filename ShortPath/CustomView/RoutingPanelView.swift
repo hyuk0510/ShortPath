@@ -1,65 +1,27 @@
 //
-//  RoutingViewController.swift
+//  RoutingPanelView.swift
 //  ShortPath
 //
-//  Created by 선상혁 on 3/7/26.
+//  Created by 선상혁 on 3/23/26.
 //
 
 import UIKit
+import SnapKit
 
-enum RouteSection: Equatable {
-    case start
-    case wayPoints
-    case destination
+final class RoutingPanelView: UIView {
     
-    var placeHolder: String {
-        switch self {
-        case .start:
-            return "출발지를 입력해주세요."
-        case .wayPoints:
-            return "경유지를 입력해주세요."
-        case .destination:
-            return "도착지를 입력해주세요."
-        }
-    }
-}
-
-final class RoutingViewController: UIViewController {
+    private var items: [RouteSectionItem] = []
     
-    private let viewModel: RoutingViewModel
-    
-//    weak var delegate: RoutingViewControllerDelegate?
-    
-    private var movingSnapShot: UIView?
-    private var movingIndexPath: IndexPath?
-    private var movingCell: UITableViewCell?
-    private var movingOffsetY: CGFloat = 0
-    
-    private let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
-    
-    init(viewModel: RoutingViewModel) {
-        self.viewModel = viewModel
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    private var buttonView: UIView = {
-        let view = UIView()
-        
-        return view
-    }()
-        
     private var routeTableView: UITableView = {
-        let view = UITableView(frame: .zero, style: .insetGrouped)
+        let view = UITableView(frame: .zero, style: .plain)
         
-        view.layer.borderWidth = 0.5
-        view.layer.borderColor = UIColor.black.cgColor
+        view.layer.cornerRadius = 12
+        view.backgroundColor = .clear
         
         return view
     }()
+    
+    private var buttonView = UIView()
     
     private var swapStartDestinationButton: UIButton = {
         let view = UIButton()
@@ -79,56 +41,101 @@ final class RoutingViewController: UIViewController {
         return view
     }()
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    var onTapSearch: ((RouteSectionItem) -> Void)?
+    var onTapDelete: ((RouteSectionItem) -> Void)?
+    var onTapAddWayPoint: (() -> Void)?
+    var onMoveItem: ((Int, Int) -> Void)?
+    var onTapSwap: (() -> Void)?
+    
+    private var movingSnapShot: UIView?
+    private var movingIndexPath: IndexPath?
+    private var movingCell: UITableViewCell?
+    private var movingOffsetY: CGFloat = 0
+    
+    private let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
+    
+    weak var delegate: RoutingPanelViewDelegate?
 
+    var onHeightChanged: ((CGFloat) -> Void)?
+    private var tableViewHeightConstraint: Constraint?
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        setUpTableView()
         configure()
-        setTableView()
-        setBindings()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        navigationController?.setNavigationBarHidden(true, animated: animated)
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-        routeTableView.reloadData()
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     private func configure() {
-        view.backgroundColor = .white
+        backgroundColor = .gray
+        layer.cornerRadius = 12
+        layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        isHidden = true
         
+        let buttonStack = UIStackView()
+        buttonStack.axis = .vertical
+        buttonStack.spacing = 12
+        buttonStack.alignment = .center
+        buttonStack.distribution = .fillEqually
         
-        [buttonView, routeTableView].forEach { view in
-            self.view.addSubview(view)
+        [closeButton, swapStartDestinationButton].forEach { view in
+            buttonStack.addArrangedSubview(view)
         }
         
-        [swapStartDestinationButton, closeButton].forEach { view in
-            buttonView.addSubview(view)
+        [routeTableView, buttonView].forEach { view in
+            addSubview(view)
+        }
+        
+        buttonView.addSubview(buttonStack)
+
+        routeTableView.snp.makeConstraints { make in
+            make.top.equalTo(safeAreaLayoutGuide)
+            make.leading.equalToSuperview()
+            make.trailing.equalTo(buttonView.snp.leading)
+            tableViewHeightConstraint = make.height.equalTo(112).constraint
+        }
+        
+        buttonView.snp.makeConstraints { make in
+            make.top.equalTo(routeTableView.snp.top)
+            make.trailing.equalToSuperview()
+            make.bottom.equalTo(routeTableView.snp.bottom)
+            make.width.equalTo(44)
+        }
+        
+        closeButton.snp.makeConstraints { make in
+            make.size.equalTo(44)
+        }
+        
+        swapStartDestinationButton.snp.makeConstraints { make in
+            make.size.equalTo(44)
+        }
+        
+        buttonStack.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
         
         closeButton.translatesAutoresizingMaskIntoConstraints = false
         swapStartDestinationButton.translatesAutoresizingMaskIntoConstraints = false
-        
+
         swapStartDestinationButton.addTarget(self, action: #selector(swapStartDestinationButtonPressed), for: .touchUpInside)
         closeButton.addTarget(self, action: #selector(closeButtonPressed), for: .touchUpInside)
     }
     
     @objc
     private func swapStartDestinationButtonPressed() {
-        viewModel.swapStartDestination()
+        onTapSwap?()
     }
     
     @objc
     private func closeButtonPressed() {
-//        delegate?.didCloseRoutingVC()
+        delegate?.didCloseRoutingPanelView()
     }
     
-    private func setTableView() {
+    private func setUpTableView() {
         routeTableView.delegate = self
         routeTableView.dataSource = self
         routeTableView.isScrollEnabled = false
@@ -136,41 +143,36 @@ final class RoutingViewController: UIViewController {
 
         routeTableView.allowsSelection = true
         routeTableView.tintColor = .black
-        routeTableView.contentInset.top = 12
         routeTableView.backgroundColor = .white
         routeTableView.contentInsetAdjustmentBehavior = .never
-                
-        routeTableView.snp.makeConstraints { make in
-            make.leading.equalTo(view.safeAreaLayoutGuide).offset(16)
-            make.top.equalTo(view.safeAreaLayoutGuide)
-            make.height.equalTo(120)
-        }
         
-        buttonView.snp.makeConstraints { make in
-            make.leading.equalTo(routeTableView.snp.trailing).offset(16)
-            make.trailing.equalToSuperview().offset(-16)
-            make.top.equalTo(routeTableView.snp.top)
-            make.bottom.equalTo(routeTableView.snp.bottom)
-        }
-        
-        closeButton.snp.makeConstraints { make in
-            make.top.trailing.equalTo(view.safeAreaLayoutGuide).inset(16)
-            make.height.width.equalTo(44)
-        }
-        
-        swapStartDestinationButton.snp.makeConstraints { make in
-            make.top.equalTo(closeButton.snp.bottom).offset(16)
-            make.trailing.equalTo(closeButton.snp.trailing)
-            make.height.width.equalTo(44)
-        }
+        routeTableView.backgroundView = {
+            let view = UIView()
+            
+            view.backgroundColor = .gray
+            
+            return view
+        }()
     }
     
-    private func setBindings() {
-        viewModel.onChange = { [weak self] in
-            guard let self = self else { return }
-            
-            self.routeTableView.reloadData()
-        }
+    func update(items: [RouteSectionItem]) {
+        self.items = items
+        routeTableView.reloadData()
+        routeTableView.layoutIfNeeded()
+        
+        let contentHeight = routeTableView.contentSize.height
+        let minimumHeight: CGFloat = 112
+        let maximumHeight: CGFloat = 280
+        
+        print("contentHeight: \(contentHeight)")
+        
+        let tableHeight = min(max(contentHeight, minimumHeight), maximumHeight)
+        
+        print("tableHeight: \(tableHeight)")
+        
+        tableViewHeightConstraint?.update(offset: tableHeight)
+                
+        onHeightChanged?(tableHeight + safeAreaInsets.top)
     }
     
     private func handleDragGesture(_ gesture: UILongPressGestureRecognizer, from cell: UITableViewCell) {
@@ -208,7 +210,8 @@ final class RoutingViewController: UIViewController {
             
             guard let toIndexPath = routeTableView.indexPathForRow(at: location), toIndexPath != fromIndexPath else { return }
             
-            viewModel.moveItem(from: fromIndexPath.row, to: toIndexPath.row)
+            items.swapAt(fromIndexPath.row, toIndexPath.row)
+            onMoveItem?(fromIndexPath.row, toIndexPath.row)
             routeTableView.moveRow(at: fromIndexPath, to: toIndexPath)
             movingIndexPath = toIndexPath
             
@@ -254,9 +257,9 @@ final class RoutingViewController: UIViewController {
     }
 }
 
-extension RoutingViewController: UITableViewDelegate, UITableViewDataSource {
+extension RoutingPanelView: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.numberOfItems
+        return items.count
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -265,10 +268,28 @@ extension RoutingViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: RoutingTableViewCell.identifier, for: indexPath) as? RoutingTableViewCell else { return RoutingTableViewCell() }
-        
-        let item = viewModel.items(at: indexPath.row)
+
+        let item = items[indexPath.row]
         
         cell.bind(with: item)
+        
+        cell.onTapSearch = { [weak self] in
+            guard let self else { return }
+            
+            self.onTapSearch?(item)
+        }
+        
+        cell.onTapDelete = { [weak self] in
+            guard let self else { return }
+
+            self.onTapDelete?(item)
+        }
+        
+        cell.onTapAddWayPoint = { [weak self] in
+            guard let self else { return }
+
+            self.onTapAddWayPoint?()
+        }
         
         cell.onLongPressDragHandle = { [weak self, weak cell] gesture in
             guard let self, let cell else { return }
@@ -276,27 +297,9 @@ extension RoutingViewController: UITableViewDelegate, UITableViewDataSource {
             self.handleDragGesture(gesture, from: cell)
         }
         
-        cell.onTapSearch = { [weak self] in
-            guard let self else { return }
-            
-//            self.delegate?.pushSearchVC(item: item)
-        }
-        
-        cell.onTapDelete = { [weak self] in
-            guard let self else { return }
-            
-            self.viewModel.removeWayPoint(id: item.id)
-        }
-        
-        cell.onTapAddWayPoint = { [weak self] in
-            guard let self else { return }
-            
-            self.viewModel.addWayPoint()
-        }
-        
         return cell
     }
-    
+        
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
         true
     }
@@ -314,5 +317,4 @@ extension RoutingViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
         false
     }
-
 }

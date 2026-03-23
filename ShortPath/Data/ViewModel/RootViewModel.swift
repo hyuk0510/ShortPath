@@ -18,4 +18,8 @@ final class RootViewModel {
     func backToHome() {
         sheetMode = .home
     }
+    
+    func routingMode() {
+        sheetMode = .routing
+    }
 }

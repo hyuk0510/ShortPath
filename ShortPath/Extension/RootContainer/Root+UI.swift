@@ -71,14 +71,76 @@ extension RootContainerViewController {
             make.leading.trailing.equalToSuperview().inset(16)
             make.height.equalTo(48)
         }
-        
-        searchVC.delegate = self
-        
-        searchBarContainer.onTap = {
-            self.searchVC.coordinate = self.mapVC.currentLocation
-            self.navigationController?.pushViewController(self.searchVC, animated: true)
+                
+        searchBarContainer.onTap = { [weak self] in
+            guard let self else { return }
+            
+            self.navigationController?.pushViewController(makeSearchVC(mode: .main), animated: true)
         }
 
+    }
+    
+    func setUpRouting() {
+        view.addSubview(routingContainer)
+        routingContainer.delegate = self
+        routingContainer.setShadow()
+        
+        routingContainer.snp.makeConstraints { make in
+            make.top.horizontalEdges.equalToSuperview()
+            routingContainerHeightConstraint = make.height.equalTo(150).constraint
+        }
+        
+        routingViewModel.onChange = { [weak self] in
+            guard let self else { return }
+            
+            self.routingContainer.update(items: routingViewModel.items)
+        }
+        
+        routingContainer.onHeightChanged = { [weak self] height in
+            guard let self else { return }
+            
+            self.routingContainerHeightConstraint?.update(offset: height)
+            
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    func bindRouting() {
+        routingContainer.update(items: routingViewModel.items)
+        
+        routingContainer.onTapSearch = { [weak self] item in
+            guard let self else { return }
+            
+            self.pushSearchVC(item: item)
+        }
+        
+        routingContainer.onTapAddWayPoint = { [weak self] in
+            guard let self else { return }
+            
+            self.routingViewModel.addWayPoint()
+        }
+        
+        routingContainer.onTapDelete = { [weak self] item in
+            guard let self else { return }
+            
+            self.routingViewModel.removeWayPoint(id: item.id)
+        }
+        
+        routingContainer.onMoveItem = { [weak self] (from, to) in
+            guard let self else { return }
+            
+            self.routingViewModel.moveItem(from: from, to: to)
+        }
+        
+        routingContainer.onTapSwap = { [weak self] in
+            guard let self else { return }
+            
+            self.routingViewModel.swapStartDestination()
+        }
+    }
+    
+    func pushSearchVC(item: RouteSectionItem) {
+        navigationController?.pushViewController(self.makeSearchVC(mode: .routing(targetID: item.id, role: item.role)), animated: false)
     }
     
     func setUpCurrentLocationButton() {
@@ -107,21 +169,24 @@ extension RootContainerViewController {
         let newY = sheetTopConstraint.layoutConstraints.first!.constant + translationY
 
         let clampedY = min(
-            max(Const.bottomSheetYPosition(.max, viewModel.sheetMode), newY),
-            Const.bottomSheetYPosition(.tip, viewModel.sheetMode)
+            max(Const.bottomSheetYPosition(.max, rootViewModel.sheetMode), newY),
+            Const.bottomSheetYPosition(.tip, rootViewModel.sheetMode)
         )
         
         
         switch recognizer.state {
         case .began:
-            dragStartTop = sheetTopConstraint.layoutConstraints.first?.constant ?? CGFloat(Const.bottomSheetYPosition(mode, viewModel.sheetMode))
+            dragStartTop = sheetTopConstraint.layoutConstraints.first?.constant ?? CGFloat(Const.bottomSheetYPosition(mode, rootViewModel.sheetMode))
+
         case .changed:
             sheetTopConstraint.update(offset: clampedY)
             view.layoutIfNeeded()
             
             let bottomSheetheight = view.bounds.height - clampedY
             
-            if case .home = viewModel.sheetMode {
+            (currentBottomSheetVC as? BottomSheetStateApplicable)?.buttonEnabled = false
+
+            if case .home = rootViewModel.sheetMode {
                 if mode != .max, !mapVC.isPanned {
                     mapVC.updateBottomMargin(bottomSheetHeight: bottomSheetheight)
                     mapVC.moveCameraToCurrentLocation()
@@ -132,8 +197,8 @@ extension RootContainerViewController {
             
         case .ended, .cancelled:
             let targetMode: Mode = nearestMode(startTop: dragStartTop, currentTop: clampedY, currentMode: mode, containerHeight: view.bounds.height)
-            
-            mapVC.bottomSheetDidSnap(to: targetMode, to: viewModel.sheetMode, height: view.bounds.height - Const.bottomSheetYPosition(targetMode, viewModel.sheetMode))
+                        
+            mapVC.bottomSheetDidSnap(to: targetMode, to: rootViewModel.sheetMode, height: view.bounds.height - Const.bottomSheetYPosition(targetMode, rootViewModel.sheetMode))
             
             if targetMode == .max {
                 if !mapVC.isPanned {
@@ -161,7 +226,7 @@ extension RootContainerViewController {
         case .setting:
             targetVC = SettingTabViewController()
         }
-        
+        remainedTab = tab
         switchBottomSheet(targetVC)
     }
     
@@ -185,7 +250,7 @@ extension RootContainerViewController {
     }
     
     func moveBottomSheet(to targetMode: Mode) {
-        let targetTop = Const.bottomSheetYPosition(targetMode, viewModel.sheetMode)
+        let targetTop = Const.bottomSheetYPosition(targetMode, rootViewModel.sheetMode)
         
         UIView.animate(
             withDuration: 0.5,
@@ -199,16 +264,19 @@ extension RootContainerViewController {
         }
         
         (currentBottomSheetVC as? BottomSheetStateApplicable)?.changedBottomSheetState(targetMode)
+        
+        DispatchQueue.main.async { [weak self] in
+            (self?.currentBottomSheetVC as? BottomSheetStateApplicable)?.buttonEnabled = true
+        }
     }
     
     func setMode(_ newMode: Mode, animated: Bool = true) {
         mode = newMode
 
-        updateOverlay(mode: mode, sheetMode: viewModel.sheetMode)
+        updateOverlay(mode: mode, sheetMode: rootViewModel.sheetMode)
         view.layoutIfNeeded()
         
         updateScrollPermission(for: mode)
-        
         
         if newMode == .tip {
             customTabBar.deselectAll()
@@ -265,30 +333,51 @@ extension RootContainerViewController {
     }
     
     func updateSheetState(_ newMode: SheetMode) {
-        viewModel.sheetMode = newMode
-        setMode(mode)
+        rootViewModel.sheetMode = newMode
+        if newMode != .routing {
+            setMode(mode)
+        }
         render()
     }
     
     func render() {
-        switch viewModel.sheetMode {
+        switch rootViewModel.sheetMode {
         case .home:
             customTabBar.isHidden = false
+            searchBarContainer.isHidden = false
+            bottomSheetViewContainer.isHidden = false
+            hideRouting()
+            
             searchBarContainer.configureHome()
             
         case .placeDetail(let place):
-            searchBarContainer.configurePlaceDetail(place)
             customTabBar.isHidden = true
+            searchBarContainer.isHidden = false
+            bottomSheetViewContainer.isHidden = false
+            hideRouting()
+            
+            searchBarContainer.configurePlaceDetail(place)
             
             searchBarContainer.onTap = { [weak self] in
                 guard let self = self else { return }
 
                 self.updateSheetState(.home)
-                if let tab = remainedTab {
-                    self.selectTab(tab)
-                }
-                self.navigationController?.pushViewController(self.searchVC, animated: true)
+                
+//                if let tab = remainedTab, mode != .tip {
+//                    self.selectTab(tab)
+//                } else {
+//                    customTabBar.deselectAll()
+//                }
+                
+                self.navigationController?.pushViewController(makeSearchVC(mode: .main), animated: true)
+                
             }
+            
+        case .routing:
+            showRouting()
+            bottomSheetViewContainer.isHidden = true
+            customTabBar.isHidden = true
+            searchBarContainer.isHidden = true
         }
     }
     
@@ -315,6 +404,7 @@ extension RootContainerViewController {
         case .began:
             scrollViewSheetStartTop = sheetTopConstraint.layoutConstraints.first?.constant ?? 0
             isScrollDragged = false
+            
         case .changed:
             if offsetY <= 0, velocityY > 0 {
                 isScrollDragged = true
@@ -325,8 +415,8 @@ extension RootContainerViewController {
                 
                 let newTop = scrollViewSheetStartTop + translationy
                 let clampedTop = min(
-                    max(Const.bottomSheetYPosition(.max, viewModel.sheetMode), newTop),
-                    Const.bottomSheetYPosition(.tip, viewModel.sheetMode)
+                    max(Const.bottomSheetYPosition(.max, rootViewModel.sheetMode), newTop),
+                    Const.bottomSheetYPosition(.tip, rootViewModel.sheetMode)
                 )
                 
                 sheetTopConstraint.update(offset: clampedTop)
@@ -334,10 +424,11 @@ extension RootContainerViewController {
             } else {
                 isScrollDragged = false
             }
+            
         case .ended, .cancelled:
             guard isScrollDragged else { return }
 
-            let currentTop = sheetTopConstraint.layoutConstraints.first?.constant ?? CGFloat(Const.bottomSheetYPosition(mode, viewModel.sheetMode))
+            let currentTop = sheetTopConstraint.layoutConstraints.first?.constant ?? CGFloat(Const.bottomSheetYPosition(mode, rootViewModel.sheetMode))
             let target = nearestMode(startTop: scrollViewSheetStartTop, currentTop: currentTop, currentMode: .max, containerHeight: view.bounds.height)
             
             scrollView.setContentOffset(.zero, animated: false)
@@ -355,6 +446,8 @@ extension RootContainerViewController {
         switch sheetMode {
         case .home, .placeDetail:
             return mode != .max
+        case .routing:
+            return false
         }
     }
     
@@ -381,6 +474,7 @@ extension RootContainerViewController {
     
     func showPlaceDetail(place: Place, vc: UIViewController, coordinate: (Double, Double)) {
         mapVC.isPanned = true
+        currentLocationButton.isSelected = false
 
         updateSheetState(.placeDetail(place))
         
@@ -389,5 +483,22 @@ extension RootContainerViewController {
                 
         mapVC.createPlaceDetailPoi(coordinate: coordinate, placeName: place.name)
         mapVC.moveToSelectedPlaceLocation(coordinate)
+    }
+    
+    func makeSearchVC(mode: SearchMode) -> SearchViewController {
+        let vc = SearchViewController(mode: mode)
+        vc.coordinate = mapVC.currentLocation
+        vc.delegate = self
+        return vc
+    }
+    
+    func showRouting() {
+        bindRouting()
+        routingContainer.isHidden = false
+    }
+    
+    func hideRouting() {
+        routingViewModel.resetItems()
+        routingContainer.isHidden = true
     }
 }

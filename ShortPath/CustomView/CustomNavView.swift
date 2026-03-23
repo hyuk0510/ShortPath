@@ -77,6 +77,19 @@ final class CustomNavView: UIView {
         
         textFieldDelegate?.didChangeSearchText(text: text)
     }
+    
+    func setNavTitle(mode: SearchMode) {
+//        var navTitle = ""
+//        
+//        switch mode {
+//        case .main:
+//            navTitle = mode.navigationTitle
+//        case .routing(let targetID, let role):
+//            navTitle = mode.navigationTitle
+//        }
+        
+        searchTextField.attributedPlaceholder = NSAttributedString(string: mode.navigationTitle, attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
+    }
 }
 
 extension CustomNavView: UITextFieldDelegate {

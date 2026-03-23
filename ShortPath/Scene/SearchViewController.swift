@@ -8,7 +8,39 @@
 import UIKit
 import CoreLocation
 
+enum SearchMode {
+    case main
+    case routing(targetID: UUID, role: RouteSection)
+    
+    var navigationTitle: String {
+        switch self {
+        case .main:
+            return "장소 ･ 주소 검색"
+        case .routing(_, let role):
+            switch role {
+            case .start:
+                return "출발지 검색"
+            case .wayPoints:
+                return "경유지 검색"
+            case .destination:
+                return "도착지 검색"
+            }
+        }
+    }
+}
+
 final class SearchViewController: UIViewController {
+    
+    let mode: SearchMode
+    
+    init(mode: SearchMode) {
+        self.mode = mode
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     var navView = CustomNavView()
     private let recentSearchTableView = UITableView()
@@ -25,22 +57,14 @@ final class SearchViewController: UIViewController {
         
         view.backgroundColor = .white
         
-        setNavBar()
+        configureNavView()
         setTableView()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithTransparentBackground()
-        
-        guard let nav = navigationController?.navigationBar else { return }
-        nav.standardAppearance = appearance
-        nav.scrollEdgeAppearance = appearance
-        nav.isHidden = false
-        
-        self.navigationItem.titleView = navView
+        setNavBar()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -56,7 +80,6 @@ final class SearchViewController: UIViewController {
         
         if !places.isEmpty {
             places.removeAll()
-            recentSearchTableView.reloadData()
         }
     }
     
@@ -66,19 +89,34 @@ final class SearchViewController: UIViewController {
         navView.searchTextField.text = ""
     }
     
-    private func setNavBar() {
-        navigationItem.hidesBackButton = true
-        navigationItem.largeTitleDisplayMode = .always
-        self.navigationController?.navigationBar.prefersLargeTitles = true
-        
+    private func configureNavView() {
+        navView.setNavTitle(mode: mode)
         navView.textFieldDelegate = self
         navView.backButton.addTarget(self, action: #selector(popVC), for: .touchUpInside)
     }
     
+    private func setNavBar() {
+        
+        navigationController?.setNavigationBarHidden(false, animated: false)
+        
+        navigationItem.hidesBackButton = true
+        navigationItem.largeTitleDisplayMode = .never
+        navigationController?.navigationBar.prefersLargeTitles = false
+        
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .white
+        
+        guard let nav = navigationController?.navigationBar else { return }
+        nav.standardAppearance = appearance
+        nav.scrollEdgeAppearance = appearance
+        
+        navigationItem.titleView = navView
+    }
+    
     @objc
     private func popVC() {
-        delegate?.didDisappear()
-        self.navigationController?.popViewController(animated: false)
+        delegate?.didDisappear(mode: mode)
     }
     
     private func setTableView() {
@@ -89,11 +127,13 @@ final class SearchViewController: UIViewController {
         
         recentSearchTableView.backgroundColor = .white
         recentSearchTableView.translatesAutoresizingMaskIntoConstraints = false
+//        recentSearchTableView.contentInsetAdjustmentBehavior = .never
         recentSearchTableView.keyboardDismissMode = .onDrag
-        recentSearchTableView.register(CustomTableViewCell.self, forCellReuseIdentifier: CustomTableViewCell.identifier)
+        recentSearchTableView.register(SearchTableViewCell.self, forCellReuseIdentifier: SearchTableViewCell.identifier)
         
         recentSearchTableView.snp.makeConstraints { make in
-            make.edges.equalTo(view.safeAreaLayoutGuide)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.horizontalEdges.bottom.equalTo(view.safeAreaLayoutGuide)
         }
     }
     
@@ -125,7 +165,7 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: CustomTableViewCell.identifier, for: indexPath) as? CustomTableViewCell else { return CustomTableViewCell() }
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: SearchTableViewCell.identifier, for: indexPath) as? SearchTableViewCell else { return SearchTableViewCell() }
         
         let place = places[indexPath.row]
                 
@@ -135,8 +175,7 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-                
-        delegate?.didSelectedPlace(place: places[indexPath.row])
+        delegate?.didSelectedPlace(place: places[indexPath.row], mode: mode)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
