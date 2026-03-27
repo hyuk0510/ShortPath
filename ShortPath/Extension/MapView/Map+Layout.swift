@@ -50,6 +50,7 @@ extension MapViewController {
         
         createLabelLayer()
         createPoiStyle()
+        createRouteStyle()
         updateCameraEventHandler()
         positionLogo()
         

@@ -146,7 +146,7 @@ final class SearchViewController: UIViewController {
             guard let coord = coordinate else { return }
             
             do {
-                let result = try await KakaoLocalManager.shared.fetchData(text: text, coordinate: coord.coordinate)
+                let result = try await KakaoLocalManager.shared.fetchKeywordSearch(text: text, coordinate: coord.coordinate)
                 
                 await MainActor.run {
                     self.places = result.documents.map{ $0.toPlace() }

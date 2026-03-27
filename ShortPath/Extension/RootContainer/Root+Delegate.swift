@@ -49,11 +49,6 @@ extension RootContainerViewController: SearchViewControllerDelegate {
         switch mode {
         case .main:
             updateSheetState(.home)
-//            if let tab = remainedTab {
-//                selectTab(tab)
-//            } else {
-//                customTabBar.deselectAll()
-//            }
             mapVC.removePlaceDetailPoi()
         case .routing(_, _):
             break
@@ -80,6 +75,8 @@ extension RootContainerViewController: PlaceDetailViewControllerDelegate {
             routingViewModel.setEndPlace(place)
         }
         updateSheetState(.routing)
+        
+        mapVC.moveToSelectedPlaceLocation((place.longitude, place.latitude), sheetMode: rootViewModel.sheetMode)
     }
 }
 
@@ -88,6 +85,8 @@ extension RootContainerViewController: RoutingPanelViewDelegate {
         updateSheetState(.home)
         selectTab(remainedTab ?? .home)
         
+        mapVC.removeRoute()
+        mapVC.removeRoutePois()
         mapVC.removePlaceDetailPoi()
     }
     

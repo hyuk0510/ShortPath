@@ -93,6 +93,7 @@ extension RootContainerViewController {
         routingViewModel.onChange = { [weak self] in
             guard let self else { return }
             
+            self.mapVC.removeRoute()
             self.routingContainer.update(items: routingViewModel.items)
         }
         
@@ -102,6 +103,15 @@ extension RootContainerViewController {
             self.routingContainerHeightConstraint?.update(offset: height)
             
             self.view.layoutIfNeeded()
+        }
+        
+        routingContainer.createRoute = { [weak self] items in
+            guard let self else { return }
+            
+            self.mapVC.removePlaceDetailPoi()
+//            self.mapVC.createRouteLine(items)
+            self.requestRoute()
+            self.mapVC.createRoutePois(items)
         }
     }
     
@@ -117,7 +127,11 @@ extension RootContainerViewController {
         routingContainer.onTapAddWayPoint = { [weak self] in
             guard let self else { return }
             
-            self.routingViewModel.addWayPoint()
+            if self.routingViewModel.numberOfItems < 5 {
+                self.routingViewModel.addWayPoint()
+            } else {
+                self.errorAlert(title: "장소 개수 초과", message: "장소는 5개까지 등록할 수 있습니다.")
+            }
         }
         
         routingContainer.onTapDelete = { [weak self] item in
@@ -129,6 +143,7 @@ extension RootContainerViewController {
         routingContainer.onMoveItem = { [weak self] (from, to) in
             guard let self else { return }
             
+//            self.mapVC.removeRoute()
             self.routingViewModel.moveItem(from: from, to: to)
         }
         
@@ -362,13 +377,6 @@ extension RootContainerViewController {
                 guard let self = self else { return }
 
                 self.updateSheetState(.home)
-                
-//                if let tab = remainedTab, mode != .tip {
-//                    self.selectTab(tab)
-//                } else {
-//                    customTabBar.deselectAll()
-//                }
-                
                 self.navigationController?.pushViewController(makeSearchVC(mode: .main), animated: true)
                 
             }
@@ -482,7 +490,7 @@ extension RootContainerViewController {
         setMode(.medium, animated: true)
                 
         mapVC.createPlaceDetailPoi(coordinate: coordinate, placeName: place.name)
-        mapVC.moveToSelectedPlaceLocation(coordinate)
+        mapVC.moveToSelectedPlaceLocation(coordinate, sheetMode: rootViewModel.sheetMode)
     }
     
     func makeSearchVC(mode: SearchMode) -> SearchViewController {
@@ -500,5 +508,23 @@ extension RootContainerViewController {
     func hideRouting() {
         routingViewModel.resetItems()
         routingContainer.isHidden = true
+    }
+    
+    func requestRoute() {
+        routeTask?.cancel()
+        
+        routeTask = Task {
+            do {
+                let route = try await KakaoLocalManager.shared.fetchRoute(routingViewModel.items)
+             
+                await MainActor.run {
+                    self.mapVC.moveToRoute(route.routes[0].summary.bound)
+                    self.mapVC.createRouteLine(route.routes[0].sections)
+                }
+            } catch {
+                print(error)
+            }
+        }
+        
     }
 }

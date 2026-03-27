@@ -44,4 +44,6 @@ final class RootContainerViewController: UIViewController {
     
     let rootViewModel = RootViewModel()
     let routingViewModel = RoutingViewModel()
+    
+    var routeTask: Task<Void, Never>?
 }

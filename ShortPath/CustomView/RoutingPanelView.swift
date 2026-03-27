@@ -8,6 +8,23 @@
 import UIKit
 import SnapKit
 
+enum RouteSection: Equatable {
+    case start
+    case wayPoints
+    case destination
+    
+    var placeHolder: String {
+        switch self {
+        case .start:
+            return "출발지를 입력해주세요."
+        case .wayPoints:
+            return "경유지를 입력해주세요."
+        case .destination:
+            return "도착지를 입력해주세요."
+        }
+    }
+}
+
 final class RoutingPanelView: UIView {
     
     private var items: [RouteSectionItem] = []
@@ -20,9 +37,7 @@ final class RoutingPanelView: UIView {
         
         return view
     }()
-    
-    private var buttonView = UIView()
-    
+        
     private var swapStartDestinationButton: UIButton = {
         let view = UIButton()
         
@@ -41,11 +56,21 @@ final class RoutingPanelView: UIView {
         return view
     }()
     
+    private var createRouteButton: UIButton = {
+        let view = UIButton()
+        
+        view.setImage(UIImage(systemName: "star.fill"), for: .normal)
+        view.tintColor = .black
+        
+        return view
+    }()
+    
     var onTapSearch: ((RouteSectionItem) -> Void)?
     var onTapDelete: ((RouteSectionItem) -> Void)?
     var onTapAddWayPoint: (() -> Void)?
     var onMoveItem: ((Int, Int) -> Void)?
     var onTapSwap: (() -> Void)?
+    var createRoute: (([RouteSectionItem]) -> Void)?
     
     private var movingSnapShot: UIView?
     private var movingIndexPath: IndexPath?
@@ -82,28 +107,26 @@ final class RoutingPanelView: UIView {
         buttonStack.alignment = .center
         buttonStack.distribution = .fillEqually
         
-        [closeButton, swapStartDestinationButton].forEach { view in
+        [closeButton, swapStartDestinationButton, createRouteButton].forEach { view in
             buttonStack.addArrangedSubview(view)
         }
         
-        [routeTableView, buttonView].forEach { view in
+        [routeTableView, buttonStack].forEach { view in
             addSubview(view)
         }
         
-        buttonView.addSubview(buttonStack)
-
         routeTableView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
             make.leading.equalToSuperview()
-            make.trailing.equalTo(buttonView.snp.leading)
+            make.trailing.equalTo(buttonStack.snp.leading)
             tableViewHeightConstraint = make.height.equalTo(112).constraint
         }
         
-        buttonView.snp.makeConstraints { make in
+        buttonStack.snp.makeConstraints { make in
             make.top.equalTo(routeTableView.snp.top)
             make.trailing.equalToSuperview()
-            make.bottom.equalTo(routeTableView.snp.bottom)
             make.width.equalTo(44)
+            make.height.equalTo(100)
         }
         
         closeButton.snp.makeConstraints { make in
@@ -114,15 +137,17 @@ final class RoutingPanelView: UIView {
             make.size.equalTo(44)
         }
         
-        buttonStack.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+        createRouteButton.snp.makeConstraints { make in
+            make.size.equalTo(44)
         }
         
         closeButton.translatesAutoresizingMaskIntoConstraints = false
         swapStartDestinationButton.translatesAutoresizingMaskIntoConstraints = false
+        createRouteButton.translatesAutoresizingMaskIntoConstraints = false
 
         swapStartDestinationButton.addTarget(self, action: #selector(swapStartDestinationButtonPressed), for: .touchUpInside)
         closeButton.addTarget(self, action: #selector(closeButtonPressed), for: .touchUpInside)
+        createRouteButton.addTarget(self, action: #selector(createRouteButtonPressed), for: .touchUpInside)
     }
     
     @objc
@@ -133,6 +158,13 @@ final class RoutingPanelView: UIView {
     @objc
     private func closeButtonPressed() {
         delegate?.didCloseRoutingPanelView()
+    }
+    
+    @objc
+    private func createRouteButtonPressed() {
+        if items.first?.place != nil, items.last?.place != nil {
+            createRoute?(items)
+        }
     }
     
     private func setUpTableView() {
@@ -157,19 +189,20 @@ final class RoutingPanelView: UIView {
     
     func update(items: [RouteSectionItem]) {
         self.items = items
+        
         routeTableView.reloadData()
         routeTableView.layoutIfNeeded()
         
+//        if items.first?.place != nil, items.last?.place != nil {
+//            createRoute?(items)
+//        }
+//        
         let contentHeight = routeTableView.contentSize.height
         let minimumHeight: CGFloat = 112
         let maximumHeight: CGFloat = 280
-        
-        print("contentHeight: \(contentHeight)")
-        
+                
         let tableHeight = min(max(contentHeight, minimumHeight), maximumHeight)
-        
-        print("tableHeight: \(tableHeight)")
-        
+                
         tableViewHeightConstraint?.update(offset: tableHeight)
                 
         onHeightChanged?(tableHeight + safeAreaInsets.top)
@@ -205,10 +238,20 @@ final class RoutingPanelView: UIView {
             guard let snapshot = movingSnapShot, let fromIndexPath = movingIndexPath else { return }
             
             var frame = snapshot.frame
-            frame.origin.y = location.y - movingOffsetY
+            let proposedY = location.y - movingOffsetY
+            
+            let minY: CGFloat = 0
+            let maxY = routeTableView.bounds.height - frame.height
+            frame.origin.y = min(max(proposedY, minY), maxY)
+            
             snapshot.frame = frame
             
-            guard let toIndexPath = routeTableView.indexPathForRow(at: location), toIndexPath != fromIndexPath else { return }
+            let clampedLocation = CGPoint(
+                x: location.x,
+                y: min(max(location.y, 0), routeTableView.bounds.height - 1)
+            )
+            
+            guard let toIndexPath = routeTableView.indexPathForRow(at: clampedLocation), toIndexPath != fromIndexPath else { return }
             
             items.swapAt(fromIndexPath.row, toIndexPath.row)
             onMoveItem?(fromIndexPath.row, toIndexPath.row)
@@ -216,6 +259,7 @@ final class RoutingPanelView: UIView {
             movingIndexPath = toIndexPath
             
         case .ended, .cancelled, .failed:
+            update(items: items)
             finishDragging()
             
         default:

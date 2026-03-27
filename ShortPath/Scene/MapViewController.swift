@@ -51,6 +51,7 @@ final class MapViewController: UIViewController, MapControllerDelegate {
     var currentLocation: CLLocation?
     var currentLocationPoi: Poi?
     var placeDetailPoiID: String?
+    var routePoisID: [String] = Array(repeating: "", count: 7)
     
     var _cameraStartHandler: DisposableEventHandler?
     

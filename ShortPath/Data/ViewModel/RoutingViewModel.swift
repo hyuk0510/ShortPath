@@ -24,6 +24,10 @@ final class RoutingViewModel {
         items.count
     }
     
+//    var isRouting: Bool {
+//        return items.first?.place != nil && items.last?.place != nil
+//    }
+    
     func items(at index: Int) -> RouteSectionItem {
         return items[index]
     }
