@@ -76,10 +76,13 @@ extension MapViewController {
         return view
     }
     
-    func positionLogo() {
-        let safeAreaTop = view.safeAreaInsets.top
+    func positionLogo(_ safeAreaTop: CGFloat) {
+        guard let kakaoMap = kakaoMap else { return }
         
-        kakaoMap?.setLogoPosition(origin: GuiAlignment(vAlign: .top, hAlign: .left), position: CGPoint(x: 15, y: safeAreaTop + 15))
+        let margins = kakaoMap.margins
+        let position = CGPoint(x: 16 - margins.left, y: safeAreaTop + 16 - margins.top)
+        
+        kakaoMap.setLogoPosition(origin: GuiAlignment(vAlign: .top, hAlign: .left), position: position)
     }
     
     func bottomSheetDidSnap(to mode: Mode, to sheetMode: SheetMode, height: CGFloat) {
@@ -94,12 +97,17 @@ extension MapViewController {
     }
     
     func updateBottomMargin(bottomSheetHeight: CGFloat) {
-        kakaoMap?.setMargins(UIEdgeInsets(top: 48, left: 0, bottom: bottomSheetHeight, right: 0))
+        guard let kakaoMap = kakaoMap else { return }
+
+        kakaoMap.setMargins(UIEdgeInsets(top: 0, left: 0, bottom: bottomSheetHeight, right: 0))
     }
     
     func resetMargin() {
-        kakaoMap?.resetMargins()
-        kakaoMap?.setMargins(UIEdgeInsets(top: 48, left: 0, bottom: 48, right: 0))
+        guard let kakaoMap = kakaoMap else { return }
+
+        kakaoMap.resetMargins()
+        kakaoMap.setMargins(UIEdgeInsets(top: 0, left: 0, bottom: 48, right: 0))
+        positionLogo(96)
     }
     
     func moveToSelectedPlaceLocation(_ coordinate: (lon: Double, lat: Double), sheetMode: SheetMode) {
@@ -132,6 +140,8 @@ extension MapViewController {
         
         let cameraUpdate = CameraUpdate.make(area: AreaRect(southWest: southWestPoint, northEast: northEastPoint))
         
-        kakaoMap.animateCamera(cameraUpdate: cameraUpdate, options: CameraAnimationOptions(autoElevation: true, consecutive: true, durationInMillis: 2000))
+        kakaoMap.setMargins(UIEdgeInsets(top: 100, left: 100, bottom: 100, right: 100))
+        positionLogo(128)
+        kakaoMap.animateCamera(cameraUpdate: cameraUpdate, options: CameraAnimationOptions(autoElevation: true, consecutive: true, durationInMillis: 500))
     }
 }

@@ -78,5 +78,6 @@ extension MapViewController {
     
         layer?.removeRoute(routeID: "mainRoute")
         
+        resetMargin()
     }
 }

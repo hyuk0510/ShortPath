@@ -24,9 +24,31 @@ final class RoutingViewModel {
         items.count
     }
     
-//    var isRouting: Bool {
-//        return items.first?.place != nil && items.last?.place != nil
-//    }
+    var isSamePlaceInARow: Bool {        
+        for index in 0..<numberOfItems - 1 {
+            if items[index].place?.id == items[index + 1].place?.id {
+                return true
+            }
+        }
+        
+        return false
+    }
+    
+    var canRouting: Bool {
+        return (items.first?.place != nil && items.last?.place != nil)
+    }
+    
+    var startPlace: RouteSectionItem {
+        return items[0]
+    }
+    
+    var destination: RouteSectionItem {
+        return items[numberOfItems - 1]
+    }
+    
+    var wayPoints: [RouteSectionItem]? {
+        return items.dropFirst().dropLast().compactMap { $0 }
+    }
     
     func items(at index: Int) -> RouteSectionItem {
         return items[index]
@@ -45,7 +67,9 @@ final class RoutingViewModel {
 
     func setEndPlace(_ place: Place) {
         guard let lastIndex = items.indices.last else { return }
+        
         items[lastIndex].place = place
+//        items[lastIndex].placeId = place.id
     }
     
     func addWayPoint() {
@@ -56,6 +80,7 @@ final class RoutingViewModel {
     
     func updatePlace(_ place: Place, for id: UUID) {
         guard let index = items.firstIndex(where: { $0.id == id }) else { return }
+        
         items[index].place = place
     }
     

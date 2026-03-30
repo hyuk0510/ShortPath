@@ -11,7 +11,13 @@ import SnapKit
 enum SheetMode: Equatable {
     case home
     case placeDetail(Place)
-    case routing
+    case routing(RoutingMode)
+}
+
+enum RoutingMode {
+    case none
+    case editing
+    case ready
 }
 
 final class RootContainerViewController: UIViewController {
@@ -21,7 +27,10 @@ final class RootContainerViewController: UIViewController {
     
     let bottomSheetViewContainer = BottomSheetView()
     let searchBarContainer = SearchBarContainerView()
+    
+    let routeSummaryContainer = RouteSummaryView()
     let routingContainer = RoutingPanelView()
+    let routingBottomActionContainer = RoutingBottomActionView()
     
     lazy var searchVC = SearchViewController(mode: .main)
     

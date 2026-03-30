@@ -12,7 +12,10 @@ extension RootContainerViewController: MapInteractionDelegate {
         setMode(.tip)
         customTabBar.deselectAll()
         currentLocationButton.isSelected = false
-        mapVC.bottomSheetDidSnap(to: .tip, to: rootViewModel.sheetMode, height: view.bounds.height - Const.bottomSheetYPosition(.tip, .home))
+        
+        if !rootViewModel.isRouting {
+            mapVC.bottomSheetDidSnap(to: .tip, to: rootViewModel.currentSheetMode(), height: view.bounds.height - Const.bottomSheetYPosition(.tip, .home))
+        }
     }
 }
 
@@ -21,7 +24,7 @@ extension RootContainerViewController: CustomTabBarDelegate {
         setMode(.medium)
         selectTab(tab)
         remainedTab = tab
-        mapVC.bottomSheetDidSnap(to: .medium, to: rootViewModel.sheetMode, height: view.bounds.height - Const.bottomSheetYPosition(.medium, .home))
+        mapVC.bottomSheetDidSnap(to: .medium, to: rootViewModel.currentSheetMode(), height: view.bounds.height - Const.bottomSheetYPosition(.medium, .home))
     }
 }
 
@@ -60,7 +63,14 @@ extension RootContainerViewController: SearchViewControllerDelegate {
 extension RootContainerViewController: PlaceDetailViewControllerDelegate {
     func closeButtonPressed() {
         updateSheetState(.home)
-        selectTab(remainedTab ?? .home)
+        
+        if let tab = remainedTab {
+            selectTab(tab)
+        } else {
+            setMode(.tip, animated: false)
+            customTabBar.deselectAll()
+        }
+        
         navigationController?.pushViewController(self.makeSearchVC(mode: .main), animated: false)
         mapVC.removePlaceDetailPoi()
     }
@@ -74,17 +84,24 @@ extension RootContainerViewController: PlaceDetailViewControllerDelegate {
         case .destination:
             routingViewModel.setEndPlace(place)
         }
-        updateSheetState(.routing)
+        updateSheetState(.routing(.none))
         
-        mapVC.moveToSelectedPlaceLocation((place.longitude, place.latitude), sheetMode: rootViewModel.sheetMode)
+        mapVC.moveToSelectedPlaceLocation((place.longitude, place.latitude), sheetMode: rootViewModel.currentSheetMode())
     }
 }
 
 extension RootContainerViewController: RoutingPanelViewDelegate {
     func didCloseRoutingPanelView() {
         updateSheetState(.home)
-        selectTab(remainedTab ?? .home)
         
+        if let tab = remainedTab {
+            selectTab(tab)
+        } else {
+            setMode(.tip, animated: false)
+            customTabBar.deselectAll()
+        }
+        
+        mapVC.resetMargin()
         mapVC.removeRoute()
         mapVC.removeRoutePois()
         mapVC.removePlaceDetailPoi()

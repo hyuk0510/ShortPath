@@ -56,21 +56,11 @@ final class RoutingPanelView: UIView {
         return view
     }()
     
-    private var createRouteButton: UIButton = {
-        let view = UIButton()
-        
-        view.setImage(UIImage(systemName: "star.fill"), for: .normal)
-        view.tintColor = .black
-        
-        return view
-    }()
-    
     var onTapSearch: ((RouteSectionItem) -> Void)?
     var onTapDelete: ((RouteSectionItem) -> Void)?
     var onTapAddWayPoint: (() -> Void)?
     var onMoveItem: ((Int, Int) -> Void)?
     var onTapSwap: (() -> Void)?
-    var createRoute: (([RouteSectionItem]) -> Void)?
     
     private var movingSnapShot: UIView?
     private var movingIndexPath: IndexPath?
@@ -107,7 +97,7 @@ final class RoutingPanelView: UIView {
         buttonStack.alignment = .center
         buttonStack.distribution = .fillEqually
         
-        [closeButton, swapStartDestinationButton, createRouteButton].forEach { view in
+        [closeButton, swapStartDestinationButton].forEach { view in
             buttonStack.addArrangedSubview(view)
         }
         
@@ -137,17 +127,11 @@ final class RoutingPanelView: UIView {
             make.size.equalTo(44)
         }
         
-        createRouteButton.snp.makeConstraints { make in
-            make.size.equalTo(44)
-        }
-        
         closeButton.translatesAutoresizingMaskIntoConstraints = false
         swapStartDestinationButton.translatesAutoresizingMaskIntoConstraints = false
-        createRouteButton.translatesAutoresizingMaskIntoConstraints = false
 
         swapStartDestinationButton.addTarget(self, action: #selector(swapStartDestinationButtonPressed), for: .touchUpInside)
         closeButton.addTarget(self, action: #selector(closeButtonPressed), for: .touchUpInside)
-        createRouteButton.addTarget(self, action: #selector(createRouteButtonPressed), for: .touchUpInside)
     }
     
     @objc
@@ -158,13 +142,6 @@ final class RoutingPanelView: UIView {
     @objc
     private func closeButtonPressed() {
         delegate?.didCloseRoutingPanelView()
-    }
-    
-    @objc
-    private func createRouteButtonPressed() {
-        if items.first?.place != nil, items.last?.place != nil {
-            createRoute?(items)
-        }
     }
     
     private func setUpTableView() {
@@ -193,13 +170,9 @@ final class RoutingPanelView: UIView {
         routeTableView.reloadData()
         routeTableView.layoutIfNeeded()
         
-//        if items.first?.place != nil, items.last?.place != nil {
-//            createRoute?(items)
-//        }
-//        
         let contentHeight = routeTableView.contentSize.height
         let minimumHeight: CGFloat = 112
-        let maximumHeight: CGFloat = 280
+        let maximumHeight: CGFloat = 392
                 
         let tableHeight = min(max(contentHeight, minimumHeight), maximumHeight)
                 
@@ -315,7 +288,7 @@ extension RoutingPanelView: UITableViewDelegate, UITableViewDataSource {
 
         let item = items[indexPath.row]
         
-        cell.bind(with: item)
+        cell.bind(with: item, indexPath.row == 6)
         
         cell.onTapSearch = { [weak self] in
             guard let self else { return }

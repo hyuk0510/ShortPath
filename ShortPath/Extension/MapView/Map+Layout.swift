@@ -52,7 +52,7 @@ extension MapViewController {
         createPoiStyle()
         createRouteStyle()
         updateCameraEventHandler()
-        positionLogo()
+        positionLogo(96)
         
         if let location = currentLocation {
             createCurrentLocationPoi(location)

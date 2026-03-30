@@ -41,12 +41,14 @@ final class CustomTabBar: UIView {
     
     private let stackView: UIStackView = {
         let view = UIStackView()
+        
         view.axis = .horizontal
         view.distribution = .equalSpacing
         view.alignment = .center
         view.backgroundColor = .white
         view.isLayoutMarginsRelativeArrangement = true
-        view.layoutMargins = UIEdgeInsets(top: 10, left: 20, bottom: 10, right: 20)
+        view.layoutMargins = UIEdgeInsets(top: 16, left: 20, bottom: 0, right: 20)
+        
         return view
     }()
     

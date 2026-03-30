@@ -91,7 +91,7 @@ extension MapViewController: CLLocationManagerDelegate {
         errorAlert(title: "위치 정보 에러", message: "위치 정보를 가져오지 못하였습니다.")
     }
     
-    func moveCameraToCurrentLocation() {
+    func moveCameraToCurrentLocation(sheetMode: SheetMode = .home) {
         guard let location = currentLocation else { return }
         guard let kakaoMap = kakaoMap else { return }
         
@@ -99,6 +99,10 @@ extension MapViewController: CLLocationManagerDelegate {
         let cameraUpdate = CameraUpdate.make(target: currentPosition, zoomLevel: 17, mapView: kakaoMap)
         
         kakaoMap.moveCamera(cameraUpdate)
+        
+        if sheetMode == .routing(.ready) {
+            positionLogo(128)
+        }
     }
     
     func updateCurrentLocationPoi(_ location: CLLocation) {

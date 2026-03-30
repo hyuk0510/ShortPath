@@ -1,5 +1,5 @@
 {
-  "originHash" : "938b00b91a3a7866c690a9a6ada51dc7476a55260d0c3d860c414f6de1da784e",
+  "originHash" : "77662cbcd7d696a2cb2e214df6c819f63d2b8715145611582d90d3774cc38db3",
   "pins" : [
     {
       "identity" : "kakaomapssdk-spm",
@@ -8,6 +8,24 @@
       "state" : {
         "revision" : "cc073a32729b7f545cca49f96d0b859fa3a0d5db",
         "version" : "2.12.10"
+      }
+    },
+    {
+      "identity" : "realm-core",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/realm/realm-core.git",
+      "state" : {
+        "revision" : "4cc46f8607516226e5465062fdacd088fbd94552",
+        "version" : "20.1.4"
+      }
+    },
+    {
+      "identity" : "realm-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/realm/realm-swift.git",
+      "state" : {
+        "branch" : "community",
+        "revision" : "1cd09f1a41e7336f3c3eea76b60bc979bbdf46a9"
       }
     },
     {

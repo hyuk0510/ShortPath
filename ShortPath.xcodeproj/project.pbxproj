@@ -11,7 +11,23 @@
 		D856AFFE2EDB1AF40053E159 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = D856AFFD2EDB1AF40053E159 /* SnapKit */; };
 		D856B0DD2F012B8C0053E159 /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = D856B0DC2F012B8C0053E159 /* RxRelay */; };
 		D856B0DF2F012B8C0053E159 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D856B0DE2F012B8C0053E159 /* RxSwift */; };
+		D86181132F76A752008CF4DD /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D86181122F76A752008CF4DD /* RealmSwift */; };
+		D86181142F76A879008CF4DD /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = D86181122F76A752008CF4DD /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D86181152F76A879008CF4DD /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				D86181142F76A879008CF4DD /* RealmSwift in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		D856AFDB2EDAE2CB0053E159 /* ShortPath.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShortPath.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -46,6 +62,7 @@
 				D856B0DD2F012B8C0053E159 /* RxRelay in Frameworks */,
 				D856AFFB2EDAE7590053E159 /* KakaoMapsSDK-SPM in Frameworks */,
 				D856B0DF2F012B8C0053E159 /* RxSwift in Frameworks */,
+				D86181132F76A752008CF4DD /* RealmSwift in Frameworks */,
 				D856AFFE2EDB1AF40053E159 /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -79,6 +96,7 @@
 				D856AFD72EDAE2CB0053E159 /* Sources */,
 				D856AFD82EDAE2CB0053E159 /* Frameworks */,
 				D856AFD92EDAE2CB0053E159 /* Resources */,
+				D86181152F76A879008CF4DD /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -93,6 +111,7 @@
 				D856AFFD2EDB1AF40053E159 /* SnapKit */,
 				D856B0DC2F012B8C0053E159 /* RxRelay */,
 				D856B0DE2F012B8C0053E159 /* RxSwift */,
+				D86181122F76A752008CF4DD /* RealmSwift */,
 			);
 			productName = ShortPath;
 			productReference = D856AFDB2EDAE2CB0053E159 /* ShortPath.app */;
@@ -126,6 +145,7 @@
 				D856AFF92EDAE7590053E159 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */,
 				D856AFFC2EDB1AF40053E159 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				D856B0DB2F012B8C0053E159 /* XCRemoteSwiftPackageReference "RxSwift" */,
+				D86181112F76A752008CF4DD /* XCRemoteSwiftPackageReference "realm-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D856AFDC2EDAE2CB0053E159 /* Products */;
@@ -391,6 +411,14 @@
 				minimumVersion = 6.9.1;
 			};
 		};
+		D86181112F76A752008CF4DD /* XCRemoteSwiftPackageReference "realm-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/realm-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -413,6 +441,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D856B0DB2F012B8C0053E159 /* XCRemoteSwiftPackageReference "RxSwift" */;
 			productName = RxSwift;
+		};
+		D86181122F76A752008CF4DD /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D86181112F76A752008CF4DD /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = RealmSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

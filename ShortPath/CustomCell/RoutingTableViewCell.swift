@@ -11,15 +11,20 @@ final class RoutingTableViewCell: UITableViewCell {
     
     static let identifier = "RoutingTableViewCell"
     
-    private var placeContainerView: UIView = {
-        let view = UIView()
+    private var placeContainerStackView: UIStackView = {
+        let view = UIStackView()
             
         view.backgroundColor = .white
         view.layer.borderColor = UIColor.systemGray4.cgColor
         view.layer.borderWidth = 1
-        view.layer.cornerRadius = 8
+        view.layer.cornerRadius = 12
         view.clipsToBounds = true
         view.isUserInteractionEnabled = true
+        view.axis = .horizontal
+        view.spacing = 8
+        view.alignment = .center
+        view.isLayoutMarginsRelativeArrangement = true
+        view.directionalLayoutMargins = .init(top: 0, leading: 8, bottom: 0, trailing: 0)
         
         return view
     }()
@@ -28,7 +33,8 @@ final class RoutingTableViewCell: UITableViewCell {
         let view = UILabel()
         
         view.isUserInteractionEnabled = false
-        
+        view.lineBreakMode = .byTruncatingTail
+
         return view
     }()
     
@@ -89,7 +95,7 @@ final class RoutingTableViewCell: UITableViewCell {
         clipsToBounds = false
         selectionStyle = .none
         
-        [placeContainerView, dragHandleImageView].forEach { view in
+        [placeContainerStackView, dragHandleImageView].forEach { view in
             contentView.addSubview(view)
         }
         
@@ -98,10 +104,10 @@ final class RoutingTableViewCell: UITableViewCell {
         gesture.delegate = self
         gesture.cancelsTouchesInView = false
         
-        placeContainerView.addGestureRecognizer(gesture)
+        placeContainerStackView.addGestureRecognizer(gesture)
         
         [placeLabel, actionContainerView].forEach { view in
-            placeContainerView.addSubview(view)
+            placeContainerStackView.addArrangedSubview(view)
         }
         
         [deleteButton, addWayPointButton].forEach { view in
@@ -116,21 +122,22 @@ final class RoutingTableViewCell: UITableViewCell {
         deleteButton.addTarget(self, action: #selector(deleteButtonPressed), for: .touchUpInside)
         addWayPointButton.addTarget(self, action: #selector(addWayPointButtonPressed), for: .touchUpInside)
         
-        placeContainerView.snp.makeConstraints { make in
+        placeContainerStackView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(12)
             make.trailing.equalTo(dragHandleImageView.snp.leading).offset(-12)
             make.centerY.equalToSuperview()
             make.verticalEdges.equalToSuperview().inset(6)
         }
         
-        placeLabel.snp.makeConstraints { make in
-            make.horizontalEdges.equalToSuperview().inset(10)
-            make.verticalEdges.equalToSuperview().inset(6)
-        }
+//        placeLabel.snp.makeConstraints { make in
+//            make.leading.equalToSuperview().inset(10)
+//            make.trailing.equalTo(actionContainerView).offset(-16)
+//            make.verticalEdges.equalToSuperview().inset(6)
+//        }
         
         actionContainerView.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(8)
-            make.centerY.equalToSuperview()
+//            make.trailing.equalToSuperview().inset(8)
+//            make.centerY.equalToSuperview()
             make.width.height.equalTo(44)
         }
         
@@ -177,7 +184,7 @@ final class RoutingTableViewCell: UITableViewCell {
         onTapAddWayPoint?()
     }
     
-    func bind(with items: RouteSectionItem) {
+    func bind(with items: RouteSectionItem, _ isLast: Bool) {
         if let name = items.place?.name {
             placeLabel.textColor = .black
             placeLabel.text = name
@@ -186,7 +193,7 @@ final class RoutingTableViewCell: UITableViewCell {
             placeLabel.text = items.role.placeHolder
         }
         
-        actionContainerView.isHidden = items.role == .start
+        actionContainerView.isHidden = items.role == .start || isLast
         deleteButton.isHidden = items.role != .wayPoints
         addWayPointButton.isHidden = items.role != .destination
     }
