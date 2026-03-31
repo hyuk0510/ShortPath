@@ -29,6 +29,27 @@ final class RoutingPanelView: UIView {
     
     private var items: [RouteSectionItem] = []
     
+    private var shadowView: UIView = {
+        let view = UIView()
+        
+        view.backgroundColor = .clear
+        view.setShadow()
+        view.layer.masksToBounds = false
+        
+        return view
+    }()
+    
+    private var contentView: UIView = {
+        let view = UIView()
+       
+        view.backgroundColor = UIColor(hex: "0xC7C7CC")
+        view.layer.cornerRadius = 12
+        view.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        view.clipsToBounds = true
+        
+        return view
+    }()
+    
     private var routeTableView: UITableView = {
         let view = UITableView(frame: .zero, style: .plain)
         
@@ -37,7 +58,7 @@ final class RoutingPanelView: UIView {
         
         return view
     }()
-        
+    
     private var swapStartDestinationButton: UIButton = {
         let view = UIButton()
         
@@ -86,10 +107,8 @@ final class RoutingPanelView: UIView {
     }
     
     private func configure() {
-        backgroundColor = .gray
-        layer.cornerRadius = 12
-        layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
         isHidden = true
+        clipsToBounds = false
         
         let buttonStack = UIStackView()
         buttonStack.axis = .vertical
@@ -97,12 +116,25 @@ final class RoutingPanelView: UIView {
         buttonStack.alignment = .center
         buttonStack.distribution = .fillEqually
         
+        addSubview(shadowView)
+        
+        shadowView.addSubview(contentView)
+        
         [closeButton, swapStartDestinationButton].forEach { view in
             buttonStack.addArrangedSubview(view)
         }
         
         [routeTableView, buttonStack].forEach { view in
-            addSubview(view)
+            contentView.addSubview(view)
+        }
+        
+        shadowView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        
+        contentView.snp.makeConstraints { make in
+            make.top.horizontalEdges.equalToSuperview()
+            make.bottom.equalToSuperview()
         }
         
         routeTableView.snp.makeConstraints { make in
@@ -126,9 +158,6 @@ final class RoutingPanelView: UIView {
         swapStartDestinationButton.snp.makeConstraints { make in
             make.size.equalTo(44)
         }
-        
-        closeButton.translatesAutoresizingMaskIntoConstraints = false
-        swapStartDestinationButton.translatesAutoresizingMaskIntoConstraints = false
 
         swapStartDestinationButton.addTarget(self, action: #selector(swapStartDestinationButtonPressed), for: .touchUpInside)
         closeButton.addTarget(self, action: #selector(closeButtonPressed), for: .touchUpInside)
@@ -154,11 +183,12 @@ final class RoutingPanelView: UIView {
         routeTableView.tintColor = .black
         routeTableView.backgroundColor = .white
         routeTableView.contentInsetAdjustmentBehavior = .never
+        routeTableView.separatorStyle = .none
         
         routeTableView.backgroundView = {
             let view = UIView()
             
-            view.backgroundColor = .gray
+            view.backgroundColor = UIColor(hex: "0xC7C7CC")
             
             return view
         }()
@@ -287,8 +317,9 @@ extension RoutingPanelView: UITableViewDelegate, UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: RoutingTableViewCell.identifier, for: indexPath) as? RoutingTableViewCell else { return RoutingTableViewCell() }
 
         let item = items[indexPath.row]
+        let lastRow = indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1
         
-        cell.bind(with: item, indexPath.row == 6)
+        cell.bind(with: item, indexPath.row == 6, lastRow)
         
         cell.onTapSearch = { [weak self] in
             guard let self else { return }

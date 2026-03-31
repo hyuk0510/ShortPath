@@ -11,6 +11,7 @@ final class RouteSummaryView: UIControl {
         
     private let contentStackView: UIStackView = {
         let view = UIStackView()
+        
         view.axis = .vertical
         view.spacing = 4
         view.alignment = .fill
@@ -59,7 +60,7 @@ final class RouteSummaryView: UIControl {
     private var contentView : UIView = {
         let view = UIView()
         
-        view.backgroundColor = UIColor(white: 0.97, alpha: 1)
+        view.backgroundColor = UIColor(hex: "0xF5F5F5")
         view.layer.cornerRadius = 12
         view.clipsToBounds = true
         

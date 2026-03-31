@@ -14,10 +14,10 @@ extension UIView {
         }
     }
     
-    func setShadow() {
+    func setShadow(_ offsetY: Double = 2.0) {
         layer.shadowOpacity = 0.15
         layer.shadowColor = UIColor.black.cgColor
-        layer.shadowOffset = .zero
+        layer.shadowOffset = CGSize(width: 0, height: offsetY)
         layer.shadowRadius = 3
     }
 }

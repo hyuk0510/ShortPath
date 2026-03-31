@@ -25,7 +25,7 @@ final class RouteToKakaoButton: UIButton {
         container.font = .systemFont(ofSize: 15, weight: .semibold)
         config.attributedTitle = AttributedString("카카오맵에서 도보 경로 보기", attributes: container)
         config.cornerStyle = .capsule
-        config.baseBackgroundColor = .white
+        config.baseBackgroundColor = UIColor(hex: "0xF5F5F5")
         config.baseForegroundColor = .black
         
         configuration = config

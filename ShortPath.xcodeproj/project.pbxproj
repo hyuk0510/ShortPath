@@ -7,12 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D856AFFB2EDAE7590053E159 /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = D856AFFA2EDAE7590053E159 /* KakaoMapsSDK-SPM */; };
-		D856AFFE2EDB1AF40053E159 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = D856AFFD2EDB1AF40053E159 /* SnapKit */; };
-		D856B0DD2F012B8C0053E159 /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = D856B0DC2F012B8C0053E159 /* RxRelay */; };
-		D856B0DF2F012B8C0053E159 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D856B0DE2F012B8C0053E159 /* RxSwift */; };
-		D86181132F76A752008CF4DD /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D86181122F76A752008CF4DD /* RealmSwift */; };
-		D86181142F76A879008CF4DD /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = D86181122F76A752008CF4DD /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		D86DDD1E2F7A976900EEBEB6 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D86DDD1D2F7A976900EEBEB6 /* RealmSwift */; };
+		D86DDD212F7A977C00EEBEB6 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = D86DDD202F7A977C00EEBEB6 /* SnapKit */; };
+		D86DDD252F7A993B00EEBEB6 /* KakaoMapsSDK-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = D86DDD242F7A993B00EEBEB6 /* KakaoMapsSDK-SPM */; };
+		D86DDD262F7A99C700EEBEB6 /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = D86DDD1D2F7A976900EEBEB6 /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -22,7 +20,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				D86181142F76A879008CF4DD /* RealmSwift in Embed Frameworks */,
+				D86DDD262F7A99C700EEBEB6 /* RealmSwift in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -59,11 +57,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D856B0DD2F012B8C0053E159 /* RxRelay in Frameworks */,
-				D856AFFB2EDAE7590053E159 /* KakaoMapsSDK-SPM in Frameworks */,
-				D856B0DF2F012B8C0053E159 /* RxSwift in Frameworks */,
-				D86181132F76A752008CF4DD /* RealmSwift in Frameworks */,
-				D856AFFE2EDB1AF40053E159 /* SnapKit in Frameworks */,
+				D86DDD1E2F7A976900EEBEB6 /* RealmSwift in Frameworks */,
+				D86DDD212F7A977C00EEBEB6 /* SnapKit in Frameworks */,
+				D86DDD252F7A993B00EEBEB6 /* KakaoMapsSDK-SPM in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -107,11 +103,9 @@
 			);
 			name = ShortPath;
 			packageProductDependencies = (
-				D856AFFA2EDAE7590053E159 /* KakaoMapsSDK-SPM */,
-				D856AFFD2EDB1AF40053E159 /* SnapKit */,
-				D856B0DC2F012B8C0053E159 /* RxRelay */,
-				D856B0DE2F012B8C0053E159 /* RxSwift */,
-				D86181122F76A752008CF4DD /* RealmSwift */,
+				D86DDD1D2F7A976900EEBEB6 /* RealmSwift */,
+				D86DDD202F7A977C00EEBEB6 /* SnapKit */,
+				D86DDD242F7A993B00EEBEB6 /* KakaoMapsSDK-SPM */,
 			);
 			productName = ShortPath;
 			productReference = D856AFDB2EDAE2CB0053E159 /* ShortPath.app */;
@@ -142,10 +136,9 @@
 			mainGroup = D856AFD22EDAE2CB0053E159;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				D856AFF92EDAE7590053E159 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */,
-				D856AFFC2EDB1AF40053E159 /* XCRemoteSwiftPackageReference "SnapKit" */,
-				D856B0DB2F012B8C0053E159 /* XCRemoteSwiftPackageReference "RxSwift" */,
-				D86181112F76A752008CF4DD /* XCRemoteSwiftPackageReference "realm-swift" */,
+				D86DDD1C2F7A976900EEBEB6 /* XCRemoteSwiftPackageReference "realm-swift" */,
+				D86DDD1F2F7A977C00EEBEB6 /* XCRemoteSwiftPackageReference "SnapKit" */,
+				D86DDD232F7A993B00EEBEB6 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D856AFDC2EDAE2CB0053E159 /* Products */;
@@ -387,15 +380,15 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		D856AFF92EDAE7590053E159 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */ = {
+		D86DDD1C2F7A976900EEBEB6 /* XCRemoteSwiftPackageReference "realm-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/kakao-mapsSDK/KakaoMapsSDK-SPM";
+			repositoryURL = "https://github.com/realm/realm-swift.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.12.10;
+				branch = community;
+				kind = branch;
 			};
 		};
-		D856AFFC2EDB1AF40053E159 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+		D86DDD1F2F7A977C00EEBEB6 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
 			requirement = {
@@ -403,49 +396,31 @@
 				minimumVersion = 5.7.1;
 			};
 		};
-		D856B0DB2F012B8C0053E159 /* XCRemoteSwiftPackageReference "RxSwift" */ = {
+		D86DDD232F7A993B00EEBEB6 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/ReactiveX/RxSwift.git";
+			repositoryURL = "https://github.com/kakao-mapsSDK/KakaoMapsSDK-SPM";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 6.9.1;
-			};
-		};
-		D86181112F76A752008CF4DD /* XCRemoteSwiftPackageReference "realm-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/realm/realm-swift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
+				minimumVersion = 2.12.10;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		D856AFFA2EDAE7590053E159 /* KakaoMapsSDK-SPM */ = {
+		D86DDD1D2F7A976900EEBEB6 /* RealmSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = D856AFF92EDAE7590053E159 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */;
-			productName = "KakaoMapsSDK-SPM";
+			package = D86DDD1C2F7A976900EEBEB6 /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = RealmSwift;
 		};
-		D856AFFD2EDB1AF40053E159 /* SnapKit */ = {
+		D86DDD202F7A977C00EEBEB6 /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = D856AFFC2EDB1AF40053E159 /* XCRemoteSwiftPackageReference "SnapKit" */;
+			package = D86DDD1F2F7A977C00EEBEB6 /* XCRemoteSwiftPackageReference "SnapKit" */;
 			productName = SnapKit;
 		};
-		D856B0DC2F012B8C0053E159 /* RxRelay */ = {
+		D86DDD242F7A993B00EEBEB6 /* KakaoMapsSDK-SPM */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = D856B0DB2F012B8C0053E159 /* XCRemoteSwiftPackageReference "RxSwift" */;
-			productName = RxRelay;
-		};
-		D856B0DE2F012B8C0053E159 /* RxSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D856B0DB2F012B8C0053E159 /* XCRemoteSwiftPackageReference "RxSwift" */;
-			productName = RxSwift;
-		};
-		D86181122F76A752008CF4DD /* RealmSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D86181112F76A752008CF4DD /* XCRemoteSwiftPackageReference "realm-swift" */;
-			productName = RealmSwift;
+			package = D86DDD232F7A993B00EEBEB6 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */;
+			productName = "KakaoMapsSDK-SPM";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

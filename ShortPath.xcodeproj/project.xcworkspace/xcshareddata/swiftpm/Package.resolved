@@ -1,5 +1,5 @@
 {
-  "originHash" : "77662cbcd7d696a2cb2e214df6c819f63d2b8715145611582d90d3774cc38db3",
+  "originHash" : "5df5441e293c33816c5da92adfb4ab856e06e16c522a6aafd36b4ecb39362e81",
   "pins" : [
     {
       "identity" : "kakaomapssdk-spm",
@@ -26,15 +26,6 @@
       "state" : {
         "branch" : "community",
         "revision" : "1cd09f1a41e7336f3c3eea76b60bc979bbdf46a9"
-      }
-    },
-    {
-      "identity" : "rxswift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/ReactiveX/RxSwift.git",
-      "state" : {
-        "revision" : "5004a18539bd68905c5939aa893075f578f4f03d",
-        "version" : "6.9.1"
       }
     },
     {

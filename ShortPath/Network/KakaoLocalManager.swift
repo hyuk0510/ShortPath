@@ -33,7 +33,7 @@ final class KakaoLocalManager {
         
         request.httpMethod = "GET"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("KakaoAK \(APIKey.kakaoAPI2)", forHTTPHeaderField: "Authorization")
+        request.setValue("KakaoAK \(APIKey.kakaoAPI)", forHTTPHeaderField: "Authorization")
         
         let (data, response) = try await URLSession.shared.data(for: request)
 
@@ -76,7 +76,7 @@ final class KakaoLocalManager {
         
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("KakaoAK \(APIKey.kakaoAPI2)", forHTTPHeaderField: "Authorization")
+        request.setValue("KakaoAK \(APIKey.kakaoAPI)", forHTTPHeaderField: "Authorization")
         request.httpBody = try JSONEncoder().encode(body)
         
         let (data, response) = try await URLSession.shared.data(for: request)

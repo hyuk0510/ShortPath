@@ -29,6 +29,14 @@ final class RoutingTableViewCell: UITableViewCell {
         return view
     }()
     
+    private var separatorView: UIView = {
+        let view = UIView()
+        
+        view.backgroundColor = .black
+        
+        return view
+    }()
+    
     private var placeLabel: UILabel = {
         let view = UILabel()
         
@@ -91,11 +99,11 @@ final class RoutingTableViewCell: UITableViewCell {
     
     private func configure() {
         backgroundColor = .clear
-        contentView.backgroundColor = .lightGray
+        contentView.backgroundColor = UIColor(hex: "0xEFEFEF")
         clipsToBounds = false
         selectionStyle = .none
         
-        [placeContainerStackView, dragHandleImageView].forEach { view in
+        [placeContainerStackView, separatorView, dragHandleImageView].forEach { view in
             contentView.addSubview(view)
         }
         
@@ -129,15 +137,14 @@ final class RoutingTableViewCell: UITableViewCell {
             make.verticalEdges.equalToSuperview().inset(6)
         }
         
-//        placeLabel.snp.makeConstraints { make in
-//            make.leading.equalToSuperview().inset(10)
-//            make.trailing.equalTo(actionContainerView).offset(-16)
-//            make.verticalEdges.equalToSuperview().inset(6)
-//        }
+        separatorView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(12)
+            make.trailing.equalToSuperview().offset(-12)
+            make.bottom.equalToSuperview()
+            make.height.equalTo(1 / UIScreen.main.scale)
+        }
         
         actionContainerView.snp.makeConstraints { make in
-//            make.trailing.equalToSuperview().inset(8)
-//            make.centerY.equalToSuperview()
             make.width.height.equalTo(44)
         }
         
@@ -184,7 +191,7 @@ final class RoutingTableViewCell: UITableViewCell {
         onTapAddWayPoint?()
     }
     
-    func bind(with items: RouteSectionItem, _ isLast: Bool) {
+    func bind(with items: RouteSectionItem, _ isLast: Bool, _ isLastRow: Bool) {
         if let name = items.place?.name {
             placeLabel.textColor = .black
             placeLabel.text = name
@@ -196,6 +203,7 @@ final class RoutingTableViewCell: UITableViewCell {
         actionContainerView.isHidden = items.role == .start || isLast
         deleteButton.isHidden = items.role != .wayPoints
         addWayPointButton.isHidden = items.role != .destination
+        separatorView.isHidden = isLastRow
     }
 
     override func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {

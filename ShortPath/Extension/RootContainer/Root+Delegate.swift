@@ -84,6 +84,7 @@ extension RootContainerViewController: PlaceDetailViewControllerDelegate {
         case .destination:
             routingViewModel.setEndPlace(place)
         }
+        
         updateSheetState(.routing(.none))
         
         mapVC.moveToSelectedPlaceLocation((place.longitude, place.latitude), sheetMode: rootViewModel.currentSheetMode())

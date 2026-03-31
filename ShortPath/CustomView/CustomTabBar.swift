@@ -61,7 +61,7 @@ final class CustomTabBar: UIView {
         super.init(frame: frame)
         
         setUpView()
-        setShadow()
+        setShadow(-2)
         buttonTapped(buttons[Buttons.home] ?? CustomTabButton())
     }
     

@@ -51,7 +51,7 @@ extension RootContainerViewController {
         bottomSheetViewContainer.layer.cornerRadius = 12
         bottomSheetViewContainer.layer.masksToBounds = false
         
-        bottomSheetViewContainer.setShadow()
+        bottomSheetViewContainer.setShadow(-2)
 
         bottomSheetViewContainer.snp.makeConstraints { make in
             sheetTopConstraint = make.top.equalToSuperview().offset(Const.bottomSheetYPosition(.medium, .home)).constraint
@@ -117,7 +117,6 @@ extension RootContainerViewController {
         }
         
         routingContainer.delegate = self
-        routingContainer.setShadow()
         
         routingContainer.snp.makeConstraints { make in
             make.top.horizontalEdges.equalToSuperview()
