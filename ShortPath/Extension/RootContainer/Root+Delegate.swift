@@ -28,11 +28,9 @@ extension RootContainerViewController: MapInteractionDelegate {
                 to: (enrichedPlace.longitude, enrichedPlace.latitude)
             )
         }
-        
-        rootViewModel.presentFavoritePoiDetail(place: enrichedPlace)
-                
+                        
         switch rootViewModel.currentSheetMode() {
-        case .home, .placeDetail(_):
+        case .home:
             let scene = PlaceDetailScene(place: enrichedPlace, style: .normal)
             let coordinate = (Double(enrichedPlace.longitude), Double(enrichedPlace.latitude))
             let placeDetailVC = PlaceDetailViewController(scene: scene)
@@ -42,6 +40,21 @@ extension RootContainerViewController: MapInteractionDelegate {
             DispatchQueue.main.async {
                 self.showPlaceDetail(scene: scene, vc: placeDetailVC, coordinate: coordinate)
             }
+            
+            rootViewModel.presentFavoritePoiDetail(place: enrichedPlace)
+            
+        case .placeDetail(_):
+            let scene = PlaceDetailScene(place: enrichedPlace, style: .pushBySearch)
+            let coordinate = (Double(enrichedPlace.longitude), Double(enrichedPlace.latitude))
+            let placeDetailVC = PlaceDetailViewController(scene: scene)
+            
+            placeDetailVC.delegate = self
+            
+            DispatchQueue.main.async {
+                self.showPlaceDetail(scene: scene, vc: placeDetailVC, coordinate: coordinate)
+            }
+            
+            rootViewModel.presentFavoritePoiDetail(place: enrichedPlace)
             
         case .routing(let routingMode):
             let scene = PlaceDetailScene(place: enrichedPlace, style: .routeCandidate)
@@ -58,6 +71,8 @@ extension RootContainerViewController: MapInteractionDelegate {
                     DispatchQueue.main.async {
                         self.showPlaceDetail(scene: scene, vc: placeDetailVC, coordinate: coordinate)
                     }
+                    
+                    rootViewModel.presentFavoritePoiDetail(place: enrichedPlace)
                 }
             }
         }
@@ -75,7 +90,7 @@ extension RootContainerViewController: CustomTabBarDelegate {
 
 extension RootContainerViewController: SearchViewControllerDelegate {
     func didSelectedPlace(place: Place, mode: SearchMode) {
-        let scene = PlaceDetailScene(place: place, style: .normal)
+        let scene = PlaceDetailScene(place: place, style: .pushBySearch)
         let coordinate = (Double(place.longitude), Double(place.latitude))
         let placeDetailVC = PlaceDetailViewController(scene: scene)
         
@@ -157,7 +172,7 @@ extension RootContainerViewController: PlaceDetailViewControllerDelegate {
         case .destination:
             routingViewModel.setEndPlace(place)
         }
-        
+                
         if routingViewModel.canRouting {
             updateSheetState(.routing(.editing))
         } else {

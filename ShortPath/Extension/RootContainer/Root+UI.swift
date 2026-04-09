@@ -487,8 +487,8 @@ extension RootContainerViewController {
             }
             
         case .placeDetail(let scene):
-            if scene.style == .normal {
-                rootViewModel.selectedPlace(scene.place)
+            if scene.style == .normal || scene.style == .pushBySearch {
+                rootViewModel.selectedPlace(scene.place, scene.style)
             }
             setMode(mode)
             
@@ -514,6 +514,14 @@ extension RootContainerViewController {
         case .placeDetail(let scene):
             switch scene.style {
             case .normal:
+                backButtonContainer.isHidden = true
+                searchBarContainer.isHidden = false
+                
+                searchBarContainer.configureHome()
+
+                hideRouting()
+                
+            case .pushBySearch:
                 backButtonContainer.isHidden = true
                 searchBarContainer.isHidden = false
                 
@@ -674,7 +682,7 @@ extension RootContainerViewController {
         currentLocationButton.isSelected = false
 
         updateSheetState(.placeDetail(scene))
-        
+       
         switchBottomSheet(vc)
         setMode(.medium, animated: true)
                 

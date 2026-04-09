@@ -14,5 +14,6 @@ struct PlaceDetailScene: Equatable {
 
 enum PlaceDetailStyle {
     case normal
+    case pushBySearch
     case routeCandidate
 }

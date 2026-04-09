@@ -40,12 +40,12 @@ final class RootViewModel {
         return sheetMode
     }
     
-    func selectedPlace(_ place: Place) {
+    func selectedPlace(_ place: Place, _ style: PlaceDetailStyle) {
         previousSheetMode = nil
         sheetMode = .placeDetail(
             PlaceDetailScene(
                 place: place,
-                style: .normal
+                style: style
             )
         )
     }
@@ -65,7 +65,7 @@ final class RootViewModel {
             sheetMode = .placeDetail(
                 PlaceDetailScene(
                     place: place,
-                    style: .normal
+                    style: .pushBySearch
                 )
             )
         case .routing(.editing):
