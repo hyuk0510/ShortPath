@@ -47,6 +47,16 @@ final class RouteSummaryView: UIControl {
         return view
     }()
     
+    private var favoriteButton: UIButton = {
+        let view = UIButton()
+        
+        view.setImage(UIImage(systemName: "star"), for: .normal)
+        view.setImage(UIImage(systemName: "star.fill"), for: .selected)
+        view.tintColor = .black
+        
+        return view
+    }()
+    
     private var shadowView: UIView = {
         let view = UIView()
         
@@ -83,6 +93,11 @@ final class RouteSummaryView: UIControl {
         isHidden = true
         backgroundColor = .clear
         
+        let buttonStackView = UIStackView()
+        buttonStackView.axis = .vertical
+        buttonStackView.alignment = .center
+        buttonStackView.spacing = 6
+        
         shadowView.isUserInteractionEnabled = false
         contentStackView.isUserInteractionEnabled = false
         
@@ -94,7 +109,11 @@ final class RouteSummaryView: UIControl {
             contentStackView.addArrangedSubview(view)
         }
         
-        [contentStackView, closeButton].forEach { view in
+        [closeButton, favoriteButton].forEach { view in
+            buttonStackView.addArrangedSubview(view)
+        }
+        
+        [contentStackView, buttonStackView].forEach { view in
             contentView.addSubview(view)
         }
                 
@@ -110,19 +129,33 @@ final class RouteSummaryView: UIControl {
             make.edges.equalToSuperview().inset(UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 60))
         }
         
+        buttonStackView.snp.makeConstraints { make in
+            make.top.trailing.bottom.equalToSuperview()
+        }
+        
         closeButton.snp.makeConstraints { make in
-            make.top.trailing.equalToSuperview().inset(12)
             make.size.equalTo(44)
         }
         
-        contentView.bringSubviewToFront(closeButton)
+        favoriteButton.snp.makeConstraints { make in
+            make.size.equalTo(44)
+        }
+        
+        contentView.bringSubviewToFront(buttonStackView)
         
         closeButton.addTarget(self, action: #selector(closeButtonPressed), for: .touchUpInside)
+        favoriteButton.addTarget(self, action: #selector(favoriteButtonPressed), for: .touchUpInside)
     }
     
     @objc
     private func closeButtonPressed() {
         onTapCloseButton?()
+    }
+    
+    @objc
+    private func favoriteButtonPressed() {
+        // 경로 DB 저장 코드
+        print("pressed")
     }
     
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
@@ -131,8 +164,15 @@ final class RouteSummaryView: UIControl {
         }
         
         let closeButtonPoint = closeButton.convert(point, from: self)
+        
         if closeButton.bounds.contains(closeButtonPoint) {
             return closeButton
+        }
+        
+        let favoriteButtonPoint = favoriteButton.convert(point, from: self)
+        
+        if favoriteButton.bounds.contains(favoriteButtonPoint) {
+            return favoriteButton
         }
         
         return super.hitTest(point, with: event)

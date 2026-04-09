@@ -9,11 +9,11 @@ import UIKit
 
 final class CustomTabButton: UIButton {
     
-    var defaultImage: String?
+    var defaultImage: UIImage?
     var title: String?
-    var selectedImage: String?
+    var selectedImage: UIImage?
     
-    init(defaultImage: String, title: String, selectedImage: String) {
+    init(defaultImage: UIImage, title: String, selectedImage: UIImage) {
         super.init(frame: .zero)
         
         self.defaultImage = defaultImage
@@ -58,14 +58,14 @@ final class CustomTabButton: UIButton {
             switch button.state {
             case .selected:
                 selectedContainer.foregroundColor = .black
-                configuration?.image = UIImage(systemName: selectedImage ?? "xmark")
+                configuration?.image = selectedImage
                 configuration?.background.backgroundColor = .white
                 configuration?.attributedTitle = AttributedString(self.title ?? "no title", attributes: selectedContainer)
             case .highlighted:
                 break
             default:
                 container.foregroundColor = .black
-                configuration?.image = UIImage(systemName: defaultImage ?? "xmark")
+                configuration?.image = defaultImage
                 configuration?.background.backgroundColor = .white
                 configuration?.attributedTitle = AttributedString(self.title ?? "no title", attributes: container)
             }

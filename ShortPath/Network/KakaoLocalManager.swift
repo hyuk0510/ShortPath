@@ -58,7 +58,7 @@ final class KakaoLocalManager {
         guard let startPlace = route.first(where: { $0.role == .start }) else { throw NetworkError.invalidResponse }
         guard let destination = route.first(where: { $0.role == .destination }) else { throw NetworkError.invalidResponse }
         
-        let wayPoints = route.filter{ $0.role == .wayPoints}
+        let wayPoints = route.filter{ $0.role == .wayPoint}
         
         let origin = Points(name: startPlace.place?.name, x: startPlace.place?.longitude ?? 0, y: startPlace.place?.latitude ?? 0)
         

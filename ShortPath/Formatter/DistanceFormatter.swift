@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreLocation
 
 struct DistanceFormatter {
     static func string(from distance: Int) -> String {
@@ -19,5 +20,13 @@ struct DistanceFormatter {
     static func string(from distance: String) -> String {
         let value = Int(distance) ?? 0
         return string(from: value)
+    }
+}
+
+struct DistanceCalculator {
+    static func distance(from: (longitude: Double, latitude: Double), to: (longitude: Double, latitude: Double)) -> Int {
+        let distance = CLLocation(latitude: to.latitude, longitude: to.longitude).distance(from: CLLocation(latitude: from.latitude, longitude: from.longitude))
+        
+        return Int(distance)
     }
 }

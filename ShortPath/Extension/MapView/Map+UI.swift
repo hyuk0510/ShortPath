@@ -36,10 +36,10 @@ extension MapViewController {
     }
     
     var startPlacePoiView: UIView {
-        let view = UIView(frame: .init(x: 0, y: 0, width: 36, height: 36))
+        let view = UIView(frame: .init(x: 0, y: 0, width: 24, height: 24))
         let imageView = UIImageView()
         imageView.image = UIImage(named: "StartPlace")
-        imageView.frame = CGRect(x: 0, y: 0, width: 36, height: 36)
+        imageView.frame = CGRect(x: 0, y: 0, width: 24, height: 24)
         imageView.contentMode = .scaleAspectFit
         
         view.addSubview(imageView)
@@ -51,10 +51,10 @@ extension MapViewController {
         var viewArr: [UIView] = []
         
         for i in 1...5 {
-            let view = UIView(frame: .init(x: 0, y: 0, width: 36, height: 36))
+            let view = UIView(frame: .init(x: 0, y: 0, width: 24, height: 24))
             let imageView = UIImageView()
             imageView.image = UIImage(named: "WayPoint_\(i)")
-            imageView.frame = CGRect(x: 0, y: 0, width: 36, height: 36)
+            imageView.frame = CGRect(x: 0, y: 0, width: 24, height: 24)
             imageView.contentMode = .scaleAspectFit
             
             view.addSubview(imageView)
@@ -65,10 +65,22 @@ extension MapViewController {
     }
     
     var destinationPlacePoiView: UIView {
-        let view = UIView(frame: .init(x: 0, y: 0, width: 36, height: 36))
+        let view = UIView(frame: .init(x: 0, y: 0, width: 30, height: 30))
         let imageView = UIImageView()
         imageView.image = UIImage(named: "Destination")
-        imageView.frame = CGRect(x: 0, y: 0, width: 36, height: 36)
+        imageView.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
+        imageView.contentMode = .scaleAspectFit
+        
+        view.addSubview(imageView)
+        
+        return view
+    }
+    
+    var favoritePoiView: UIView {
+        let view = UIView(frame: .init(x: 0, y: 0, width: 15, height: 15))
+        let imageView = UIImageView()
+        imageView.image = UIImage(named: "FavoritePoiImage")
+        imageView.frame = CGRect(x: 0, y: 0, width: 15, height: 15)
         imageView.contentMode = .scaleAspectFit
         
         view.addSubview(imageView)

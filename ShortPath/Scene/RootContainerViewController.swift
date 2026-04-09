@@ -8,18 +8,6 @@
 import UIKit
 import SnapKit
 
-enum SheetMode: Equatable {
-    case home
-    case placeDetail(Place)
-    case routing(RoutingMode)
-}
-
-enum RoutingMode {
-    case none
-    case editing
-    case ready
-}
-
 final class RootContainerViewController: UIViewController {
     
     let mapVC = MapViewController()
@@ -31,6 +19,8 @@ final class RootContainerViewController: UIViewController {
     let routeSummaryContainer = RouteSummaryView()
     let routingContainer = RoutingPanelView()
     let routingBottomActionContainer = RoutingBottomActionView()
+    
+    let backButtonContainer = PlaceDetailVCBackButtonContainer()
     
     lazy var searchVC = SearchViewController(mode: .main)
     

@@ -14,11 +14,11 @@ final class SearchTableViewCell: UITableViewCell {
     
     lazy var leftImageView = {
         let view = UIImageView()
-        view.image = UIImage(systemName: "magnifyingglass")
+        
+        view.image = UIImage(named: "SearchTableViewCellLeftView")
         view.setContentHuggingPriority(.required, for: .horizontal)
         view.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         view.contentMode = .scaleAspectFit
-        view.tintColor = .black
         
         view.snp.makeConstraints { make in
             make.width.equalTo(32)

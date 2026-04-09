@@ -23,4 +23,10 @@ extension MapViewController: KakaoMapEventDelegate {
     func kakaoMapDidTapped(kakaoMap: KakaoMap, point: CGPoint) {
         mapInterActiveDelegate?.mapDidReceiveUserInteraction()
     }
+    
+    func poiDidTapped(kakaoMap: KakaoMap, layerID: String, poiID: String, position: MapPoint) {
+        guard let place = repository.fetch(placeID: layerID) else { return }
+                
+        mapInterActiveDelegate?.favoritePoiTapped(place: place)
+    }
 }

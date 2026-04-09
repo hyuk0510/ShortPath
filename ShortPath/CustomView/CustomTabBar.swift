@@ -20,19 +20,31 @@ enum Buttons: CaseIterable {
         }
     }
     
-    var defaultImage: String {
+    var defaultImage: UIImage {
         switch self {
-        case .home: return "pencil.circle"
-        case .favorite: return "star"
-        case .setting: return "square.and.pencil.circle"
+        case .home:
+            guard let image = UIImage(named: "home") else { return UIImage() }
+            return image
+        case .favorite:
+            guard let image = UIImage(systemName: "star") else { return UIImage() }
+            return image
+        case .setting:
+            guard let image = UIImage(systemName: "gearshape") else { return UIImage() }
+            return image
         }
     }
     
-    var selectedImage: String {
+    var selectedImage: UIImage {
         switch self {
-        case .home: return "pencil.circle.fill"
-        case .favorite: return "star.fill"
-        case .setting: return "square.and.pencil.circle.fill"
+        case .home:
+            guard let image = UIImage(named: "home.fill") else { return UIImage() }
+            return image
+        case .favorite:
+            guard let image = UIImage(systemName: "star.fill") else { return UIImage() }
+            return image
+        case .setting:
+            guard let image = UIImage(systemName: "gearshape.fill") else { return UIImage() }
+            return image
         }
     }
 }

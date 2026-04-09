@@ -9,4 +9,5 @@ import UIKit
 
 protocol MapInteractionDelegate: AnyObject {
     func mapDidReceiveUserInteraction()
+    func favoritePoiTapped(place: Place)
 }

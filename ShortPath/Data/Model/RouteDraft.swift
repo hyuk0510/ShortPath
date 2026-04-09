@@ -7,8 +7,14 @@
 
 import Foundation
 
-struct RouteDraft {
+struct RouteDraft: Equatable {
     var start: Place?
     var waypoints: [Place] = []
     var destination: Place?
+    
+    static func == (lhs: RouteDraft, rhs: RouteDraft) -> Bool {
+        lhs.start?.id == rhs.start?.id &&
+        lhs.waypoints.map(\.id) == rhs.waypoints.map(\.id) &&
+        lhs.destination?.id == rhs.destination?.id
+    }
 }

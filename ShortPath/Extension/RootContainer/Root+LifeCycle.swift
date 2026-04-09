@@ -17,6 +17,7 @@ extension RootContainerViewController {
         setUpBottomSheet()
         setUpTabBar()
         setUpRouting()
+        setUpBackButtonContainer()
         
         DispatchQueue.main.async {
             self.setUpCurrentLocationButton()

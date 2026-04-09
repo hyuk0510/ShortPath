@@ -20,7 +20,7 @@ enum SearchMode {
             switch role {
             case .start:
                 return "출발지 검색"
-            case .wayPoints:
+            case .wayPoint:
                 return "경유지 검색"
             case .destination:
                 return "도착지 검색"

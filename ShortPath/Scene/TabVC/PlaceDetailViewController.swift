@@ -7,6 +7,12 @@
 
 import UIKit
 
+enum PlaceDetailPresentationContext {
+    case normal
+    case preview
+    case selectionForRoute
+}
+
 final class PlaceDetailViewController: UIViewController, BottomSheetInteractable, BottomSheetStateApplicable {
     
     var scrollView = UIScrollView()
@@ -18,15 +24,21 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
     
     var buttonEnabled: Bool = false
         
-    private let place: Place
-        
+    private let scene: PlaceDetailScene
+    lazy var place: Place = scene.place
+    
     weak var delegate: PlaceDetailViewControllerDelegate?
     
     private var addressContainer = UIStackView()
     private var telContainer = UIStackView()
     
-    init(place: Place) {
-        self.place = place
+    private let repository = FavoriteRepository.shared
+    
+    private let lightFeedback = UIImpactFeedbackGenerator(style: .light)
+    private let softFeedback = UIImpactFeedbackGenerator(style: .soft)
+    
+    init(scene: PlaceDetailScene) {
+        self.scene = scene
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -57,6 +69,7 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
         let view = UIButton()
         
         view.setImage(UIImage(systemName: "star"), for: .normal)
+        view.setImage(UIImage(systemName: "star.fill"), for: .selected)
         view.tintColor = .black
         
         return view
@@ -277,11 +290,20 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
         return view
     }()
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        let isFavorite = repository.isFavorite(placeID: place.id)
+        updateFavoriteUI(isFavorite: isFavorite)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         configure()
         bind()
+        lightFeedback.prepare()
+        softFeedback.prepare()
     }
     
     private func configure() {
@@ -354,10 +376,18 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
     @objc
     private func favoriteButtonPressed() {
         guard buttonEnabled else { return }
-        let vc = SaveFavoriteViewController()
         
-        vc.modalPresentationStyle = .formSheet
-        present(vc, animated: true)
+        let isFavorite = repository.isFavorite(placeID: place.id)
+        
+        delegate?.favoriteButtonPressed(place: place, isFavorite: isFavorite)
+        
+        if isFavorite {
+            repository.deletePlace(placeID: place.id)
+            handleUnFavorite()
+        } else {
+            repository.savePlace(place: place)
+            handleFavorite()
+        }
     }
     
     @objc
@@ -419,7 +449,7 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
     private func wayPointButtonPressed() {
         guard buttonEnabled else { return }
 
-        delegate?.didSelectRouteAction(place: place, action: .wayPoints)
+        delegate?.didSelectRouteAction(place: place, action: .wayPoint)
     }
     
     @objc
@@ -628,15 +658,23 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
     func bind() {
         placeNameLabel.text = place.name
         categoryNameLabel.text = CategoryFormatter.string(from: place.category)
-        distanceLabel.text = DistanceFormatter.string(from: place.distance ?? 0) + " ･"
         placeAddressLabel.text = place.roadAddress
         roadAddressLabel.text = place.roadAddress
         addressLabel.text = place.address
         telNumber.text = place.phone
+        
+        guard let distance = place.distance else {
+            distanceLabel.text = "제공하지 않음 ･"
+            return
+        }
+        
+        distanceLabel.text = DistanceFormatter.string(from: distance) + " ･"
     }
     
     func changedBottomSheetState(_ state: Mode) {
         switch state {
+        case .hidden:
+            break
         case .tip:
             addressContainer.isHidden = true
             telContainer.isHidden = true
@@ -644,6 +682,34 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
             addressContainer.isHidden = false
             telContainer.isHidden = false
         }
+    }
+    
+    private func updateFavoriteUI(isFavorite: Bool) {
+        favoriteButton.isSelected = isFavorite
+    }
+    
+    private func handleFavorite() {
+        updateFavoriteUI(isFavorite: true)
+
+        lightFeedback.impactOccurred()
+        
+        UIView.animate(withDuration: 0.15, animations: {
+            self.favoriteButton.transform = CGAffineTransform(scaleX: 1.3, y: 1.3)
+        }) { _ in
+            UIView.animate(withDuration: 0.15) {
+                self.favoriteButton.transform = .identity
+            }
+        }
+        
+        view.showToast("즐겨찾기에 저장됨")
+    }
+    
+    private func handleUnFavorite() {
+        updateFavoriteUI(isFavorite: false)
+
+        softFeedback.impactOccurred()
+        
+        view.showToast("즐겨찾기에서 삭제됨")
     }
 }
 

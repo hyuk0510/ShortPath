@@ -15,7 +15,7 @@ struct Place: Equatable {
     let roadAddress: String?
     let longitude: Double
     let latitude: Double
-    let distance: Int?
+    var distance: Int?
     let phone: String?
     let placeURL: String?
 }

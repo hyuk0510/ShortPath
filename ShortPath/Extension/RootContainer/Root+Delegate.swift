@@ -17,6 +17,51 @@ extension RootContainerViewController: MapInteractionDelegate {
             mapVC.bottomSheetDidSnap(to: .tip, to: rootViewModel.currentSheetMode(), height: view.bounds.height - Const.bottomSheetYPosition(.tip, .home))
         }
     }
+    
+    func favoritePoiTapped(place: Place) {
+        var enrichedPlace = place
+        
+        if enrichedPlace.distance == nil,
+           let currentLocation = mapVC.currentLocation {
+            enrichedPlace.distance = DistanceCalculator.distance(
+                from: (currentLocation.coordinate.longitude, currentLocation.coordinate.latitude),
+                to: (enrichedPlace.longitude, enrichedPlace.latitude)
+            )
+        }
+        
+        rootViewModel.presentFavoritePoiDetail(place: enrichedPlace)
+                
+        switch rootViewModel.currentSheetMode() {
+        case .home, .placeDetail(_):
+            let scene = PlaceDetailScene(place: enrichedPlace, style: .normal)
+            let coordinate = (Double(enrichedPlace.longitude), Double(enrichedPlace.latitude))
+            let placeDetailVC = PlaceDetailViewController(scene: scene)
+            
+            placeDetailVC.delegate = self
+            
+            DispatchQueue.main.async {
+                self.showPlaceDetail(scene: scene, vc: placeDetailVC, coordinate: coordinate)
+            }
+            
+        case .routing(let routingMode):
+            let scene = PlaceDetailScene(place: enrichedPlace, style: .routeCandidate)
+            
+            if routingMode != .editing {
+                if scene.style == .routeCandidate {
+                    backButtonContainer.isHidden = false
+                    
+                    let coordinate = (Double(enrichedPlace.longitude), Double(enrichedPlace.latitude))
+                    let placeDetailVC = PlaceDetailViewController(scene: scene)
+                                        
+                    placeDetailVC.delegate = self
+                    
+                    DispatchQueue.main.async {
+                        self.showPlaceDetail(scene: scene, vc: placeDetailVC, coordinate: coordinate)
+                    }
+                }
+            }
+        }
+    }
 }
 
 extension RootContainerViewController: CustomTabBarDelegate {
@@ -30,8 +75,9 @@ extension RootContainerViewController: CustomTabBarDelegate {
 
 extension RootContainerViewController: SearchViewControllerDelegate {
     func didSelectedPlace(place: Place, mode: SearchMode) {
+        let scene = PlaceDetailScene(place: place, style: .normal)
         let coordinate = (Double(place.longitude), Double(place.latitude))
-        let placeDetailVC = PlaceDetailViewController(place: place)
+        let placeDetailVC = PlaceDetailViewController(scene: scene)
         
         placeDetailVC.delegate = self
                         
@@ -40,8 +86,10 @@ extension RootContainerViewController: SearchViewControllerDelegate {
         DispatchQueue.main.async {
             switch mode {
             case .main:
-                self.showPlaceDetail(place: place, vc: placeDetailVC, coordinate: coordinate)
+                self.showPlaceDetail(scene: scene, vc: placeDetailVC, coordinate: coordinate)
             case .routing(let targetID, _):
+                self.mapVC.moveToSelectedPlaceLocation(coordinate, sheetMode: self.rootViewModel.currentSheetMode())
+                self.mapVC.createPlaceDetailPoi(coordinate: coordinate, placeName: place.name)
                 self.routingViewModel.updatePlace(place, for: targetID)
             }
         }
@@ -52,17 +100,42 @@ extension RootContainerViewController: SearchViewControllerDelegate {
         switch mode {
         case .main:
             updateSheetState(.home)
+            
+            if let tab = remainedTab {
+                selectTab(tab)
+            } else {
+                setMode(.tip, animated: false)
+                customTabBar.deselectAll()
+            }
+            
             mapVC.removePlaceDetailPoi()
         case .routing(_, _):
             break
         }
+        
         navigationController?.popViewController(animated: false)
     }
 }
 
 extension RootContainerViewController: PlaceDetailViewControllerDelegate {
     func closeButtonPressed() {
-        updateSheetState(.home)
+        backButtonContainer.isHidden = true
+        mapVC.removePlaceDetailPoi()
+        
+        guard let sheetMode = rootViewModel.previousSheetMode else {
+            updateSheetState(.home)
+            
+            if let tab = remainedTab {
+                selectTab(tab)
+            } else {
+                setMode(.tip, animated: false)
+                customTabBar.deselectAll()
+            }
+            
+            return
+        }
+        
+        updateSheetState(sheetMode)
         
         if let tab = remainedTab {
             selectTab(tab)
@@ -71,23 +144,30 @@ extension RootContainerViewController: PlaceDetailViewControllerDelegate {
             customTabBar.deselectAll()
         }
         
-        navigationController?.pushViewController(self.makeSearchVC(mode: .main), animated: false)
-        mapVC.removePlaceDetailPoi()
     }
     
     func didSelectRouteAction(place: Place, action: RouteSection) {
+        backButtonContainer.isHidden = true
+        
         switch action {
         case .start:
             routingViewModel.setStartPlace(place)
-        case .wayPoints:
+        case .wayPoint:
             routingViewModel.setWayPoint(place)
         case .destination:
             routingViewModel.setEndPlace(place)
         }
         
-        updateSheetState(.routing(.none))
-        
+        if routingViewModel.canRouting {
+            updateSheetState(.routing(.editing))
+        } else {
+            updateSheetState(.routing(.none))
+        }
         mapVC.moveToSelectedPlaceLocation((place.longitude, place.latitude), sheetMode: rootViewModel.currentSheetMode())
+    }
+    
+    func favoriteButtonPressed(place: Place, isFavorite: Bool) {
+        mapVC.updateFavoritePoi(place, isFavorite: isFavorite)
     }
 }
 

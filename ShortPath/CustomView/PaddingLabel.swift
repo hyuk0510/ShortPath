@@ -31,9 +31,6 @@ final class PaddingLabel: UILabel {
     }
     
     private func configure() {
-        layer.borderWidth = 1
-        layer.borderColor = UIColor.systemGray4.cgColor
-        layer.cornerRadius = 8
-        clipsToBounds = true
+
     }
 }

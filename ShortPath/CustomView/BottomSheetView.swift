@@ -8,6 +8,7 @@
 import UIKit
 
 enum Mode {
+    case hidden
     case max
     case medium
     case tip
@@ -24,8 +25,8 @@ enum Const {
             return 0.9
         case (.tip, .placeDetail):
             return 0.7
-        case (_, .routing):
-            return 0
+        case (.hidden, _), (_, .routing):
+            return 1
         }
     }
     

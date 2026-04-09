@@ -61,7 +61,7 @@ final class RoutingViewModel {
     
     func setWayPoint(_ place: Place) {
         addWayPoint()
-        guard let lastIndex = items.lastIndex(where: { $0.role == .wayPoints }) else { return }
+        guard let lastIndex = items.lastIndex(where: { $0.role == .wayPoint }) else { return }
         items[lastIndex].place = place
     }
 
@@ -74,7 +74,7 @@ final class RoutingViewModel {
     
     func addWayPoint() {
         guard let endIndex = items.firstIndex(where: { $0.role == .destination }) else { return }
-        let wayPoint = RouteSectionItem(placeId: nil, role: .wayPoints, place: nil)
+        let wayPoint = RouteSectionItem(placeId: nil, role: .wayPoint, place: nil)
         items.insert(wayPoint, at: endIndex)
     }
     
@@ -93,7 +93,7 @@ final class RoutingViewModel {
     }
     
     func removeWayPoint(id: UUID) {
-        items.removeAll { $0.id == id && $0.role == .wayPoints }
+        items.removeAll { $0.id == id && $0.role == .wayPoint }
     }
     
     func clearPlace(for id: UUID) {
@@ -125,7 +125,7 @@ final class RoutingViewModel {
             } else if index == items.count - 1 {
                 items[index].role = .destination
             } else {
-                items[index].role = .wayPoints
+                items[index].role = .wayPoint
             }
         }
     }

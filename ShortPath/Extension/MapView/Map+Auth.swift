@@ -33,7 +33,7 @@ extension MapViewController {
             
             // 인증 실패 delegate 호출 이후 5초뒤에 재인증 시도..
             DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
-                print("retry auth...")
+                self.showToast(self.view, message: "재인증 시도중")
                 
                 self.mapController?.prepareEngine()
             }

@@ -1,5 +1,5 @@
 {
-  "originHash" : "5df5441e293c33816c5da92adfb4ab856e06e16c522a6aafd36b4ecb39362e81",
+  "originHash" : "8a74d1af68ddd2f5aee7dc51f26d20cd7838488ef2348fe31ded6079da0dbf3d",
   "pins" : [
     {
       "identity" : "kakaomapssdk-spm",
@@ -35,6 +35,15 @@
       "state" : {
         "revision" : "2842e6e84e82eb9a8dac0100ca90d9444b0307f4",
         "version" : "5.7.1"
+      }
+    },
+    {
+      "identity" : "toast-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/scalessec/Toast-Swift.git",
+      "state" : {
+        "revision" : "ddccd20d6fb718448d9b179c454c561653fda7d5",
+        "version" : "5.1.1"
       }
     }
   ],

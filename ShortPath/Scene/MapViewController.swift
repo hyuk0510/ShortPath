@@ -56,4 +56,6 @@ final class MapViewController: UIViewController, MapControllerDelegate {
     var _cameraStartHandler: DisposableEventHandler?
     
     weak var mapInterActiveDelegate: MapInteractionDelegate?
+    
+    let repository = FavoriteRepository.shared
 }

@@ -8,20 +8,36 @@
 import UIKit
 import KakaoMapsSDK
 import CoreLocation
+import RealmSwift
 
 extension MapViewController {
     
     func createLabelLayer() {
         guard let kakaoMap = kakaoMap else { return }
+        
         let manager = kakaoMap.getLabelManager()
         
         let currentLocationLayerOption = LabelLayerOptions(layerID: "CurrentLocationPoiLayer", competitionType: .none, competitionUnit: .symbolFirst, orderType: .rank, zOrder: 10001)
-        let placeDetailLayerOption = LabelLayerOptions(layerID: "PlaceDetailPoiLayer", competitionType: .none, competitionUnit: .symbolFirst, orderType: .rank, zOrder: 10000)
-        let routesLayerOption = LabelLayerOptions(layerID: "RoutePoiLayer", competitionType: .none, competitionUnit: .symbolFirst, orderType: .rank, zOrder: 9999)
+        let placeDetailLayerOption = LabelLayerOptions(layerID: "PlaceDetailPoiLayer", competitionType: .none, competitionUnit: .symbolFirst, orderType: .rank, zOrder: 9999)
+        let routesLayerOption = LabelLayerOptions(layerID: "RoutePoiLayer", competitionType: .none, competitionUnit: .symbolFirst, orderType: .rank, zOrder: 10000)
         
         let _ = manager.addLabelLayer(option: currentLocationLayerOption)
         let _ = manager.addLabelLayer(option: placeDetailLayerOption)
         let _ = manager.addLabelLayer(option: routesLayerOption)
+    }
+    
+    func createLodLabelLayer() {
+        guard let kakaoMap = kakaoMap else { return }
+        
+        let manager = kakaoMap.getLabelManager()
+        
+        let places = repository.fetchAll()
+        
+        for place in places {
+            let favorite = LodLabelLayerOptions(layerID: place.id, competitionType: .none, competitionUnit: .symbolFirst, orderType: .rank, zOrder: 9998, radius: 20)
+            
+            let _ = manager.addLodLabelLayer(option: favorite)
+        }
     }
     
     func createPoiStyle() {
@@ -66,19 +82,33 @@ extension MapViewController {
         let wayPoint5PoiIconStyle = PoiIconStyle(symbol: wayPointsPoiView[4].asImage(), anchorPoint: CGPoint(x: 0.5, y: 1))
         let wayPoint5PoiStyle = PerLevelPoiStyle(iconStyle: wayPoint5PoiIconStyle)
         
-        //도착지
+        // 도착지
         let destinationPoiIconStyle = PoiIconStyle(symbol: destinationPlacePoiView.asImage(), anchorPoint: CGPoint(x: 0.5, y: 1))
         let destinationPoiStyle = PerLevelPoiStyle(iconStyle: destinationPoiIconStyle)
         
-        let startPlaceStyle = PoiStyle(styleID: "startPlaceStyle", styles: [startPlacePoiStyle])
+        let startPlaceStyle = PoiStyle(styleID: "StartPlaceStyle", styles: [startPlacePoiStyle])
         
-        let wayPoint1Style = PoiStyle(styleID: "wayPoint1Style", styles: [wayPoint1PoiStyle])
-        let wayPoint2Style = PoiStyle(styleID: "wayPoint2Style", styles: [wayPoint2PoiStyle])
-        let wayPoint3Style = PoiStyle(styleID: "wayPoint3Style", styles: [wayPoint3PoiStyle])
-        let wayPoint4Style = PoiStyle(styleID: "wayPoint4Style", styles: [wayPoint4PoiStyle])
-        let wayPoint5Style = PoiStyle(styleID: "wayPoint5Style", styles: [wayPoint5PoiStyle])
+        let wayPoint1Style = PoiStyle(styleID: "WayPoint1Style", styles: [wayPoint1PoiStyle])
+        let wayPoint2Style = PoiStyle(styleID: "WayPoint2Style", styles: [wayPoint2PoiStyle])
+        let wayPoint3Style = PoiStyle(styleID: "WayPoint3Style", styles: [wayPoint3PoiStyle])
+        let wayPoint4Style = PoiStyle(styleID: "WayPoint4Style", styles: [wayPoint4PoiStyle])
+        let wayPoint5Style = PoiStyle(styleID: "WayPoint5Style", styles: [wayPoint5PoiStyle])
 
-        let destinationStyle = PoiStyle(styleID: "destinationStyle", styles: [destinationPoiStyle])
+        let destinationStyle = PoiStyle(styleID: "DestinationStyle", styles: [destinationPoiStyle])
+        
+        // 즐겨찾는 장소 Poi
+        let favoriteIconStyle = PoiIconStyle(symbol: favoritePoiView.asImage(), anchorPoint: CGPoint(x: 0.5, y: 0.5))
+        let textStyle = TextStyle(fontSize: 0, fontColor: .clear)
+        let textStyle2 = TextStyle(fontSize: 20, fontColor: .black, strokeThickness: 2, strokeColor: .white)
+        let favoriteTextStyle = PoiTextStyle(textLineStyles: [
+            PoiTextLineStyle(textStyle: textStyle)
+        ])
+        let favoriteTextStyle2 = PoiTextStyle(textLineStyles: [
+            PoiTextLineStyle(textStyle: textStyle2)
+        ])
+        let favoritePoiStyle = PerLevelPoiStyle(iconStyle: favoriteIconStyle, textStyle: favoriteTextStyle, level: 0)
+        let favoritePoiStyle2 = PerLevelPoiStyle(iconStyle: favoriteIconStyle, textStyle: favoriteTextStyle2, level: 15)
+        let favoriteStyle = PoiStyle(styleID: "FavoriteStyle", styles: [favoritePoiStyle, favoritePoiStyle2])
         
         manager.addPoiStyle(startPlaceStyle)
         manager.addPoiStyle(wayPoint1Style)
@@ -87,6 +117,7 @@ extension MapViewController {
         manager.addPoiStyle(wayPoint4Style)
         manager.addPoiStyle(wayPoint5Style)
         manager.addPoiStyle(destinationStyle)
+        manager.addPoiStyle(favoriteStyle)
 
     }
     
@@ -98,7 +129,7 @@ extension MapViewController {
         let poiOption = PoiOptions(styleID: "CurrentLocationStyle")
         
         poiOption.rank = 0
-        poiOption.clickable = true
+        poiOption.clickable = false
         
         let poi = layer?.addPoi(option: poiOption, at: MapPoint(longitude: location.coordinate.longitude, latitude: location.coordinate.latitude))
         
@@ -141,13 +172,13 @@ extension MapViewController {
         
         let manager = kakaoMap.getLabelManager()
         let layer = manager.getLabelLayer(layerID: "RoutePoiLayer")
-        let startPlacePoiOption = PoiOptions(styleID: "startPlaceStyle")
-        let wayPoint1PoiOption = PoiOptions(styleID: "wayPoint1Style")
-        let wayPoint2PoiOption = PoiOptions(styleID: "wayPoint2Style")
-        let wayPoint3PoiOption = PoiOptions(styleID: "wayPoint3Style")
-        let wayPoint4PoiOption = PoiOptions(styleID: "wayPoint4Style")
-        let wayPoint5PoiOption = PoiOptions(styleID: "wayPoint5Style")
-        let destinationPoiOption = PoiOptions(styleID: "destinationStyle")
+        let startPlacePoiOption = PoiOptions(styleID: "StartPlaceStyle")
+        let wayPoint1PoiOption = PoiOptions(styleID: "WayPoint1Style")
+        let wayPoint2PoiOption = PoiOptions(styleID: "WayPoint2Style")
+        let wayPoint3PoiOption = PoiOptions(styleID: "WayPoint3Style")
+        let wayPoint4PoiOption = PoiOptions(styleID: "WayPoint4Style")
+        let wayPoint5PoiOption = PoiOptions(styleID: "WayPoint5Style")
+        let destinationPoiOption = PoiOptions(styleID: "DestinationStyle")
 
         let wayPointOptions: [PoiOptions] = [wayPoint1PoiOption, wayPoint2PoiOption, wayPoint3PoiOption, wayPoint4PoiOption, wayPoint5PoiOption]
         
@@ -168,7 +199,7 @@ extension MapViewController {
                     }
                     
                     poi?.show()
-                case .wayPoints:
+                case .wayPoint:
                     let index = wayPointFlag
                     let option = wayPointOptions[index - 1]
                     
@@ -211,5 +242,50 @@ extension MapViewController {
         let layer = manager.getLabelLayer(layerID: "RoutePoiLayer")
         
         layer?.removePois(poiIDs: routePoisID)
+    }
+    
+    func createFavoritePois() {
+        guard let kakaoMap = kakaoMap else { return }
+        
+        let manager = kakaoMap.getLabelManager()
+        let places = repository.fetchAll()
+        
+        for place in places {
+            let layer = manager.getLodLabelLayer(layerID: place.id)
+            let favoritePoiOption = PoiOptions(styleID: "FavoriteStyle")
+            
+            favoritePoiOption.transformType = .decal
+            favoritePoiOption.clickable = true
+            favoritePoiOption.addText(PoiText(text: place.name, styleIndex: 0))
+            
+            let _ = layer?.addLodPois(option: favoritePoiOption, at: [MapPoint(longitude: place.longitude, latitude: place.latitude)])
+            
+            layer?.showAllLodPois()
+        }
+    }
+    
+    func updateFavoritePoi(_ place: Place, isFavorite: Bool) {
+        guard let kakaoMap = kakaoMap else { return }
+        
+        let manager = kakaoMap.getLabelManager()
+        
+        if isFavorite {
+            let _ = manager.removeLodLabelLayer(layerID: place.id)
+        } else {
+            let favorite = LodLabelLayerOptions(layerID: place.id, competitionType: .none, competitionUnit: .symbolFirst, orderType: .rank, zOrder: 9998, radius: 20)
+            
+            let _ = manager.addLodLabelLayer(option: favorite)
+            
+            let layer = manager.getLodLabelLayer(layerID: place.id)
+            let favoritePoiOption = PoiOptions(styleID: "FavoriteStyle")
+            
+            favoritePoiOption.transformType = .decal
+            favoritePoiOption.clickable = true
+            favoritePoiOption.addText(PoiText(text: place.name, styleIndex: 0))
+
+            let _ = layer?.addLodPois(option: favoritePoiOption, at: [MapPoint(longitude: place.longitude, latitude: place.latitude)])
+            layer?.showAllLodPois()
+        }
+        
     }
 }

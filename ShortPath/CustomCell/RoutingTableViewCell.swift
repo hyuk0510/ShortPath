@@ -201,7 +201,7 @@ final class RoutingTableViewCell: UITableViewCell {
         }
         
         actionContainerView.isHidden = items.role == .start || isLast
-        deleteButton.isHidden = items.role != .wayPoints
+        deleteButton.isHidden = items.role != .wayPoint
         addWayPointButton.isHidden = items.role != .destination
         separatorView.isHidden = isLastRow
     }

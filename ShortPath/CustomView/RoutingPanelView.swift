@@ -10,14 +10,14 @@ import SnapKit
 
 enum RouteSection: Equatable {
     case start
-    case wayPoints
+    case wayPoint
     case destination
     
     var placeHolder: String {
         switch self {
         case .start:
             return "출발지를 입력해주세요."
-        case .wayPoints:
+        case .wayPoint:
             return "경유지를 입력해주세요."
         case .destination:
             return "도착지를 입력해주세요."

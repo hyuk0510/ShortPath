@@ -13,6 +13,7 @@ final class SaveFavoriteViewController: UIViewController {
         let view = UIButton()
         
         view.setImage(UIImage(systemName: "xmark"), for: .normal)
+        view.tintColor = .black
         
         return view
     }()
@@ -32,6 +33,7 @@ final class SaveFavoriteViewController: UIViewController {
         
         closeButton.snp.makeConstraints { make in
             make.top.trailing.equalToSuperview().inset(16)
+            make.width.height.equalTo(44)
         }
     }
     

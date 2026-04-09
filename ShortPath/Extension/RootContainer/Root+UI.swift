@@ -249,6 +249,26 @@ extension RootContainerViewController {
         }
     }
     
+    func setUpBackButtonContainer() {
+        view.addSubview(backButtonContainer)
+        
+        backButtonContainer.setShadow()
+        
+        backButtonContainer.snp.makeConstraints { make in
+            make.top.leading.equalTo(view.safeAreaLayoutGuide).offset(16)
+            make.size.equalTo(44)
+        }
+        
+        backButtonContainer.onTapBackButton = { [weak self] in
+            guard let self = self else { return }
+
+            self.backButtonContainer.isHidden = true
+            self.rootViewModel.dismissPlaceDetail()
+            self.mapVC.removePlaceDetailPoi()
+            self.updateSheetState(rootViewModel.currentSheetMode())
+        }
+    }
+    
     func pushSearchVC(item: RouteSectionItem) {
         navigationController?.pushViewController(self.makeSearchVC(mode: .routing(targetID: item.id, role: item.role)), animated: false)
     }
@@ -380,7 +400,9 @@ extension RootContainerViewController {
         (currentBottomSheetVC as? BottomSheetStateApplicable)?.changedBottomSheetState(targetMode)
         
         DispatchQueue.main.async { [weak self] in
-            (self?.currentBottomSheetVC as? BottomSheetStateApplicable)?.buttonEnabled = true
+            guard let self = self else { return }
+
+            (self.currentBottomSheetVC as? BottomSheetStateApplicable)?.buttonEnabled = true
         }
     }
     
@@ -414,6 +436,7 @@ extension RootContainerViewController {
         
         if delta >= twoStepDist {
             switch currentMode {
+            case .hidden: break
             case .max:    return .tip
             case .medium: return .tip
             case .tip:    return .tip
@@ -422,6 +445,7 @@ extension RootContainerViewController {
         
         if delta >= oneStepDist {
             switch currentMode {
+            case .hidden: break
             case .max:    return .medium
             case .medium: return .tip
             case .tip:    return .tip
@@ -430,6 +454,7 @@ extension RootContainerViewController {
         
         if delta <= -twoStepDist {
             switch currentMode {
+            case .hidden: break
             case .tip:    return .max
             case .medium: return .max
             case .max:    return .max
@@ -438,6 +463,7 @@ extension RootContainerViewController {
         
         if delta <= -oneStepDist {
             switch currentMode {
+            case .hidden: break
             case .tip:    return .medium
             case .medium: return .max
             case .max:    return .max
@@ -460,8 +486,10 @@ extension RootContainerViewController {
                 customTabBar.deselectAll()
             }
             
-        case .placeDetail(let place):
-            rootViewModel.selectedPlace(place)
+        case .placeDetail(let scene):
+            if scene.style == .normal {
+                rootViewModel.selectedPlace(scene.place)
+            }
             setMode(mode)
             
         case .routing(let routingMode):
@@ -478,29 +506,42 @@ extension RootContainerViewController {
         case .home:
             customTabBar.isHidden = false
             searchBarContainer.isHidden = false
-            bottomSheetViewContainer.isHidden = false
+            setMode(.medium)
             hideRouting()
             
             searchBarContainer.configureHome()
             
-        case .placeDetail(let place):
-            customTabBar.isHidden = true
-            searchBarContainer.isHidden = false
-            bottomSheetViewContainer.isHidden = false
-            hideRouting()
-            
-            searchBarContainer.configurePlaceDetail(place)
-            
-            searchBarContainer.onTap = { [weak self] in
-                guard let self = self else { return }
-
-                self.updateSheetState(.home)
-                self.navigationController?.pushViewController(makeSearchVC(mode: .main), animated: false)
+        case .placeDetail(let scene):
+            switch scene.style {
+            case .normal:
+                backButtonContainer.isHidden = true
+                searchBarContainer.isHidden = false
                 
+                searchBarContainer.configurePlaceDetail(scene.place)
+
+                hideRouting()
+                
+                searchBarContainer.onTap = { [weak self] in
+                    guard let self = self else { return }
+
+                    self.updateSheetState(.home)
+                    self.navigationController?.pushViewController(makeSearchVC(mode: .main), animated: false)
+                }
+                
+            case .routeCandidate:
+                backButtonContainer.isHidden = false
+                searchBarContainer.isHidden = true
+                
+                hideRouting(.routeCandidate)
             }
             
+            customTabBar.isHidden = true
+            setMode(.hidden)
+            
+            
+            
         case .routing(let routingMode):
-            bottomSheetViewContainer.isHidden = true
+            setMode(.hidden)
             customTabBar.isHidden = true
             searchBarContainer.isHidden = true
             
@@ -626,11 +667,13 @@ extension RootContainerViewController {
         }
     }
     
-    func showPlaceDetail(place: Place, vc: UIViewController, coordinate: (Double, Double)) {
+    func showPlaceDetail(scene: PlaceDetailScene, vc: UIViewController, coordinate: (Double, Double)) {
+        let place = scene.place
+        
         mapVC.isPanned = true
         currentLocationButton.isSelected = false
 
-        updateSheetState(.placeDetail(place))
+        updateSheetState(.placeDetail(scene))
         
         switchBottomSheet(vc)
         setMode(.medium, animated: true)
@@ -668,8 +711,10 @@ extension RootContainerViewController {
         }
     }
     
-    func hideRouting() {
-        routingViewModel.resetItems()
+    func hideRouting(_ sceneStyle: PlaceDetailStyle = .normal) {
+        if sceneStyle == .normal {
+            routingViewModel.resetItems()
+        }
         routingContainer.isHidden = true
         routeSummaryContainer.isHidden = true
         routingBottomActionContainer.isHidden = true

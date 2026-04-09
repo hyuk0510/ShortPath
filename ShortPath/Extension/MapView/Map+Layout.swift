@@ -38,6 +38,8 @@ extension MapViewController {
     }
     
     func viewInit(viewName: String) {
+        createLodLabelLayer()
+        createFavoritePois()
         print("OK")
     }
     
