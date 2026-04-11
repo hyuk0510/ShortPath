@@ -30,29 +30,16 @@ extension MapViewController {
         manager.addRouteStyleSet(styleSet)
     }
     
-    func createRouteLine(_ sections: [Section]) {
+    func createRouteLine(_ pathPoints: [RoutePathPoint]) {
         guard let kakaoMap = kakaoMap else { return }
         
         let manager = kakaoMap.getRouteManager()
         let layer = manager.getRouteLayer(layerID: "RouteLayer")
         
         var mapPoints: [MapPoint] = []
-
-        for section in sections {
-            for road in section.roads {
-                let v = road.vertexes
-                
-                var i = 0
-                
-                while i < v.count {
-                    let x = v[i]
-                    let y = v[i + 1]
-                    
-                    mapPoints.append(MapPoint(longitude: x, latitude: y))
-                    
-                    i += 2
-                }
-            }
+        
+        for pathPoint in pathPoints {
+            mapPoints.append(MapPoint(longitude: pathPoint.longitude, latitude: pathPoint.latitude))
         }
         
         let option = RouteOptions(

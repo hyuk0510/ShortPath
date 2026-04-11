@@ -16,6 +16,10 @@ final class RootContainerViewController: UIViewController {
     let bottomSheetViewContainer = BottomSheetView()
     let searchBarContainer = SearchBarContainerView()
     
+    let homeVC = HomeTabViewController()
+    let favoriteVC = FavoriteTabViewController()
+    let settingVC = SettingTabViewController()
+    
     let routeSummaryContainer = RouteSummaryView()
     let routingContainer = RoutingPanelView()
     let routingBottomActionContainer = RoutingBottomActionView()
@@ -45,4 +49,7 @@ final class RootContainerViewController: UIViewController {
     let routingViewModel = RoutingViewModel()
     
     var routeTask: Task<Void, Never>?
+    
+    let placeRepo = FavoriteRepository.shared
+    let routeRepo = FavoriteRouteRepository.shared
 }

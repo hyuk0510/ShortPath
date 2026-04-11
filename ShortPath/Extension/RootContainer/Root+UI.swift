@@ -104,6 +104,12 @@ extension RootContainerViewController {
             self.mapVC.removeRoutePois()
         }
         
+        routeSummaryContainer.onTapMenuButton = { [weak self] sender in
+            guard let self else { return }
+            
+            self.showActionSheet(from: sender)
+        }
+        
         routingBottomActionContainer.routingButtonPressed = { [weak self] in
             guard let self else { return }
             
@@ -346,17 +352,22 @@ extension RootContainerViewController {
         
         switch tab {
         case .home:
-            targetVC = HomeTabViewController()
+            targetVC = homeVC
         case .favorite:
-            targetVC = FavoriteTabViewController()
+            targetVC = favoriteVC
+            favoriteVC.delegate = self
         case .setting:
-            targetVC = SettingTabViewController()
+            targetVC = settingVC
         }
         remainedTab = tab
         switchBottomSheet(targetVC)
     }
     
     func switchBottomSheet(_ newVC: UIViewController) {
+        if newVC == currentBottomSheetVC {
+            return
+        }
+        
         if let current = currentBottomSheetVC {
             current.willMove(toParent: nil)
             current.view.removeFromSuperview()
@@ -714,6 +725,7 @@ extension RootContainerViewController {
             routeSummaryContainer.bind(start: routingViewModel.startPlace.place?.name, destination: routingViewModel.destination.place?.name, wayPointsCount: routingViewModel.numberOfItems - 2)
             routingContainer.isHidden = true
             routeSummaryContainer.isHidden = false
+            routeSummaryContainer.isReadyToSaveRoute(true)
             routingBottomActionContainer.isHidden = false
             routingBottomActionContainer.setByMode(routingMode)
         }
@@ -735,14 +747,55 @@ extension RootContainerViewController {
             do {
                 let route = try await KakaoLocalManager.shared.fetchRoute(routingViewModel.items)
              
+                routingViewModel.currentRoute = route.routes[0]
+                                
                 await MainActor.run {
-                    self.mapVC.moveToRoute(route.routes[0].summary.bound)
-                    self.mapVC.createRouteLine(route.routes[0].sections)
+                    guard let currentRoute = routingViewModel.currentRoute else { return }
+                    
+                    let geometry = RouteGeometryBuilder.make(from: currentRoute)
+                    
+                    self.mapVC.moveToRoute(geometry.bounds)
+                    self.mapVC.createRouteLine(geometry.pathPoints)
                 }
             } catch {
                 print(error)
             }
         }
         
+    }
+    
+    func showActionSheet(from sourceView: UIView) {
+        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        let saveAction = UIAlertAction(title: "저장", style: .default) { [weak self] _ in
+            guard let self else { return }
+            guard let draft = routingViewModel.makeRouteDraft() else { return }
+            guard let currentRoute = routingViewModel.currentRoute else { return }
+            
+            let geometry = RouteGeometryBuilder.make(from: currentRoute)
+            
+            let object = FavoriteRouteObjectFactory.make(from: draft, geometry: geometry)
+            
+            routeRepo.saveRoute(object)
+                        
+            view.showToast("경로가 추가되었습니다.")
+        }
+        
+//        let shareAction = UIAlertAction(title: "공유", style: .default) { [weak self] _ in
+//            // 공유기능 추가
+//        }
+        
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel)
+        
+        alert.addAction(saveAction)
+//        alert.addAction(shareAction)
+        alert.addAction(cancelAction)
+        
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = sourceView
+            popover.sourceRect = sourceView.bounds
+        }
+        
+        present(alert, animated: true)
     }
 }

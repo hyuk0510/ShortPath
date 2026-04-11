@@ -31,7 +31,7 @@ extension MapViewController {
         
         let manager = kakaoMap.getLabelManager()
         
-        let places = repository.fetchAll()
+        let places = repository.fetchAlltoPlace()
         
         for place in places {
             let favorite = LodLabelLayerOptions(layerID: place.id, competitionType: .none, competitionUnit: .symbolFirst, orderType: .rank, zOrder: 9998, radius: 20)
@@ -248,7 +248,7 @@ extension MapViewController {
         guard let kakaoMap = kakaoMap else { return }
         
         let manager = kakaoMap.getLabelManager()
-        let places = repository.fetchAll()
+        let places = repository.fetchAlltoPlace()
         
         for place in places {
             let layer = manager.getLodLabelLayer(layerID: place.id)

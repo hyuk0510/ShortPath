@@ -16,23 +16,183 @@ final class FavoriteTabViewController: UIViewController, BottomSheetInteractable
         return scrollView
     }
     
-    private let label = {
-        let view = UILabel()
-        view.text = "즐겨찾기"
-        view.textColor = .black
-        return view
-    }()
+    private let segmentView = FavoriteSegmentView()
+    
+    private var favoriteTableView = UITableView()
+    
+    weak var delegate: FavoriteViewControllerDelegate?
+    
+    var places: [FavoritePlace] = []
+    var routes: [FavoriteRouteObject] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.addSubview(scrollView)
+        configure()
+    }
+    
+    private func configure() {
+        [segmentView, favoriteTableView].forEach { subView in
+            view.addSubview(subView)
+        }
         
-        scrollView.addSubview(label)
+        segmentView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(24)
+            make.horizontalEdges.equalToSuperview().inset(16)
+        }
         
-        label.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(10)
-            make.leading.equalToSuperview().offset(10)
+        favoriteTableView.snp.makeConstraints { make in
+            make.top.equalTo(segmentView.snp.bottom).offset(12)
+            make.horizontalEdges.equalToSuperview()
+            make.bottom.equalToSuperview().offset(150)
+        }
+        
+        favoriteTableView.backgroundColor = .white
+        favoriteTableView.delegate = self
+        favoriteTableView.dataSource = self
+        favoriteTableView.translatesAutoresizingMaskIntoConstraints = false
+        favoriteTableView.rowHeight = UITableView.automaticDimension
+        favoriteTableView.estimatedRowHeight = 76
+        
+        segmentView.onTabChanged = { [weak self] tab in
+            guard let self else { return }
+            
+            switch tab {
+            case .place:
+                favoriteTableView.register(FavoritePlaceCell.self, forCellReuseIdentifier: FavoritePlaceCell.identifier)
+                self.delegate?.didTabPlace()
+            case .route:
+                favoriteTableView.register(FavoriteRouteCell.self, forCellReuseIdentifier: FavoriteRouteCell.identifier)
+                self.delegate?.didTabRoute()
+            }
+            
+            favoriteTableView.reloadData()
+        }
+    }
+    
+    func showActionSheet(from sourceView: UIView, _ objectID: String, _ row: Int) {
+        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        switch segmentView.selectedTab {
+        case .place:
+            let deleteAction = UIAlertAction(title: "삭제", style: .default) { [weak self] _ in
+                guard let self else { return }
+                
+                places.remove(at: row)
+                delegate?.removePlace(objectID)
+                view.showToast("즐겨찾기에서 삭제됨")
+                
+                favoriteTableView.reloadData()
+            }
+            
+            alert.addAction(deleteAction)
+
+        case .route:
+            let deleteAction = UIAlertAction(title: "삭제", style: .default) { [weak self] _ in
+                guard let self else { return }
+                
+                routes.remove(at: row)
+                delegate?.removeRoute(objectID)
+                view.showToast("경로가 삭제되었습니다.")
+                favoriteTableView.reloadData()
+            }
+            
+            alert.addAction(deleteAction)
+        }
+        
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel)
+        
+        alert.addAction(cancelAction)
+        
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = sourceView
+            popover.sourceRect = sourceView.bounds
+        }
+        
+        present(alert, animated: true)
+    }
+}
+
+extension FavoriteTabViewController: UITableViewDelegate, UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let containerView = UIView()
+        containerView.backgroundColor = .white
+        
+        let titleLabel = UILabel()
+            titleLabel.font = .systemFont(ofSize: 14, weight: .semibold)
+            titleLabel.textColor = .black
+        
+        containerView.addSubview(titleLabel)
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        switch segmentView.selectedTab {
+        case .place:
+            titleLabel.text = "저장된 장소 \(places.count)개"
+        case .route:
+            titleLabel.text = "저장된 경로 \(routes.count)개"
+        }
+        
+        titleLabel.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(16)
+            make.top.trailing.equalToSuperview()
+            make.bottom.equalToSuperview().inset(8)
+        }
+        
+        return containerView
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        switch segmentView.selectedTab {
+        case .place:
+            return places.count
+        case .route:
+            return routes.count
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        switch segmentView.selectedTab {
+        case .place:
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: FavoritePlaceCell.identifier, for: indexPath) as? FavoritePlaceCell else { return FavoritePlaceCell() }
+            
+            let place = places[indexPath.row]
+            let distance = delegate?.calculatedDistance((place.longitude, place.latitude))
+            
+            cell.selectionStyle = .none
+            cell.bind(place, distance)
+            cell.onTapMenuButton = { [weak self] in
+                guard let self else { return }
+                
+                showActionSheet(from: cell, place.id, indexPath.row)
+            }
+            
+            return cell
+            
+        case .route:
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: FavoriteRouteCell.identifier, for: indexPath) as? FavoriteRouteCell else { return FavoriteRouteCell() }
+            
+            let route = routes[indexPath.row]
+            
+            cell.selectionStyle = .none
+            cell.bind(route)
+            cell.onTapMenuButton = { [weak self] in
+                guard let self else { return }
+                
+                showActionSheet(from: cell, route.id, indexPath.row)
+            }
+                        
+            return cell
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        switch segmentView.selectedTab {
+        case .place:
+            delegate?.didTabPlaceCell(places[indexPath.row])
+        case .route:
+            delegate?.didTabRouteCell(routes[indexPath.row])
         }
     }
 }

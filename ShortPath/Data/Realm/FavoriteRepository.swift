@@ -49,7 +49,11 @@ final class FavoriteRepository {
         realm.object(ofType: FavoritePlace.self, forPrimaryKey: placeID) != nil
     }
     
-    func fetchAll() -> [Place] {
+    func fetchAlltoFavoritePlace() -> [FavoritePlace] {
+        realm.objects(FavoritePlace.self).sorted(byKeyPath: "createdAt", ascending: false).map{ $0 }
+    }
+    
+    func fetchAlltoPlace() -> [Place] {
         realm.objects(FavoritePlace.self).sorted(byKeyPath: "createdAt", ascending: false).map{ $0.toPlace() }
     }
     

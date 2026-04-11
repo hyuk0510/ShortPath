@@ -132,6 +132,73 @@ extension RootContainerViewController: SearchViewControllerDelegate {
     }
 }
 
+extension RootContainerViewController: FavoriteViewControllerDelegate {
+    func removePlace(_ placeID: String) {
+        placeRepo.deletePlace(placeID: placeID)
+    }
+    
+    func removeRoute(_ routeID: String) {
+        do {
+            try routeRepo.delete(id: routeID)
+        } catch {
+            errorAlert(title: "삭제 실패:", message: "\(error)")
+        }
+    }
+    
+    func didTabPlaceCell(_ place: FavoritePlace) {
+        var toPlace = place.toPlace()
+        
+        if toPlace.distance == nil,
+           let currentLocation = mapVC.currentLocation {
+            toPlace.distance = DistanceCalculator.distance(
+                from: (currentLocation.coordinate.longitude, currentLocation.coordinate.latitude),
+                to: (toPlace.longitude, toPlace.latitude)
+            )
+        }
+        
+        let scene = PlaceDetailScene(place: toPlace, style: .normal)
+        let coordinate = (Double(place.longitude), Double(place.latitude))
+        let placeDetailVC = PlaceDetailViewController(scene: scene)
+        
+        placeDetailVC.delegate = self
+        
+        DispatchQueue.main.async {
+            self.showPlaceDetail(scene: scene, vc: placeDetailVC, coordinate: coordinate)
+        }
+        
+        rootViewModel.presentFavoritePoiDetail(place: toPlace)
+    }
+    
+    func didTabRouteCell(_ route: FavoriteRouteObject) {
+//        self.mapVC.removePlaceDetailPoi()
+        guard let routeBounds = route.routeBounds else { return }
+        
+        self.mapVC.moveToRoute(routeBounds)
+        self.mapVC.createRouteLine(route.routePathPoints)
+        self.mapVC.createRoutePois(routingViewModel.items)
+        self.updateSheetState(.routing(.ready))
+    }
+    
+    func didTabPlace() {
+        favoriteVC.places = placeRepo.fetchAlltoFavoritePlace()
+    }
+    
+    func didTabRoute() {
+        favoriteVC.routes = routeRepo.fetchAll()
+    }
+    
+    func calculatedDistance(_ coord: (longitude: Double, latitude: Double)) -> Int {
+        if let currentLocation = mapVC.currentLocation {
+            return DistanceCalculator.distance(
+                from: (currentLocation.coordinate.longitude, currentLocation.coordinate.latitude),
+                to: (coord.longitude, coord.latitude)
+            )
+        }
+        
+        return 0
+    }
+}
+
 extension RootContainerViewController: PlaceDetailViewControllerDelegate {
     func closeButtonPressed() {
         backButtonContainer.isHidden = true

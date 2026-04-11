@@ -19,3 +19,10 @@ struct Place: Equatable {
     let phone: String?
     let placeURL: String?
 }
+
+extension Place {
+    func toRoutePlace() -> RoutePlace {
+        
+        return RoutePlace(id: self.id, placeName: self.name, roadAddress: self.roadAddress ?? "", longitude: self.longitude, latitude: self.latitude)
+    }
+}

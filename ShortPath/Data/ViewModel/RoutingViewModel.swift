@@ -20,6 +20,8 @@ final class RoutingViewModel {
         }
     }
     
+    var currentRoute: Route?
+    
     var numberOfItems: Int {
         items.count
     }
@@ -133,8 +135,11 @@ final class RoutingViewModel {
     func makeRouteDraft() -> RouteDraft? {
         guard items.count >= 2, let start = items.first?.place, let destination = items.last?.place else { return nil }
         
-        let wayPoints = items.dropFirst().dropLast().compactMap { $0.place }
+        let startRoutePlace = start.toRoutePlace()
+        let destinationRoutePlace = destination.toRoutePlace()
         
-        return RouteDraft(start: start, waypoints: wayPoints, destination: destination)
+        let wayPointsRoutePlace = items.dropFirst().dropLast().compactMap { $0.place?.toRoutePlace() }
+        
+        return RouteDraft(start: startRoutePlace, waypoints: wayPointsRoutePlace, destination: destinationRoutePlace)
     }
 }

@@ -144,11 +144,11 @@ extension MapViewController {
         
     }
     
-    func moveToRoute(_ bound: Bound) {
+    func moveToRoute(_ bound: RouteBounds) {
         guard let kakaoMap = kakaoMap else { return }
         
-        let southWestPoint = MapPoint(longitude: bound.minX, latitude: bound.minY)
-        let northEastPoint = MapPoint(longitude: bound.maxX, latitude: bound.maxY)
+        let southWestPoint = MapPoint(longitude: bound.minLng, latitude: bound.minLat)
+        let northEastPoint = MapPoint(longitude: bound.maxLng, latitude: bound.maxLat)
         
         let cameraUpdate = CameraUpdate.make(area: AreaRect(southWest: southWestPoint, northEast: northEastPoint))
         

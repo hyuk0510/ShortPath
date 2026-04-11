@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-enum RouteSection: Equatable {
+enum RouteSection: String, Equatable {
     case start
     case wayPoint
     case destination

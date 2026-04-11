@@ -47,11 +47,10 @@ final class RouteSummaryView: UIControl {
         return view
     }()
     
-    private var favoriteButton: UIButton = {
+    private var menuButton: UIButton = {
         let view = UIButton()
         
-        view.setImage(UIImage(systemName: "star"), for: .normal)
-        view.setImage(UIImage(systemName: "star.fill"), for: .selected)
+        view.setImage(UIImage(systemName: "ellipsis"), for: .normal)
         view.tintColor = .black
         
         return view
@@ -78,6 +77,7 @@ final class RouteSummaryView: UIControl {
     }()
     
     var onTapCloseButton: (() -> Void)?
+    var onTapMenuButton: ((UIButton) -> Void)?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -109,7 +109,7 @@ final class RouteSummaryView: UIControl {
             contentStackView.addArrangedSubview(view)
         }
         
-        [closeButton, favoriteButton].forEach { view in
+        [closeButton, menuButton].forEach { view in
             buttonStackView.addArrangedSubview(view)
         }
         
@@ -137,14 +137,16 @@ final class RouteSummaryView: UIControl {
             make.size.equalTo(44)
         }
         
-        favoriteButton.snp.makeConstraints { make in
+        menuButton.snp.makeConstraints { make in
             make.size.equalTo(44)
         }
         
         contentView.bringSubviewToFront(buttonStackView)
         
         closeButton.addTarget(self, action: #selector(closeButtonPressed), for: .touchUpInside)
-        favoriteButton.addTarget(self, action: #selector(favoriteButtonPressed), for: .touchUpInside)
+        menuButton.addTarget(self, action: #selector(favoriteButtonPressed), for: .touchUpInside)
+        
+        menuButton.isHidden = true
     }
     
     @objc
@@ -153,9 +155,9 @@ final class RouteSummaryView: UIControl {
     }
     
     @objc
-    private func favoriteButtonPressed() {
-        // 경로 DB 저장 코드
-        print("pressed")
+    private func favoriteButtonPressed(_ sender: UIButton) {
+        
+        onTapMenuButton?(sender)
     }
     
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
@@ -169,10 +171,10 @@ final class RouteSummaryView: UIControl {
             return closeButton
         }
         
-        let favoriteButtonPoint = favoriteButton.convert(point, from: self)
+        let favoriteButtonPoint = menuButton.convert(point, from: self)
         
-        if favoriteButton.bounds.contains(favoriteButtonPoint) {
-            return favoriteButton
+        if menuButton.bounds.contains(favoriteButtonPoint) {
+            return menuButton
         }
         
         return super.hitTest(point, with: event)
@@ -228,5 +230,9 @@ final class RouteSummaryView: UIControl {
         )
         
         routeLabel.attributedText = attributed
+    }
+    
+    func isReadyToSaveRoute(_ isReady: Bool) {
+        menuButton.isHidden = !isReady
     }
 }
