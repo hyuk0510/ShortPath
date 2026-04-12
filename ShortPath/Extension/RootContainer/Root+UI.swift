@@ -309,7 +309,7 @@ extension RootContainerViewController {
         switch recognizer.state {
         case .began:
             dragStartTop = sheetTopConstraint.layoutConstraints.first?.constant ?? CGFloat(Const.bottomSheetYPosition(mode, rootViewModel.currentSheetMode()))
-
+            favoriteVC.isBottomSheetInteracting = true
         case .changed:
             sheetTopConstraint.update(offset: clampedY)
             view.layoutIfNeeded()
@@ -324,7 +324,7 @@ extension RootContainerViewController {
                     mapVC.moveCameraToCurrentLocation()
                 }
             }
-                        
+            favoriteVC.isBottomSheetInteracting = true
             recognizer.setTranslation(.zero, in: view)
             
         case .ended, .cancelled:
@@ -339,8 +339,11 @@ extension RootContainerViewController {
                 }
             }
             
+            favoriteVC.isBottomSheetInteracting = false
+            favoriteVC.lastBottomSheetInteractionDate = Date()
+
             setMode(targetMode)
-                        
+            
         default:
             break
         }

@@ -9,7 +9,10 @@ import UIKit
 
 final class FavoriteTabViewController: UIViewController, BottomSheetInteractable {
     
-    var scrollView = UIScrollView()
+    var scrollView: UIScrollView {
+            favoriteTableView
+    }
+    
     private var contentStackView = UIStackView()
 
     var trackingScrollView: UIScrollView? {
@@ -24,6 +27,17 @@ final class FavoriteTabViewController: UIViewController, BottomSheetInteractable
     
     var places: [FavoritePlace] = []
     var routes: [FavoriteRouteObject] = []
+    
+    var isBottomSheetInteracting = false
+    var lastBottomSheetInteractionDate: Date?
+
+    private var shouldIgnoreSelection: Bool {
+        if isBottomSheetInteracting { return true }
+        
+        guard let lastDate = lastBottomSheetInteractionDate else { return false }
+        
+        return Date().timeIntervalSince(lastDate) < 0.15
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -193,6 +207,7 @@ extension FavoriteTabViewController: UITableViewDelegate, UITableViewDataSource 
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard !shouldIgnoreSelection else { return }
         
         switch segmentView.selectedTab {
         case .place:
@@ -200,5 +215,27 @@ extension FavoriteTabViewController: UITableViewDelegate, UITableViewDataSource 
         case .route:
             delegate?.didTabRouteCell(routes[indexPath.row])
         }
+    }
+}
+
+extension FavoriteTabViewController: UIScrollViewDelegate {
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        guard scrollView === favoriteTableView else { return }
+        
+        favoriteTableView.allowsSelection = false
+    }
+
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        guard scrollView === favoriteTableView else { return }
+        
+        if !decelerate {
+            favoriteTableView.allowsSelection = true
+        }
+    }
+
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        guard scrollView === favoriteTableView else { return }
+        
+        favoriteTableView.allowsSelection = true
     }
 }
