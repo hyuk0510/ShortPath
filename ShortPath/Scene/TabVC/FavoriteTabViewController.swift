@@ -70,16 +70,17 @@ final class FavoriteTabViewController: UIViewController, BottomSheetInteractable
         }
     }
     
-    func showActionSheet(from sourceView: UIView, _ objectID: String, _ row: Int) {
-        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+    func showActionSheet(from sourceView: UIView, _ place: Place?, _ objectID: String, _ row: Int) {
+        let alert = UIAlertController(title: nil, message: "삭제하시겠습니까?", preferredStyle: .alert)
         
         switch segmentView.selectedTab {
         case .place:
             let deleteAction = UIAlertAction(title: "삭제", style: .default) { [weak self] _ in
                 guard let self else { return }
+                guard let place = place else { return }
                 
                 places.remove(at: row)
-                delegate?.removePlace(objectID)
+                delegate?.removePlace(place)
                 view.showToast("즐겨찾기에서 삭제됨")
                 
                 favoriteTableView.reloadData()
@@ -164,7 +165,7 @@ extension FavoriteTabViewController: UITableViewDelegate, UITableViewDataSource 
             cell.onTapMenuButton = { [weak self] in
                 guard let self else { return }
                 
-                showActionSheet(from: cell, place.id, indexPath.row)
+                showActionSheet(from: cell, place.toPlace(), "", indexPath.row)
             }
             
             return cell
@@ -179,7 +180,7 @@ extension FavoriteTabViewController: UITableViewDelegate, UITableViewDataSource 
             cell.onTapMenuButton = { [weak self] in
                 guard let self else { return }
                 
-                showActionSheet(from: cell, route.id, indexPath.row)
+                showActionSheet(from: cell, nil, route.id, indexPath.row)
             }
                         
             return cell

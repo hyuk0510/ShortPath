@@ -133,8 +133,9 @@ extension RootContainerViewController: SearchViewControllerDelegate {
 }
 
 extension RootContainerViewController: FavoriteViewControllerDelegate {
-    func removePlace(_ placeID: String) {
-        placeRepo.deletePlace(placeID: placeID)
+    func removePlace(_ place: Place) {
+        placeRepo.deletePlace(placeID: place.id)
+        mapVC.updateFavoritePoi(place, isFavorite: true)
     }
     
     func removeRoute(_ routeID: String) {

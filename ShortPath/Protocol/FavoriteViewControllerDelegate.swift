@@ -13,6 +13,6 @@ protocol FavoriteViewControllerDelegate: AnyObject {
     func calculatedDistance(_ coord: (longitude: Double, latitude: Double)) -> Int
     func didTabPlaceCell(_ place: FavoritePlace)
     func didTabRouteCell(_ route: FavoriteRouteObject)
-    func removePlace(_ placeID: String)
+    func removePlace(_ place: Place)
     func removeRoute(_ routeID: String)
 }
