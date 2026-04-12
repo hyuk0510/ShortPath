@@ -356,6 +356,12 @@ extension RootContainerViewController {
         case .favorite:
             targetVC = favoriteVC
             favoriteVC.delegate = self
+            
+            let places = placeRepo.fetchAlltoFavoritePlace()
+            let routes = routeRepo.fetchAll()
+            
+            favoriteVC.updateData(places: places, routes: routes)
+            
         case .setting:
             targetVC = settingVC
         }

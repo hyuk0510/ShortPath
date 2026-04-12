@@ -180,14 +180,6 @@ extension RootContainerViewController: FavoriteViewControllerDelegate {
         self.updateSheetState(.routing(.ready))
     }
     
-    func didTabPlace() {
-        favoriteVC.places = placeRepo.fetchAlltoFavoritePlace()
-    }
-    
-    func didTabRoute() {
-        favoriteVC.routes = routeRepo.fetchAll()
-    }
-    
     func calculatedDistance(_ coord: (longitude: Double, latitude: Double)) -> Int {
         if let currentLocation = mapVC.currentLocation {
             return DistanceCalculator.distance(

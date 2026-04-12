@@ -8,8 +8,6 @@
 import Foundation
 
 protocol FavoriteViewControllerDelegate: AnyObject {
-    func didTabPlace()
-    func didTabRoute()
     func calculatedDistance(_ coord: (longitude: Double, latitude: Double)) -> Int
     func didTabPlaceCell(_ place: FavoritePlace)
     func didTabRouteCell(_ route: FavoriteRouteObject)

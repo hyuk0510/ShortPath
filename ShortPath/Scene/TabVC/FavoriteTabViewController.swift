@@ -18,7 +18,7 @@ final class FavoriteTabViewController: UIViewController, BottomSheetInteractable
     
     private let segmentView = FavoriteSegmentView()
     
-    private var favoriteTableView = UITableView()
+    var favoriteTableView = UITableView()
     
     weak var delegate: FavoriteViewControllerDelegate?
     
@@ -53,17 +53,16 @@ final class FavoriteTabViewController: UIViewController, BottomSheetInteractable
         favoriteTableView.translatesAutoresizingMaskIntoConstraints = false
         favoriteTableView.rowHeight = UITableView.automaticDimension
         favoriteTableView.estimatedRowHeight = 76
-        
+        favoriteTableView.register(FavoritePlaceCell.self, forCellReuseIdentifier: FavoritePlaceCell.identifier)
+
         segmentView.onTabChanged = { [weak self] tab in
             guard let self else { return }
             
             switch tab {
             case .place:
                 favoriteTableView.register(FavoritePlaceCell.self, forCellReuseIdentifier: FavoritePlaceCell.identifier)
-                self.delegate?.didTabPlace()
             case .route:
                 favoriteTableView.register(FavoriteRouteCell.self, forCellReuseIdentifier: FavoriteRouteCell.identifier)
-                self.delegate?.didTabRoute()
             }
             
             favoriteTableView.reloadData()
@@ -111,6 +110,12 @@ final class FavoriteTabViewController: UIViewController, BottomSheetInteractable
         }
         
         present(alert, animated: true)
+    }
+    
+    func updateData(places: [FavoritePlace], routes: [FavoriteRouteObject]) {
+        self.places = places
+        self.routes = routes
+        favoriteTableView.reloadData()
     }
 }
 
