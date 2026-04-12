@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import SwiftUI
 
 final class RootContainerViewController: UIViewController {
     
@@ -18,7 +19,12 @@ final class RootContainerViewController: UIViewController {
     
     let homeVC = HomeTabViewController()
     let favoriteVC = FavoriteTabViewController()
-    let settingVC = SettingTabViewController()
+    let settingVC = {
+        let vc = UIHostingController(rootView: SettingView())
+        vc.view.backgroundColor = .clear
+        
+        return vc
+    }()
     
     let routeSummaryContainer = RouteSummaryView()
     let routingContainer = RoutingPanelView()
