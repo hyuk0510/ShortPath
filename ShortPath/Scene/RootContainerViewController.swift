@@ -15,7 +15,20 @@ final class RootContainerViewController: UIViewController {
     let customTabBar = CustomTabBar()
     
     let bottomSheetViewContainer = BottomSheetView()
-    let searchBarContainer = SearchBarContainerView()
+    let searchBarContainer = UIView()
+    
+    let searchBar = SearchBarContainerView()
+    let routeStartButton = RouteStartButton()
+    let routeStartButtonContainerView: UIView = {
+        let view = UIView()
+        
+        view.setShadow(3)
+        
+        return view
+    }()
+    
+    var searchBarTrailingToButton: Constraint?
+    var searchBarTrailingToSuperview: Constraint?
     
     let homeVC = HomeTabViewController()
     let favoriteVC = FavoriteTabViewController()

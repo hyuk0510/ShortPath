@@ -16,12 +16,9 @@ final class HomeTabViewController: UIViewController, BottomSheetInteractable {
         return scrollView
     }
     
-    private let label = {
-        let view = UILabel()
-        view.text = "홈"
-        view.textColor = .black
-        return view
-    }()
+    private let searchHeaderView = UIView()
+    private let quickActionView = UIView()
+    private let recentRouteSectionView = UIView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,17 +34,16 @@ final class HomeTabViewController: UIViewController, BottomSheetInteractable {
         scrollView.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(16)
             make.horizontalEdges.equalToSuperview()
-            make.bottom.equalToSuperview()
+            make.bottom.equalToSuperview().inset(100)
         }
                 
         contentStackView.axis = .vertical
-        contentStackView.spacing = 24
+        contentStackView.spacing = 20
         
         contentStackView.snp.makeConstraints { make in
             make.verticalEdges.equalToSuperview().inset(24)
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(20)
         }
         
-        contentStackView.addArrangedSubview(label)
     }
 }

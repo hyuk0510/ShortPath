@@ -46,10 +46,12 @@ final class MapViewController: UIViewController, MapControllerDelegate {
     var hasInitialLocation: Bool = false
         
     let geocoder = CLGeocoder()
-    
     let locationManager = CLLocationManager()
+    
     var currentLocation: CLLocation?
     var currentLocationPoi: Poi?
+    var currentAddress: String?
+    
     var placeDetailPoiID: String?
     var routePoisID: [String] = Array(repeating: "", count: 7)
     

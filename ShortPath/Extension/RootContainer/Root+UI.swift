@@ -64,18 +64,62 @@ extension RootContainerViewController {
     
     func setUpSearchBar() {
         view.addSubview(searchBarContainer)
-        searchBarContainer.setShadow()
+        
+        searchBar.setShadow()
                 
         searchBarContainer.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
             make.leading.trailing.equalToSuperview().inset(16)
             make.height.equalTo(48)
         }
+        
+        [searchBar, routeStartButtonContainerView].forEach { view in
+            searchBarContainer.addSubview(view)
+        }
+        
+        routeStartButtonContainerView.addSubview(routeStartButton)
+        
+        searchBar.snp.makeConstraints { make in
+            make.leading.verticalEdges.equalToSuperview()
+            self.searchBarTrailingToButton = make.trailing.equalTo(routeStartButton.snp.leading).offset(-12).constraint
+            self.searchBarTrailingToSuperview = make.trailing.equalToSuperview().constraint
+        }
+        
+        searchBarTrailingToSuperview?.deactivate()
+        searchBarTrailingToButton?.activate()
+        
+        routeStartButtonContainerView.snp.makeConstraints { make in
+            make.trailing.verticalEdges.equalToSuperview()
+            make.width.equalTo(48)
+        }
+        
+        routeStartButton.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
                 
-        searchBarContainer.onTap = { [weak self] in
+        searchBar.onTap = { [weak self] in
             guard let self else { return }
             
             self.navigationController?.pushViewController(makeSearchVC(mode: .main), animated: true)
+        }
+        
+        routeStartButton.onTapRouteStart = { [weak self] in
+            guard let self else { return }
+            guard let currentAddress = mapVC.currentAddress, let currentLocation = mapVC.currentLocation else { return }
+            
+            let current = Place(
+                id: "",
+                name: currentAddress,
+                category: "",
+                address: "",
+                roadAddress: nil,
+                longitude: currentLocation.coordinate.longitude,
+                latitude: currentLocation.coordinate.latitude,
+                phone: nil,
+                placeURL: nil)
+            
+            updateSheetState(.routing(.editing))
+            routingViewModel.setStartPlace(current)
         }
 
     }
@@ -526,10 +570,15 @@ extension RootContainerViewController {
         case .home:
             customTabBar.isHidden = false
             searchBarContainer.isHidden = false
+            routeStartButtonContainerView.isHidden = false
+            
+            searchBarTrailingToSuperview?.deactivate()
+            searchBarTrailingToButton?.activate()
+            
             setMode(.medium)
             hideRouting()
             
-            searchBarContainer.configureHome()
+            searchBar.configureHome()
             
         case .placeDetail(let scene):
             switch scene.style {
@@ -537,19 +586,23 @@ extension RootContainerViewController {
                 backButtonContainer.isHidden = true
                 searchBarContainer.isHidden = false
                 
-                searchBarContainer.configureHome()
+                searchBar.configureHome()
 
                 hideRouting()
                 
             case .pushBySearch:
                 backButtonContainer.isHidden = true
                 searchBarContainer.isHidden = false
+                routeStartButtonContainerView.isHidden = true
                 
-                searchBarContainer.configurePlaceDetail(scene.place)
+                searchBarTrailingToSuperview?.activate()
+                searchBarTrailingToButton?.deactivate()
+                
+                searchBar.configurePlaceDetail(scene.place)
 
                 hideRouting()
                 
-                searchBarContainer.onTap = { [weak self] in
+                searchBar.onTap = { [weak self] in
                     guard let self = self else { return }
 
                     self.updateSheetState(.home)
@@ -790,14 +843,10 @@ extension RootContainerViewController {
             view.showToast("경로가 추가되었습니다.")
         }
         
-//        let shareAction = UIAlertAction(title: "공유", style: .default) { [weak self] _ in
-//            // 공유기능 추가
-//        }
         
         let cancelAction = UIAlertAction(title: "취소", style: .cancel)
         
         alert.addAction(saveAction)
-//        alert.addAction(shareAction)
         alert.addAction(cancelAction)
         
         if let popover = alert.popoverPresentationController {

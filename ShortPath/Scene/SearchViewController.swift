@@ -44,6 +44,7 @@ final class SearchViewController: UIViewController {
     
     var navView = CustomNavView()
     private let searchResultTableView = UITableView()
+    var currentLocationButton = UIButton()
     
     var places: [Place] = []
     
