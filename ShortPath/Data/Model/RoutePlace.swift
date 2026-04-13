@@ -16,5 +16,16 @@ struct RoutePlace {
 }
 
 extension RoutePlace {
-    
+    func toPlace() -> Place {
+        Place(
+            id: id,
+            name: placeName,
+            category: "",
+            address: "",
+            roadAddress: roadAddress,
+            longitude: longitude,
+            latitude: latitude,
+            phone: nil,
+            placeURL: nil)
+    }
 }

@@ -74,4 +74,40 @@ extension RouteDraft {
         
         return "\(startName) → \(destinationName)"
     }
+    
+    func toRouteSectionItems() -> [RouteSectionItem] {
+        var items: [RouteSectionItem] = []
+        
+        if let start {
+            items.append(
+                RouteSectionItem(
+                    placeId: start.id,
+                    role: .start,
+                    place: start.toPlace()
+                )
+            )
+        }
+        
+        for waypoint in waypoints {
+            items.append(
+                RouteSectionItem(
+                    placeId: waypoint.id,
+                    role: .wayPoint,
+                    place: waypoint.toPlace()
+                )
+            )
+        }
+        
+        if let destination {
+            items.append(
+                RouteSectionItem(
+                    placeId: destination.id,
+                    role: .destination,
+                    place: destination.toPlace()
+                )
+            )
+        }
+        
+        return items
+    }
 }

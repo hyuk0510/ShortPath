@@ -235,6 +235,10 @@ extension MapViewController {
         
     }
     
+    func createFavoriteRoutePois() {
+        
+    }
+    
     func removeRoutePois() {
         guard let kakaoMap = kakaoMap else { return }
         

@@ -171,13 +171,16 @@ extension RootContainerViewController: FavoriteViewControllerDelegate {
     }
     
     func didTabRouteCell(_ route: FavoriteRouteObject) {
-//        self.mapVC.removePlaceDetailPoi()
         guard let routeBounds = route.routeBounds else { return }
         
-        self.mapVC.moveToRoute(routeBounds)
-        self.mapVC.createRouteLine(route.routePathPoints)
-        self.mapVC.createRoutePois(routingViewModel.items)
-        self.updateSheetState(.routing(.ready))
+        let items = route.routeDraft.toRouteSectionItems()
+        
+        routingViewModel.setAllItems(items)
+        
+        mapVC.moveToRoute(routeBounds)
+        mapVC.createRouteLine(route.routePathPoints)
+        mapVC.createRoutePois(routingViewModel.items)
+        updateSheetState(.routing(.ready))
     }
     
     func calculatedDistance(_ coord: (longitude: Double, latitude: Double)) -> Int {

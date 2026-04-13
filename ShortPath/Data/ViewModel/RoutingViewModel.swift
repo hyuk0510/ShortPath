@@ -52,6 +52,10 @@ final class RoutingViewModel {
         return items.dropFirst().dropLast().compactMap { $0 }
     }
     
+    func setAllItems(_ routeSectionItems : [RouteSectionItem]) {
+        items = routeSectionItems
+    }
+    
     func items(at index: Int) -> RouteSectionItem {
         return items[index]
     }
@@ -71,7 +75,6 @@ final class RoutingViewModel {
         guard let lastIndex = items.indices.last else { return }
         
         items[lastIndex].place = place
-//        items[lastIndex].placeId = place.id
     }
     
     func addWayPoint() {
