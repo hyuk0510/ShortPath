@@ -67,12 +67,20 @@ extension RouteDraft {
     }
     
     func makeTitle() -> String {
-        guard let startName = start?.placeName,
-              let destinationName = destination?.placeName else {
-            return "저장된 루트"
+        var names: [String] = []
+        
+        if let startName = start?.placeName {
+            names.append(startName)
         }
         
-        return "\(startName) → \(destinationName)"
+        let waypointNames = waypoints.map { $0.placeName }
+        names.append(contentsOf: waypointNames)
+        
+        if let destinationName = destination?.placeName {
+            names.append(destinationName)
+        }
+        
+        return names.isEmpty ? "저장된 루트" : names.joined(separator: " → ")
     }
     
     func toRouteSectionItems() -> [RouteSectionItem] {

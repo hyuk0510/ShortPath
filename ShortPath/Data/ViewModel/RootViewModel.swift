@@ -86,32 +86,6 @@ final class RootViewModel {
         previousSheetMode = nil
     }
     
-//    func applyRouteRole(_ role: RouteSection, with place: Place) {
-//        guard let previousSheetMode else { return }
-//        
-//        switch previousSheetMode {
-//        case .routing(.none):
-//            var draft = RouteDraft()
-//            draft.update(place: place, for: role)
-//            sheetMode = .routing(.editing(draft))
-//            
-//        case .routing(.ready(let result)):
-//            var draft = RouteDraft(result: result)
-//            draft.update(place: place, for: role)
-//            sheetMode = .routing(.editing(draft))
-//            
-//        case .routing(.editing(let draft)):
-//            var updated = draft
-//            updated.update(place: place, for: role)
-//            sheetMode = .routing(.editing(updated))
-//            
-//        case .home, .placeDetail:
-//            break
-//        }
-//        
-//        self.previousSheetMode = nil
-//    }
-    
     func backToHome() {
         sheetMode = .home
     }
