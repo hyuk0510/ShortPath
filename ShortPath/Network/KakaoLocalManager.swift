@@ -94,4 +94,36 @@ final class KakaoLocalManager {
         
         return result
     }
+    
+    func fetchCurrentAddress(coordinate: CLLocationCoordinate2D) async throws -> CurrentAddress {
+        var urlComponents = URLComponents(string: "https://dapi.kakao.com/v2/local/geo/coord2address")
+        
+        urlComponents?.queryItems = [
+            URLQueryItem(name: "x", value: "\(coordinate.longitude)"),
+            URLQueryItem(name: "y", value: "\(coordinate.latitude)"),
+        ]
+        
+        guard let url = urlComponents?.url else { throw NetworkError.invalidURL }
+        
+        var request: URLRequest = URLRequest(url: url)
+
+        request.httpMethod = "GET"
+        request.setValue("KakaoAK \(APIKey.kakaoAPI)", forHTTPHeaderField: "Authorization")
+
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw NetworkError.invalidResponse
+        }
+                
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            print(httpResponse.statusCode)
+            throw NetworkError.APIKeyError
+        }
+        
+        let result = try JSONDecoder().decode(CurrentAddress.self, from: data)
+        
+        return result
+    }
 }

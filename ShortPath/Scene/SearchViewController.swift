@@ -7,8 +7,9 @@
 
 import UIKit
 import CoreLocation
+import SnapKit
 
-enum SearchMode {
+enum SearchMode: Equatable {
     case main
     case routing(targetID: UUID, role: RouteSection)
     
@@ -25,6 +26,15 @@ enum SearchMode {
             case .destination:
                 return "도착지 검색"
             }
+        }
+    }
+    
+    var targetID: UUID? {
+        switch self {
+        case .main:
+            return nil
+        case .routing(let targetID, _):
+            return targetID
         }
     }
 }
@@ -44,7 +54,25 @@ final class SearchViewController: UIViewController {
     
     var navView = CustomNavView()
     private let searchResultTableView = UITableView()
-    var currentLocationButton = UIButton()
+    
+    var currentLocationButton: UIButton = {
+        let view = UIButton()
+        var configure = UIButton.Configuration.plain()
+        var container = AttributeContainer()
+        
+        container.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
+        
+        configure.image = UIImage(systemName: "location.circle.fill")?.resized(to: CGSize(width: 18, height: 18))
+        configure.attributedTitle = AttributedString("내위치로 설정", attributes: container)
+        configure.baseBackgroundColor = .clear
+        configure.baseForegroundColor = .black
+        configure.imagePadding = 8
+        configure.imagePlacement = .leading
+        
+        view.configuration = configure
+        
+        return view
+    }()
     
     var places: [Place] = []
     
@@ -52,13 +80,17 @@ final class SearchViewController: UIViewController {
     
     weak var delegate: SearchViewControllerDelegate?
     var coordinate: CLLocation?
-        
+    
+    private var searchResultTableViewTopToSafeArea: Constraint?
+    private var searchResultTableViewTopToButton: Constraint?
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = .white
         
         configureNavView()
+        setCurrentLocationButton()
         setTableView()
     }
     
@@ -66,6 +98,7 @@ final class SearchViewController: UIViewController {
         super.viewWillAppear(animated)
         
         setNavBar()
+        setCurrentLocationButtonState()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -120,6 +153,46 @@ final class SearchViewController: UIViewController {
         delegate?.didDisappear(mode: mode)
     }
     
+    private func setCurrentLocationButton() {
+        view.addSubview(currentLocationButton)
+        
+        currentLocationButton.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(16)
+            make.leading.equalToSuperview()
+            make.height.equalTo(24)
+            make.width.equalTo(150)
+        }
+        
+        currentLocationButton.addTarget(self, action: #selector(currentLocationButtonPressed), for: .touchUpInside)
+    }
+    
+    @objc
+    private func currentLocationButtonPressed() {
+        guard let targetID = mode.targetID else { return }
+        
+        delegate?.sendCurrentLocation(targetID)
+        popVC()
+    }
+    
+    private func setCurrentLocationButtonState() {
+        if mode == .main {
+            currentLocationButton.isHidden = true
+            
+            searchResultTableView.snp.remakeConstraints { make in
+                make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+                make.horizontalEdges.bottom.equalTo(view.safeAreaLayoutGuide)
+            }
+            
+        } else {
+            currentLocationButton.isHidden = false
+            
+            searchResultTableView.snp.remakeConstraints { make in
+                make.top.equalTo(currentLocationButton.snp.bottom).offset(16)
+                make.horizontalEdges.bottom.equalTo(view.safeAreaLayoutGuide)
+            }
+        }
+    }
+    
     private func setTableView() {
         view.addSubview(searchResultTableView)
         
@@ -131,10 +204,10 @@ final class SearchViewController: UIViewController {
         searchResultTableView.keyboardDismissMode = .onDrag
         searchResultTableView.register(SearchTableViewCell.self, forCellReuseIdentifier: SearchTableViewCell.identifier)
         
-        searchResultTableView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-            make.horizontalEdges.bottom.equalTo(view.safeAreaLayoutGuide)
-        }
+//        searchResultTableView.snp.makeConstraints { make in
+//            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+//            make.horizontalEdges.bottom.equalTo(view.safeAreaLayoutGuide)
+//        }
     }
     
     func debounceSearch(text: String) {

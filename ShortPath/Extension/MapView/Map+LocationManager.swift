@@ -69,11 +69,27 @@ extension MapViewController: CLLocationManagerDelegate {
             currentLocation = location
             updateCurrentLocationPoi(location)
             
-            if let _ = currentLocation {
+            if !hasInitialLocation {
                 hasInitialLocation = true
+                
+                addressTask?.cancel()
+                addressTask = Task {
+                    do {
+                        let address = try await KakaoLocalManager.shared.fetchCurrentAddress(coordinate: location.coordinate)
+                        
+                        let document = address.documents.first
+                        let roadAddress = document?.roadAddress.addressName
+                        let lotNumberAddress = document?.address.addressName
+                        
+                        await MainActor.run {
+                            currentAddress = roadAddress != "" ? roadAddress : lotNumberAddress
+                        }
+                        
+                    } catch {
+                        print(error)
+                    }
+                }
             }
-            
-            getAddressFromLocation(location: location)
         }
         
         locationManager.stopUpdatingLocation()
@@ -91,26 +107,6 @@ extension MapViewController: CLLocationManagerDelegate {
         }
         
         errorAlert(title: "위치 정보 에러", message: "위치 정보를 가져오지 못하였습니다.")
-    }
-    
-    func getAddressFromLocation(location: CLLocation) {
-        let geocoder = CLGeocoder()
-        geocoder.reverseGeocodeLocation(location) { (placemarks, error) in
-            if let error = error {
-                print("Error: \(error.localizedDescription)")
-                return
-            }
-            
-            if let placemark = placemarks?.first {
-                
-//                let country = placemark.country ?? ""
-                let administrativeArea = placemark.administrativeArea ?? "" // 도/광역시
-                let locality = placemark.locality ?? "" // 시/군/구
-                let thoroughfare = placemark.thoroughfare ?? "" // 도로명
-                
-                self.currentAddress = "\(administrativeArea) \(locality) \(thoroughfare)"
-            }
-        }
     }
     
     func moveCameraToCurrentLocation(sheetMode: SheetMode = .home) {

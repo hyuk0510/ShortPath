@@ -60,4 +60,6 @@ final class MapViewController: UIViewController, MapControllerDelegate {
     weak var mapInterActiveDelegate: MapInteractionDelegate?
     
     let repository = FavoriteRepository.shared
+    
+    var addressTask: Task<Void, Never>?
 }

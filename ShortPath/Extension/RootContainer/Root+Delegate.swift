@@ -130,6 +130,23 @@ extension RootContainerViewController: SearchViewControllerDelegate {
         
         navigationController?.popViewController(animated: false)
     }
+    
+    func sendCurrentLocation(_ targetID: UUID) {
+        guard let currentAddress = mapVC.currentAddress, let currentLocation = mapVC.currentLocation else { return }
+        
+        let current = Place(
+            id: "",
+            name: currentAddress,
+            category: "",
+            address: "",
+            roadAddress: nil,
+            longitude: currentLocation.coordinate.longitude,
+            latitude: currentLocation.coordinate.latitude,
+            phone: nil,
+            placeURL: nil)
+        
+        routingViewModel.updatePlace(current, for: targetID)
+    }
 }
 
 extension RootContainerViewController: FavoriteViewControllerDelegate {

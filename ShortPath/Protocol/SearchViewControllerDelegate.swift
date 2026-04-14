@@ -10,4 +10,5 @@ import Foundation
 protocol SearchViewControllerDelegate: AnyObject {
     func didSelectedPlace(place: Place, mode: SearchMode)
     func didDisappear(mode: SearchMode)
+    func sendCurrentLocation(_ targetID: UUID)
 }

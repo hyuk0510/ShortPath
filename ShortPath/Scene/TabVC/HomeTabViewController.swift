@@ -32,9 +32,7 @@ final class HomeTabViewController: UIViewController, BottomSheetInteractable {
         scrollView.addSubview(contentStackView)
         
         scrollView.snp.makeConstraints { make in
-            make.top.equalToSuperview().inset(16)
-            make.horizontalEdges.equalToSuperview()
-            make.bottom.equalToSuperview().inset(100)
+            make.edges.equalToSuperview()
         }
                 
         contentStackView.axis = .vertical
