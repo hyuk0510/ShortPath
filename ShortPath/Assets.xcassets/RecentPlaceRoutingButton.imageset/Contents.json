@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "favorite_orange.png",
+      "filename" : "RecentPlaceRoutingButton.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "RecentPlaceRoutingButton@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "RecentPlaceRoutingButton@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
