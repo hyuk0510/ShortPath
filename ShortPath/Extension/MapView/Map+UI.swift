@@ -9,83 +9,72 @@ import UIKit
 import KakaoMapsSDK
 
 extension MapViewController {
-    
-    var currentLocationPoiView: UIView {
-        let view = UIView(frame: .init(x: 0, y: 0, width: 20, height: 20))
 
-        let imageView = UIImageView()
-        imageView.image = UIImage(named: "CurrentLocation")
-        imageView.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
+    private func makePoiImageView(imageName: String, size: CGFloat, shadow: Bool = true, animated: Bool = true) -> UIView {
+        let view = UIView(frame: .init(x: 0, y: 0, width: size, height: size))
+        view.backgroundColor = .clear
+
+        if shadow {
+            view.layer.shadowColor = UIColor.black.cgColor
+            view.layer.shadowOpacity = 0.16
+            view.layer.shadowRadius = 4
+            view.layer.shadowOffset = CGSize(width: 0, height: 2)
+            view.layer.masksToBounds = false
+        }
+
+        let imageView = UIImageView(frame: .init(x: 0, y: 0, width: size, height: size))
+        imageView.image = UIImage(named: imageName)
         imageView.contentMode = .scaleAspectFit
-        
+
         view.addSubview(imageView)
-        
+
+        if animated {
+            view.transform = CGAffineTransform(scaleX: 0.82, y: 0.82)
+            view.alpha = 0
+            UIView.animate(
+                withDuration: 0.24,
+                delay: 0,
+                usingSpringWithDamping: 0.72,
+                initialSpringVelocity: 0.65,
+                options: [.curveEaseOut, .allowUserInteraction]
+            ) {
+                view.transform = .identity
+                view.alpha = 1
+            }
+        }
+
         return view
     }
-    
+
+    var currentLocationPoiView: UIView {
+        makePoiImageView(imageName: "CurrentLocationDirection", size: 24, shadow: false, animated: false)
+    }
+
     var placeDetailPoiView: UIView {
-        let view = UIView(frame: .init(x: 0, y: 0, width: 36, height: 36))
-        let imageView = UIImageView()
-        imageView.image = UIImage(named: "PlacePin")
-        imageView.frame = CGRect(x: 0, y: 0, width: 36, height: 36)
-        imageView.contentMode = .scaleAspectFit
-        
-        view.addSubview(imageView)
-        
-        return view
+        makePoiImageView(imageName: "PlacePin", size: 36, shadow: true, animated: true)
     }
-    
+
     var startPlacePoiView: UIView {
-        let view = UIView(frame: .init(x: 0, y: 0, width: 24, height: 24))
-        let imageView = UIImageView()
-        imageView.image = UIImage(named: "StartPlace")
-        imageView.frame = CGRect(x: 0, y: 0, width: 24, height: 24)
-        imageView.contentMode = .scaleAspectFit
-        
-        view.addSubview(imageView)
-        
-        return view
+        makePoiImageView(imageName: "StartPlace_Glass", size: 32, shadow: true, animated: true)
     }
-    
+
     var wayPointsPoiView: [UIView] {
         var viewArr: [UIView] = []
-        
+
         for i in 1...5 {
-            let view = UIView(frame: .init(x: 0, y: 0, width: 24, height: 24))
-            let imageView = UIImageView()
-            imageView.image = UIImage(named: "WayPoint_\(i)")
-            imageView.frame = CGRect(x: 0, y: 0, width: 24, height: 24)
-            imageView.contentMode = .scaleAspectFit
-            
-            view.addSubview(imageView)
+            let view = makePoiImageView(imageName: "WayPoint_\(i)_Glass", size: 32, shadow: true, animated: true)
             viewArr.append(view)
         }
-        
+
         return viewArr
     }
-    
+
     var destinationPlacePoiView: UIView {
-        let view = UIView(frame: .init(x: 0, y: 0, width: 30, height: 30))
-        let imageView = UIImageView()
-        imageView.image = UIImage(named: "Destination")
-        imageView.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
-        imageView.contentMode = .scaleAspectFit
-        
-        view.addSubview(imageView)
-        
-        return view
+        makePoiImageView(imageName: "Destination_Glass", size: 34, shadow: true, animated: true)
     }
-    
+
     var favoritePoiView: UIView {
-        let view = UIView(frame: .init(x: 0, y: 0, width: 15, height: 15))
-        let imageView = UIImageView()
-        imageView.image = UIImage(named: "FavoritePoiImage")
-        imageView.frame = CGRect(x: 0, y: 0, width: 15, height: 15)
-        imageView.contentMode = .scaleAspectFit
-        
-        view.addSubview(imageView)
-        
-        return view
+        makePoiImageView(imageName: "FavoritePoiImage", size: 16, shadow: true, animated: true)
     }
     
     func positionLogo(_ safeAreaTop: CGFloat) {

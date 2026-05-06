@@ -6,12 +6,20 @@
 //
 
 import UIKit
+import CoreLocation
 
 extension RootContainerViewController: MapInteractionDelegate {
-    func mapDidReceiveUserInteraction() {
+    func didUpdateCurrentLocation(_ location: CLLocation) {
+        homeVC.reloadData()
+    }
+    
+    func mapDidReceiveUserInteraction(type: MapInteractionType) {
         setMode(.tip)
         customTabBar.deselectAll()
-        currentLocationButton.isSelected = false
+        
+        if type == .pan || type == .tap {
+            currentLocationButton.isSelected = false
+        }
         
         if !rootViewModel.isRouting {
             mapVC.bottomSheetDidSnap(to: .tip, to: rootViewModel.currentSheetMode(), height: view.bounds.height - Const.bottomSheetYPosition(.tip, .home))
@@ -90,7 +98,17 @@ extension RootContainerViewController: CustomTabBarDelegate {
 
 extension RootContainerViewController: SearchViewControllerDelegate {
     func didSelectedPlace(place: Place, mode: SearchMode) {
-        let scene = PlaceDetailScene(place: place, style: .pushBySearch)
+        var enrichedPlace = place
+        
+        if enrichedPlace.distance == nil,
+           let currentLocation = mapVC.currentLocation {
+            enrichedPlace.distance = DistanceCalculator.distance(
+                from: (currentLocation.coordinate.longitude, currentLocation.coordinate.latitude),
+                to: (enrichedPlace.longitude, enrichedPlace.latitude)
+            )
+        }
+        
+        let scene = PlaceDetailScene(place: enrichedPlace, style: .pushBySearch)
         let coordinate = (Double(place.longitude), Double(place.latitude))
         let placeDetailVC = PlaceDetailViewController(scene: scene)
         
@@ -109,6 +127,11 @@ extension RootContainerViewController: SearchViewControllerDelegate {
             }
         }
         
+        do {
+            try recentPlaceRepo.create(place: place)
+        } catch {
+            
+        }
     }
     
     func didDisappear(mode: SearchMode) {
@@ -132,20 +155,28 @@ extension RootContainerViewController: SearchViewControllerDelegate {
     }
     
     func sendCurrentLocation(_ targetID: UUID) {
-        guard let currentAddress = mapVC.currentAddress, let currentLocation = mapVC.currentLocation else { return }
+        guard let currentLocation = mapVC.currentLocation else { return }
         
-        let current = Place(
-            id: "",
-            name: currentAddress,
-            category: "",
-            address: "",
-            roadAddress: nil,
-            longitude: currentLocation.coordinate.longitude,
-            latitude: currentLocation.coordinate.latitude,
-            phone: nil,
-            placeURL: nil)
+        Task { [weak self] in
+            guard let self else { return }
+            guard let currentAddress = await mapVC.getCurrentAddress() else { return }
+            
+            let current = Place(
+                id: "",
+                name: currentAddress,
+                category: "",
+                address: "",
+                roadAddress: nil,
+                longitude: currentLocation.coordinate.longitude,
+                latitude: currentLocation.coordinate.latitude,
+                phone: nil,
+                placeURL: nil)
+            
+            await MainActor.run {
+                self.routingViewModel.updatePlace(current, for: targetID)
+            }
+        }
         
-        routingViewModel.updatePlace(current, for: targetID)
     }
 }
 
@@ -284,4 +315,148 @@ extension RootContainerViewController: RoutingPanelViewDelegate {
     }
     
     
+}
+
+extension RootContainerViewController: HomeTabViewControllerDelegate {
+    func pushSearchVCButtonPressed() {
+        self.navigationController?.pushViewController(makeSearchVC(mode: .main), animated: true)
+    }
+    
+    func calculatedDistance(_ recentRouteItem: RecentRouteItem) -> Int {
+        guard let currentLocation = mapVC.currentLocation else { return 0 }
+        
+        let coord = currentLocation.coordinate
+        
+        switch recentRouteItem {
+        case .currentLocationDestination(let currentLocationRecentRoute):
+            let place = currentLocationRecentRoute.destination
+            let distance = DistanceCalculator.distance(from: (coord.longitude, coord.latitude), to: (place.longitude, place.latitude))
+            
+            return distance
+            
+        case .presetRoute(let presetRecentRoute):
+            return presetRecentRoute.distance
+        }
+    }
+    
+    func didTapRecentRoute(_ recentRouteItem: RecentRouteItem) {
+        switch recentRouteItem {
+        case .currentLocationDestination(let currentLocationRecentRoute):
+            
+            guard let currentLocation = mapVC.currentLocation else { return }
+            
+            Task { [weak self] in
+                guard let self else { return }
+                
+                guard let currentAddress = await mapVC.getCurrentAddress() else { return }
+                
+                let destination = currentLocationRecentRoute.destination
+
+                let current = Place(
+                    id: "",
+                    name: currentAddress,
+                    category: "",
+                    address: "",
+                    roadAddress: nil,
+                    longitude: currentLocation.coordinate.longitude,
+                    latitude: currentLocation.coordinate.latitude,
+                    phone: nil,
+                    placeURL: nil)
+                
+                await MainActor.run {
+                    self.routingViewModel.setStartPlace(current)
+                    self.routingViewModel.setEndPlace(destination)
+                    
+        //            routingViewModel.currentRoute = Route
+                    
+                    self.updateSheetState(.routing(.editing))
+                }
+            }
+            
+        case .presetRoute(let presetRecentRoute):
+            guard let routeBounds = presetRecentRoute.bounds else { return }
+            
+            let items = presetRecentRoute.routeDraft.toRouteSectionItems()
+            
+            routingViewModel.setAllItems(items)
+            
+            mapVC.moveToRoute(routeBounds)
+            mapVC.createRouteLine(presetRecentRoute.pathPoints)
+            mapVC.createRoutePois(routingViewModel.items)
+            updateSheetState(.routing(.ready))
+        }
+    }
+    
+    func favoriteButtonPressed(_ recentPlaceItem: RecentPlaceItem) {
+        let place = recentPlaceItem.place
+        let isFavorite = recentPlaceItem.isFavorite
+        
+        if isFavorite {
+            placeRepo.deletePlace(placeID: place.id)
+            
+            view.showToast("즐겨찾기에서 삭제됨")
+            softFeedback.impactOccurred()
+        } else {
+            placeRepo.savePlace(place: place)
+            
+            view.showToast("즐겨찾기에 저장됨")
+            lightFeedback.impactOccurred()
+        }
+        
+        mapVC.updateFavoritePoi(place, isFavorite: isFavorite)
+    }
+    
+    func moveToRouteEditing(_ place: Place) {
+        guard let currentLocation = mapVC.currentLocation else { return }
+        
+        Task { [weak self] in
+            guard let self else { return }
+            
+            guard let currentAddress = await mapVC.getCurrentAddress() else { return }
+            
+            let current = Place(
+                id: "",
+                name: currentAddress,
+                category: "",
+                address: "",
+                roadAddress: nil,
+                longitude: currentLocation.coordinate.longitude,
+                latitude: currentLocation.coordinate.latitude,
+                phone: nil,
+                placeURL: nil)
+            
+            await MainActor.run {
+                self.routingViewModel.setStartPlace(current)
+                self.routingViewModel.setEndPlace(place)
+                
+                self.updateSheetState(.routing(.editing))
+            }
+            
+        }
+        
+    }
+    
+    func moveToPlaceDetail(_ place: Place) {
+        var enrichedPlace = place
+        
+        if enrichedPlace.distance == nil,
+           let currentLocation = mapVC.currentLocation {
+            enrichedPlace.distance = DistanceCalculator.distance(
+                from: (currentLocation.coordinate.longitude, currentLocation.coordinate.latitude),
+                to: (enrichedPlace.longitude, enrichedPlace.latitude)
+            )
+        }
+        
+        let scene = PlaceDetailScene(place: enrichedPlace, style: .normal)
+        let coordinate = (Double(place.longitude), Double(place.latitude))
+        let placeDetailVC = PlaceDetailViewController(scene: scene)
+        
+        placeDetailVC.delegate = self
+        
+        DispatchQueue.main.async {
+            self.showPlaceDetail(scene: scene, vc: placeDetailVC, coordinate: coordinate)
+        }
+        
+        rootViewModel.presentFavoritePoiDetail(place: place)
+    }
 }

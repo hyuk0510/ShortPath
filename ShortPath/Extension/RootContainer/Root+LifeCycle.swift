@@ -26,6 +26,9 @@ extension RootContainerViewController {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             _ = self.searchVC.view
         }
+        
+        lightFeedback.prepare()
+        softFeedback.prepare()
     }
     
     override func viewWillAppear(_ animated: Bool) {

@@ -60,5 +60,12 @@ extension UIView {
             }
         }
     }
+    
+    func makeSpacer() -> UIView {
+        let spacer = UIView()
+        spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        spacer.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        return spacer
+    }
 }
 

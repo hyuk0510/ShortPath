@@ -71,4 +71,10 @@ final class RootContainerViewController: UIViewController {
     
     let placeRepo = FavoriteRepository.shared
     let routeRepo = FavoriteRouteRepository.shared
+    let recentPlaceRepo = RecentPlaceRepository.shared
+    let currentRouteRepo = CurrentLocationRecentRouteRepository.shared
+    let presetRouteRepo = PresetRecentRouteRepository.shared
+    
+    let lightFeedback = UIImpactFeedbackGenerator(style: .light)
+    let softFeedback = UIImpactFeedbackGenerator(style: .soft)
 }

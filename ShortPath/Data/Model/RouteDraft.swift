@@ -7,10 +7,12 @@
 
 import Foundation
 
-struct RouteDraft: Equatable {
+struct RouteDraft: Equatable, Hashable {
     var start: RoutePlace?
     var waypoints: [RoutePlace] = []
     var destination: RoutePlace?
+    
+    let distance: Int
     
     static func == (lhs: RouteDraft, rhs: RouteDraft) -> Bool {
         lhs.start?.id == rhs.start?.id &&
@@ -75,6 +77,20 @@ extension RouteDraft {
         
         let waypointNames = waypoints.map { $0.placeName }
         names.append(contentsOf: waypointNames)
+        
+        if let destinationName = destination?.placeName {
+            names.append(destinationName)
+        }
+        
+        return names.isEmpty ? "저장된 루트" : names.joined(separator: " → ")
+    }
+    
+    func makeShortTitle() -> String {
+        var names: [String] = []
+        
+        if let startName = start?.placeName {
+            names.append(startName)
+        }
         
         if let destinationName = destination?.placeName {
             names.append(destinationName)

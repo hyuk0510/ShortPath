@@ -83,7 +83,7 @@ private extension SettingView {
     var appInfoSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("앱 정보")
-                .font(.subheadline)
+                .font(.headline)
                 .foregroundColor(.black)
                 .padding(.horizontal, 4)
             
@@ -107,7 +107,7 @@ private extension SettingView {
     var supportSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("지원")
-                .font(.subheadline)
+                .font(.headline)
                 .foregroundColor(.black)
                 .padding(.horizontal, 4)
             

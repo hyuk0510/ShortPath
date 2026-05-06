@@ -46,7 +46,8 @@ extension MapViewController {
         let manager = kakaoMap.getLabelManager()
         
         // 현재 위치 Poi
-        let currentLocationImage = UIImage(named: "CurrentLocation")
+        let currentLocationImage = UIImage(named: "CurrentLocationDirection")
+        print("currentLocationImage:", currentLocationImage as Any)
         let currentLocationIconStyle = PoiIconStyle(symbol: currentLocationImage, anchorPoint: CGPoint(x: 0.5, y: 0.5))
         let perLevelCurrentLocationStyle = PerLevelPoiStyle(iconStyle: currentLocationIconStyle, level: 0)
         let currentLocationStyle = PoiStyle(styleID: "CurrentLocationStyle", styles: [perLevelCurrentLocationStyle])
@@ -99,7 +100,7 @@ extension MapViewController {
         // 즐겨찾는 장소 Poi
         let favoriteIconStyle = PoiIconStyle(symbol: favoritePoiView.asImage(), anchorPoint: CGPoint(x: 0.5, y: 0.5))
         let textStyle = TextStyle(fontSize: 0, fontColor: .clear)
-        let textStyle2 = TextStyle(fontSize: 20, fontColor: .black, strokeThickness: 2, strokeColor: .white)
+        let textStyle2 = TextStyle(fontSize: 24, fontColor: .black, strokeThickness: 2, strokeColor: .white)
         let favoriteTextStyle = PoiTextStyle(textLineStyles: [
             PoiTextLineStyle(textStyle: textStyle)
         ])
@@ -232,10 +233,6 @@ extension MapViewController {
                 
             }
         }
-        
-    }
-    
-    func createFavoriteRoutePois() {
         
     }
     

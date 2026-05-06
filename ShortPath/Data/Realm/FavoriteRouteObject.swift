@@ -18,6 +18,7 @@ final class FavoriteRouteObject: Object {
     
     @Persisted var bounds: RouteBoundsObject?
     @Persisted var pathPoints: List<RoutePathPointObject>
+    @Persisted var distance: Int
 }
 
 final class FavoriteRoutePlaceObject: Object {
@@ -62,7 +63,8 @@ extension FavoriteRouteObject {
         return RouteDraft(
             start: start,
             waypoints: waypoints,
-            destination: destination
+            destination: destination,
+            distance: distance
         )
     }
     

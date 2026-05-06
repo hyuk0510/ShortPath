@@ -21,4 +21,8 @@ extension UIColor {
         
         self.init(red: r, green: g, blue: b, alpha: alpha)
     }
+    
+//    var signatureColor: UIColor {
+//        UIColor(hex: "0xF5F5F5")
+//    }
 }

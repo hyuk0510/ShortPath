@@ -58,7 +58,7 @@ final class FavoriteTabViewController: UIViewController, BottomSheetInteractable
         favoriteTableView.snp.makeConstraints { make in
             make.top.equalTo(segmentView.snp.bottom).offset(12)
             make.horizontalEdges.equalToSuperview()
-            make.bottom.equalToSuperview().offset(150)
+            make.bottom.equalToSuperview().inset(100)
         }
         
         favoriteTableView.backgroundColor = .white

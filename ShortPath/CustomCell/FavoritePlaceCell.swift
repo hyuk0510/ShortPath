@@ -49,9 +49,13 @@ final class FavoritePlaceCell: UITableViewCell {
     
     private var menuButton: UIButton = {
         let view = UIButton()
+        var configure = UIButton.Configuration.plain()
         
-        view.setImage(UIImage(systemName: "ellipsis"), for: .normal)
-        view.tintColor = .black
+        configure.buttonSize = .small
+        configure.image = UIImage(systemName: "ellipsis")
+        configure.baseForegroundColor = UIColor(hex: "0x8E8E93")
+        
+        view.configuration = configure
         
         return view
     }()
@@ -80,7 +84,21 @@ final class FavoritePlaceCell: UITableViewCell {
             horizontalStackView.addArrangedSubview(view)
         }
         
-        menuButton.addTarget(self, action: #selector(menuButtonPressed), for: .touchUpInside)
+        let menuItems = [
+            UIAction(
+                title: "삭제",
+                image: UIImage(systemName: "trash"),
+                attributes: .destructive,
+                handler: { [weak self] _ in
+                    guard let self else { return }
+                    
+                    onTapMenuButton?()
+                })
+        ]
+        
+        menuButton.menu = UIMenu(title: "메뉴", children: menuItems)
+        menuButton.showsMenuAsPrimaryAction = true
+        
         menuButton.setContentHuggingPriority(.required, for: .horizontal)
         menuButton.setContentCompressionResistancePriority(.required, for: .horizontal)
         
@@ -99,30 +117,19 @@ final class FavoritePlaceCell: UITableViewCell {
             make.edges.equalToSuperview().inset(16)
         }
     }
-    
-    @objc
-    private func menuButtonPressed() {
-        onTapMenuButton?()
-    }
+
     
     func bind(_ place: FavoritePlace, _ distance: Int?) {
         nameLabel.text = place.name
         categoryLabel.text = CategoryFormatter.string(from: place.category)
         
-        guard let distance = distance, distance != 0 else {
+        guard let distance = distance else {
             distanceAddressLabel.text = "제공하지 않음" + " ･" + (place.roadAddress ?? "제공하지 않음")
             
             return
         }
         
         distanceAddressLabel.text = DistanceFormatter.string(from: distance) + " ･" + (place.roadAddress ?? "제공하지 않음")
-    }
-    
-    private func makeSpacer() -> UIView {
-        let spacer = UIView()
-        spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        spacer.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        return spacer
     }
     
     override func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {

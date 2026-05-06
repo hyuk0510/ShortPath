@@ -7,12 +7,12 @@
 
 import Foundation
 
-struct RoutePathPoint {
+struct RoutePathPoint: Equatable, Hashable {
     let longitude: Double
     let latitude: Double
 }
 
-struct RouteBounds {
+struct RouteBounds: Equatable, Hashable {
     let minLng: Double
     let minLat: Double
     let maxLng: Double
@@ -22,6 +22,7 @@ struct RouteBounds {
 struct RouteGeometry {
     let pathPoints: [RoutePathPoint]
     let bounds: RouteBounds
+    let distance: Int
 }
 
 enum RouteGeometryBuilder {
@@ -68,7 +69,8 @@ enum RouteGeometryBuilder {
         
         return RouteGeometry(
             pathPoints: pathPoints,
-            bounds: bounds
+            bounds: bounds,
+            distance: route.summary.distance
         )
     }
 }
@@ -105,6 +107,7 @@ enum FavoriteRouteObjectFactory {
         }
 
         object.pathPoints.append(objectsIn: pathPointObjects)
+        object.distance = geometry.distance
 
         return object
     }

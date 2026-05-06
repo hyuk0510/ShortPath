@@ -56,7 +56,7 @@ final class CurrentLocationButton: UIButton {
             
             context.setShadow(offset: .zero, blur: 0)
             
-            if let image = UIImage(named: "Compass_Icon") {
+            if let image = UIImage(named: "CurrentLocationButton_Icon") {
                 let iconRect = CGRect(x: center.x - buttonSize / 2, y: center.y - buttonSize / 2, width: buttonSize, height: buttonSize)
                 
                 image.withTintColor(UIColor.black.withAlphaComponent(iconAlpha), renderingMode: .alwaysOriginal).draw(in: iconRect)

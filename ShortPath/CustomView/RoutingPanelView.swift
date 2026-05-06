@@ -23,6 +23,17 @@ enum RouteSection: String, Equatable {
             return "도착지를 입력해주세요."
         }
     }
+
+    var title: String {
+        switch self {
+        case .start:
+            return "출발"
+        case .wayPoint:
+            return "경유"
+        case .destination:
+            return "도착"
+        }
+    }
 }
 
 final class RoutingPanelView: UIView {
@@ -42,8 +53,8 @@ final class RoutingPanelView: UIView {
     private var contentView: UIView = {
         let view = UIView()
        
-        view.backgroundColor = UIColor(hex: "0xC7C7CC")
-        view.layer.cornerRadius = 12
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 20
         view.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
         view.clipsToBounds = true
         
@@ -53,26 +64,35 @@ final class RoutingPanelView: UIView {
     private var routeTableView: UITableView = {
         let view = UITableView(frame: .zero, style: .plain)
         
-        view.layer.cornerRadius = 12
+        view.layer.cornerRadius = 16
         view.backgroundColor = .clear
+        view.clipsToBounds = true
         
         return view
     }()
     
     private var swapStartDestinationButton: UIButton = {
-        let view = UIButton()
+        let view = UIButton(type: .system)
         
-        view.setImage(UIImage(systemName: "arrow.up.arrow.down"), for: .normal)
-        view.tintColor = .black
+        var configuration = UIButton.Configuration.plain()
+        configuration.image = UIImage(systemName: "arrow.up.arrow.down")
+        configuration.baseForegroundColor = UIColor(hex: "0x1C1C1E")
+        configuration.background.backgroundColor = UIColor(hex: "0xF2F2F7")
+        configuration.background.cornerRadius = 16
+        view.configuration = configuration
         
         return view
     }()
     
     private var closeButton: UIButton = {
-        let view = UIButton()
+        let view = UIButton(type: .system)
         
-        view.setImage(UIImage(systemName: "xmark"), for: .normal)
-        view.tintColor = .black
+        var configuration = UIButton.Configuration.plain()
+        configuration.image = UIImage(systemName: "xmark")
+        configuration.baseForegroundColor = UIColor(hex: "0x1C1C1E")
+        configuration.background.backgroundColor = UIColor(hex: "0xF2F2F7")
+        configuration.background.cornerRadius = 16
+        view.configuration = configuration
         
         return view
     }()
@@ -109,10 +129,11 @@ final class RoutingPanelView: UIView {
     private func configure() {
         isHidden = true
         clipsToBounds = false
+        backgroundColor = .clear
         
         let buttonStack = UIStackView()
         buttonStack.axis = .vertical
-        buttonStack.spacing = 12
+        buttonStack.spacing = 10
         buttonStack.alignment = .center
         buttonStack.distribution = .fillEqually
         
@@ -138,17 +159,17 @@ final class RoutingPanelView: UIView {
         }
         
         routeTableView.snp.makeConstraints { make in
-            make.top.equalTo(safeAreaLayoutGuide)
-            make.leading.equalToSuperview()
-            make.trailing.equalTo(buttonStack.snp.leading)
-            tableViewHeightConstraint = make.height.equalTo(112).constraint
+            make.top.equalTo(safeAreaLayoutGuide).offset(10)
+            make.leading.equalToSuperview().offset(12)
+            make.trailing.equalTo(buttonStack.snp.leading).offset(-10)
+            tableViewHeightConstraint = make.height.equalTo(128).constraint
         }
         
         buttonStack.snp.makeConstraints { make in
             make.top.equalTo(routeTableView.snp.top)
-            make.trailing.equalToSuperview()
+            make.trailing.equalToSuperview().inset(12)
             make.width.equalTo(44)
-            make.height.equalTo(100)
+            make.height.equalTo(98)
         }
         
         closeButton.snp.makeConstraints { make in
@@ -180,15 +201,15 @@ final class RoutingPanelView: UIView {
         routeTableView.register(RoutingTableViewCell.self, forCellReuseIdentifier: RoutingTableViewCell.identifier)
 
         routeTableView.allowsSelection = true
-        routeTableView.tintColor = .black
-        routeTableView.backgroundColor = .white
+        routeTableView.tintColor = UIColor(hex: "0x1C1C1E")
+        routeTableView.backgroundColor = .clear
         routeTableView.contentInsetAdjustmentBehavior = .never
         routeTableView.separatorStyle = .none
         
         routeTableView.backgroundView = {
             let view = UIView()
             
-            view.backgroundColor = UIColor(hex: "0xC7C7CC")
+            view.backgroundColor = .clear
             
             return view
         }()
@@ -201,14 +222,14 @@ final class RoutingPanelView: UIView {
         routeTableView.layoutIfNeeded()
         
         let contentHeight = routeTableView.contentSize.height
-        let minimumHeight: CGFloat = 112
-        let maximumHeight: CGFloat = 392
+        let minimumHeight: CGFloat = 128
+        let maximumHeight: CGFloat = 64 * 7
                 
         let tableHeight = min(max(contentHeight, minimumHeight), maximumHeight)
                 
         tableViewHeightConstraint?.update(offset: tableHeight)
                 
-        onHeightChanged?(tableHeight + safeAreaInsets.top)
+        onHeightChanged?(tableHeight + safeAreaInsets.top + 20)
     }
     
     private func handleDragGesture(_ gesture: UILongPressGestureRecognizer, from cell: UITableViewCell) {
@@ -310,7 +331,7 @@ extension RoutingPanelView: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 56
+        return 64
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

@@ -26,7 +26,7 @@ final class FavoriteRouteCell: UITableViewCell {
         let view = UIButton()
         
         view.setImage(UIImage(systemName: "ellipsis"), for: .normal)
-        view.tintColor = .black
+        view.tintColor = UIColor(hex: "0x8E8E93")
         
         return view
     }()
@@ -61,14 +61,23 @@ final class FavoriteRouteCell: UITableViewCell {
             stackView.addArrangedSubview(view)
         }
         
-        menuButton.addTarget(self, action: #selector(menuButtonPressed), for: .touchUpInside)
+        let menuItems = [
+            UIAction(
+                title: "삭제",
+                image: UIImage(systemName: "trash"),
+                attributes: .destructive,
+                handler: { [weak self] _ in
+                    guard let self else { return }
+                    
+                    onTapMenuButton?()
+                })
+        ]
+        
+        menuButton.menu = UIMenu(title: "메뉴", children: menuItems)
+        menuButton.showsMenuAsPrimaryAction = true
+        
         menuButton.setContentHuggingPriority(.required, for: .horizontal)
         menuButton.setContentCompressionResistancePriority(.required, for: .horizontal)
-    }
-    
-    @objc
-    private func menuButtonPressed() {
-        onTapMenuButton?()
     }
     
     func bind(_ object: FavoriteRouteObject) {

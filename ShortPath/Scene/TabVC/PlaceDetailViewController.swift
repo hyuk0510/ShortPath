@@ -66,20 +66,47 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
     }()
     
     private var favoriteButton: UIButton = {
-        let view = UIButton()
+        let view = UIButton(type: .custom)
+        var configuration = UIButton.Configuration.plain()
         
-        view.setImage(UIImage(systemName: "star"), for: .normal)
-        view.setImage(UIImage(systemName: "star.fill"), for: .selected)
-        view.tintColor = .black
+        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 17, weight: .semibold, scale: .medium)
+        let backgroundColor = UIColor.black.withAlphaComponent(0.06)
+        configuration.image = UIImage(systemName: "star", withConfiguration: symbolConfig)
+        configuration.baseForegroundColor = .black
+        configuration.background.backgroundColor = .clear
+        configuration.background.backgroundColorTransformer = UIConfigurationColorTransformer { _ in .clear }
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8)
+        
+        view.configuration = configuration
+        view.tintAdjustmentMode = .normal
+        view.backgroundColor = backgroundColor
+        view.layer.backgroundColor = backgroundColor.cgColor
+        view.layer.cornerRadius = 18
+        view.clipsToBounds = true
+        view.configurationUpdateHandler = { button in
+            var updatedConfiguration = button.configuration
+            updatedConfiguration?.background.backgroundColor = .clear
+            updatedConfiguration?.background.backgroundColorTransformer = UIConfigurationColorTransformer { _ in .clear }
+            button.configuration = updatedConfiguration
+            button.backgroundColor = backgroundColor
+            button.layer.backgroundColor = backgroundColor.cgColor
+        }
         
         return view
     }()
     
     private var closeButton: UIButton = {
-        let view = UIButton()
+        let view = UIButton(type: .system)
+        var configuration = UIButton.Configuration.plain()
         
-        view.setImage(UIImage(systemName: "xmark"), for: .normal)
-        view.tintColor = .black
+        configuration.image = UIImage(systemName: "xmark")
+        configuration.baseForegroundColor = .black
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8)
+        
+        view.configuration = configuration
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.06)
+        view.layer.cornerRadius = 18
+        view.clipsToBounds = true
         
         return view
     }()
@@ -87,20 +114,22 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
     private var distanceLabel: UILabel = {
         let view = UILabel()
         
-        view.font = .systemFont(ofSize: 14, weight: .semibold)
-        view.textColor = .gray
+        view.font = .systemFont(ofSize: 13, weight: .semibold)
+        view.textColor = .init(hex: "0A84FF")
         
         return view
     }()
     
     private var startButton: UIButton = {
-        let view = UIButton()
-        var configuration = UIButton.Configuration.tinted()
+        let view = UIButton(type: .system)
+        var configuration = UIButton.Configuration.filled()
         var container = AttributeContainer()
         
-        container.font = .systemFont(ofSize: 14, weight: .semibold)
+        container.font = .systemFont(ofSize: 14, weight: .bold)
         configuration.attributedTitle = AttributedString("출발", attributes: container)
         configuration.cornerStyle = .capsule
+        configuration.baseBackgroundColor = .init(hex: "F2F4F7")
+        configuration.baseForegroundColor = .black
         
         view.configuration = configuration
         
@@ -108,13 +137,15 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
     }()
     
     private var wayPointButton: UIButton = {
-        let view = UIButton()
-        var configuration = UIButton.Configuration.tinted()
+        let view = UIButton(type: .system)
+        var configuration = UIButton.Configuration.filled()
         var container = AttributeContainer()
         
-        container.font = .systemFont(ofSize: 14, weight: .semibold)
-        configuration.attributedTitle = AttributedString("경유지", attributes: container)
+        container.font = .systemFont(ofSize: 14, weight: .bold)
+        configuration.attributedTitle = AttributedString("경유", attributes: container)
         configuration.cornerStyle = .capsule
+        configuration.baseBackgroundColor = .init(hex: "F2F4F7")
+        configuration.baseForegroundColor = .black
         
         view.configuration = configuration
         
@@ -122,13 +153,15 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
     }()
     
     private var destinationButton: UIButton = {
-        let view = UIButton()
+        let view = UIButton(type: .system)
         var configuration = UIButton.Configuration.filled()
         var container = AttributeContainer()
         
-        container.font = .systemFont(ofSize: 14, weight: .semibold)
+        container.font = .systemFont(ofSize: 14, weight: .bold)
         configuration.attributedTitle = AttributedString("도착", attributes: container)
         configuration.cornerStyle = .capsule
+        configuration.baseBackgroundColor = .black
+        configuration.baseForegroundColor = .white
         
         view.configuration = configuration
         
@@ -146,6 +179,8 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
         configuration.imagePlacement = .leading
         configuration.imagePadding = 6
         configuration.cornerStyle = .capsule
+        configuration.baseBackgroundColor = .init(hex: "F2F4F7")
+        configuration.baseForegroundColor = .black
         
         view.configuration = configuration
         
@@ -159,6 +194,9 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
         
         container.font = .systemFont(ofSize: 14, weight: .semibold)
         configuration.attributedTitle = AttributedString("카카오맵에서 열기", attributes: container)
+        configuration.image = UIImage(systemName: "arrow.up.forward.app.fill")
+        configuration.imagePlacement = .leading
+        configuration.imagePadding = 8
         configuration.cornerStyle = .capsule
         configuration.baseBackgroundColor = .init(hex: "FEE500")
         configuration.baseForegroundColor = .black
@@ -320,10 +358,10 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
         }
         
         contentStackView.axis = .vertical
-        contentStackView.spacing = 16
+        contentStackView.spacing = 18
         
         contentStackView.snp.makeConstraints { make in
-            make.top.equalToSuperview()
+            make.top.equalToSuperview().offset(8)
             make.bottom.equalToSuperview().inset(12)
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(20)
         }
@@ -337,7 +375,7 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
     private func setUpHeaderSection() {
         let headerContainer = UIStackView()
         headerContainer.axis = .vertical
-        headerContainer.spacing = 6
+        headerContainer.spacing = 8
         
         let topRow = UIStackView()
         topRow.axis = .horizontal
@@ -346,7 +384,8 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
         
         let buttonStack = UIStackView()
         buttonStack.axis = .horizontal
-        buttonStack.spacing = 6
+        buttonStack.spacing = 8
+        buttonStack.alignment = .center
         
         placeNameLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         favoriteButton.addTarget(self, action: #selector(favoriteButtonPressed), for: .touchUpInside)
@@ -362,7 +401,7 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
         
         [favoriteButton, closeButton].forEach {
             $0.snp.makeConstraints { make in
-                make.width.height.equalTo(44)
+                make.width.height.equalTo(36)
             }
         }
         
@@ -400,7 +439,8 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
     private func setUpButtonSection() {
         let stack = UIStackView()
         stack.axis = .horizontal
-        stack.spacing = 6
+        stack.spacing = 8
+        stack.distribution = .fillEqually
         
         [startButton, wayPointButton, destinationButton, callButton].forEach { view in
             stack.addArrangedSubview(view)
@@ -408,13 +448,13 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
         
         let verticalStack = UIStackView()
         verticalStack.axis = .vertical
-        verticalStack.spacing = 6
+        verticalStack.spacing = 10
         
         [stack, openOnKakaoMapButton].forEach { view in
             verticalStack.addArrangedSubview(view)
         }
         
-        [startButton, wayPointButton, destinationButton, wayPointButton].forEach { view in
+        [startButton, wayPointButton, destinationButton, callButton].forEach { view in
             view.snp.makeConstraints { make in
                 make.height.equalTo(44)
             }
@@ -430,9 +470,9 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
         callButton.addTarget(self, action: #selector(callButtonPressed), for: .touchUpInside)
         openOnKakaoMapButton.addTarget(self, action: #selector(openOnKakaoMapButtonPressed), for: .touchUpInside)
         
-        if place.phone == nil {
+        if place.phone?.isEmpty ?? true {
             callButton.isHidden = true
-            telNumberTitleLabel.isHidden = true
+            telContainer.isHidden = true
         }
         
         contentStackView.addArrangedSubview(verticalStack)
@@ -509,12 +549,17 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
     private func setUpAddressSection() {
         // 전체 스택뷰
         addressContainer.axis = .vertical
-        addressContainer.spacing = 6
+        addressContainer.spacing = 8
+        addressContainer.isLayoutMarginsRelativeArrangement = true
+        addressContainer.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 14, leading: 14, bottom: 14, trailing: 14)
+        addressContainer.backgroundColor = .init(hex: "F7F8FA")
+        addressContainer.layer.cornerRadius = 16
+        addressContainer.clipsToBounds = true
         
         // 거리 + 주소 + 상세 주소 버튼 스택뷰
         let disAddressStack = UIStackView()
         disAddressStack.axis = .horizontal
-        disAddressStack.spacing = 6
+        disAddressStack.spacing = 8
         disAddressStack.alignment = .center
         disAddressStack.distribution = .fill
         
@@ -646,7 +691,12 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
     
     private func setUpTelSection() {
         telContainer.axis = .vertical
-        telContainer.spacing = 6
+        telContainer.spacing = 8
+        telContainer.isLayoutMarginsRelativeArrangement = true
+        telContainer.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 14, leading: 14, bottom: 14, trailing: 14)
+        telContainer.backgroundColor = .init(hex: "F7F8FA")
+        telContainer.layer.cornerRadius = 16
+        telContainer.clipsToBounds = true
         
         [telNumberTitleLabel, telNumber].forEach { view in
             telContainer.addArrangedSubview(view)
@@ -680,12 +730,26 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
             telContainer.isHidden = true
         case .medium, .max:
             addressContainer.isHidden = false
-            telContainer.isHidden = false
+            telContainer.isHidden = place.phone?.isEmpty ?? true
         }
     }
     
     private func updateFavoriteUI(isFavorite: Bool) {
         favoriteButton.isSelected = isFavorite
+        
+        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 17, weight: .semibold, scale: .medium)
+        let imageName = isFavorite ? "star.fill" : "star"
+        let foregroundColor: UIColor = isFavorite ? .init(hex: "FF8C00") : .black
+        let backgroundColor: UIColor = UIColor.black.withAlphaComponent(0.06)
+        
+        var configuration = favoriteButton.configuration
+        configuration?.image = UIImage(systemName: imageName, withConfiguration: symbolConfig)
+        configuration?.baseForegroundColor = foregroundColor
+        configuration?.background.backgroundColor = .clear
+        configuration?.background.backgroundColorTransformer = UIConfigurationColorTransformer { _ in .clear }
+        favoriteButton.configuration = configuration
+        favoriteButton.backgroundColor = backgroundColor
+        favoriteButton.layer.backgroundColor = backgroundColor.cgColor
     }
     
     private func handleFavorite() {
@@ -693,10 +757,10 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
 
         lightFeedback.impactOccurred()
         
-        UIView.animate(withDuration: 0.15, animations: {
-            self.favoriteButton.transform = CGAffineTransform(scaleX: 1.3, y: 1.3)
-        }) { _ in
-            UIView.animate(withDuration: 0.15) {
+        UIView.animate(withDuration: 0.18, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 0.8, options: [.allowUserInteraction]) {
+            self.favoriteButton.transform = CGAffineTransform(scaleX: 1.18, y: 1.18)
+        } completion: { _ in
+            UIView.animate(withDuration: 0.18, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 0.4, options: [.allowUserInteraction]) {
                 self.favoriteButton.transform = .identity
             }
         }

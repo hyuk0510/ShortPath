@@ -6,8 +6,16 @@
 //
 
 import UIKit
+import CoreLocation
+
+enum MapInteractionType {
+    case pan
+    case zoom
+    case tap
+}
 
 protocol MapInteractionDelegate: AnyObject {
-    func mapDidReceiveUserInteraction()
+    func didUpdateCurrentLocation(_ location: CLLocation)
+    func mapDidReceiveUserInteraction(type: MapInteractionType)
     func favoritePoiTapped(place: Place)
 }

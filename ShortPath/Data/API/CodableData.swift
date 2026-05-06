@@ -152,7 +152,7 @@ struct CurrentAddress: Codable {
 
 // MARK: - Document
 struct AddressDocument: Codable {
-    let roadAddress: RoadAddress
+    let roadAddress: RoadAddress?
     let address: Address
 
     enum CodingKeys: String, CodingKey {

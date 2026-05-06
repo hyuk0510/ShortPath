@@ -56,13 +56,15 @@ extension MapViewController {
         updateCameraEventHandler()
         positionLogo(96)
         
+        viewInit(viewName: viewName)
+        
         if let location = currentLocation {
             createCurrentLocationPoi(location)
             updateBottomMargin(bottomSheetHeight: Const.bottomSheetYPosition(.medium, .home))
             moveCameraToCurrentLocation()
+        } else {
+            checkDeviceLocationAuthorization()
         }
-        
-        viewInit(viewName: viewName)
     }
     
     func addViewFailed(_ viewName: String, viewInfoName: String) {

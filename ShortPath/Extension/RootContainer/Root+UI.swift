@@ -7,6 +7,11 @@
 
 import UIKit
 
+enum RecentRouteSaveType {
+    case currentLocation(destination: Place)
+    case preset(routeDraft: RouteDraft)
+}
+
 extension RootContainerViewController {
     
     func setUpMap() {
@@ -105,21 +110,30 @@ extension RootContainerViewController {
         
         routeStartButton.onTapRouteStart = { [weak self] in
             guard let self else { return }
-            guard let currentAddress = mapVC.currentAddress, let currentLocation = mapVC.currentLocation else { return }
+            guard let currentLocation = mapVC.currentLocation else { return }
             
-            let current = Place(
-                id: "",
-                name: currentAddress,
-                category: "",
-                address: "",
-                roadAddress: nil,
-                longitude: currentLocation.coordinate.longitude,
-                latitude: currentLocation.coordinate.latitude,
-                phone: nil,
-                placeURL: nil)
-            
-            updateSheetState(.routing(.editing))
-            routingViewModel.setStartPlace(current)
+            Task { [weak self] in
+                guard let self else { return }
+                
+                guard let currentAddress = await mapVC.getCurrentAddress() else { return }
+                
+                let current = Place(
+                    id: "",
+                    name: currentAddress,
+                    category: "",
+                    address: "",
+                    roadAddress: nil,
+                    longitude: currentLocation.coordinate.longitude,
+                    latitude: currentLocation.coordinate.latitude,
+                    phone: nil,
+                    placeURL: nil
+                )
+                
+                await MainActor.run {
+                    self.routingViewModel.setStartPlace(current)
+                    self.updateSheetState(.routing(.editing))
+                }
+            }
         }
 
     }
@@ -148,10 +162,10 @@ extension RootContainerViewController {
             self.mapVC.removeRoutePois()
         }
         
-        routeSummaryContainer.onTapMenuButton = { [weak self] sender in
+        routeSummaryContainer.onTapMenuButton = { [weak self] in
             guard let self else { return }
             
-            self.showActionSheet(from: sender)
+            self.showActionSheet()
         }
         
         routingBottomActionContainer.routingButtonPressed = { [weak self] in
@@ -206,16 +220,19 @@ extension RootContainerViewController {
         updateSheetState(.routing(.editing))
     }
     
-    private func routingButtonPressed() {            
+    private func routingButtonPressed() {
         if routingViewModel.canRouting, !routingViewModel.isSamePlaceInARow {
             self.mapVC.removePlaceDetailPoi()
             self.requestRoute()
+            self.mapVC.removeRoutePois()
+            self.mapVC.routePoisID = Array(repeating: "", count: 7)
             self.mapVC.createRoutePois(routingViewModel.items)
             self.updateSheetState(.routing(.ready))
+            
         } else if routingViewModel.isSamePlaceInARow {
             errorAlert(title: "연속된 장소 설정", message: "루트에 연속되어 같은 장소가 설정되었는지 확인해주세요.")
         } else if !routingViewModel.canRouting {
-            errorAlert(title: "루트 설정 오류", message: "출발지와 도착지를 확인해주세요.")
+            errorAlert(title: "루트 설정 오류", message: "출발지와 도착지가 설정되어있는지 확인해주세요.")
         }
     }
     
@@ -400,6 +417,10 @@ extension RootContainerViewController {
         switch tab {
         case .home:
             targetVC = homeVC
+            homeVC.delegate = self
+            
+            homeVC.reloadData()
+            
         case .favorite:
             targetVC = favoriteVC
             favoriteVC.delegate = self
@@ -808,17 +829,31 @@ extension RootContainerViewController {
         routeTask = Task {
             do {
                 let route = try await KakaoLocalManager.shared.fetchRoute(routingViewModel.items)
-             
+                
                 routingViewModel.currentRoute = route.routes[0]
+                
+                guard let currentRoute = routingViewModel.currentRoute else { return }
+                
+                let geometry = RouteGeometryBuilder.make(from: currentRoute)
+                let hasNoWaypoints = routingViewModel.wayPoints?.isEmpty ?? true
+                let isCurrentLocationStart = routingViewModel.startPlace.place?.name == mapVC.currentAddress && hasNoWaypoints
+                let recentRouteSaveType = makeRouteSaveCase(isCurrentLocationStart: isCurrentLocationStart)
                                 
                 await MainActor.run {
-                    guard let currentRoute = routingViewModel.currentRoute else { return }
-                    
-                    let geometry = RouteGeometryBuilder.make(from: currentRoute)
                     
                     self.mapVC.moveToRoute(geometry.bounds)
                     self.mapVC.createRouteLine(geometry.pathPoints)
                 }
+                
+                guard let recentRouteSaveType else { return }
+                
+                switch recentRouteSaveType {
+                case .currentLocation(let destination):
+                    try self.currentRouteRepo.saveCurrentLocationRecentRoute(destination: destination)
+                case .preset(let routeDraft):
+                    try self.presetRouteRepo.create(routeDraft: routeDraft, bounds: geometry.bounds, pathPoints: geometry.pathPoints)
+                }
+                
             } catch {
                 print(error)
             }
@@ -826,8 +861,25 @@ extension RootContainerViewController {
         
     }
     
-    func showActionSheet(from sourceView: UIView) {
-        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+    private func makeRouteSaveCase(isCurrentLocationStart: Bool) -> RecentRouteSaveType? {
+        if isCurrentLocationStart {
+            guard let destination = routingViewModel.destination.place else { return nil }
+            
+            if routingViewModel.numberOfItems == 2 {
+                return .currentLocation(destination: destination)
+            } else {
+                guard let routeDraft = routingViewModel.makeRouteDraft() else { return nil }
+                
+                return .preset(routeDraft: routeDraft)
+            }
+        } else {
+            guard let routeDraft = routingViewModel.makeRouteDraft() else { return nil }
+            return .preset(routeDraft: routeDraft)
+        }
+    }
+    
+    func showActionSheet() {
+        let alert = UIAlertController(title: "경로를 저장하시겠습니까?", message: nil, preferredStyle: .alert)
         
         let saveAction = UIAlertAction(title: "저장", style: .default) { [weak self] _ in
             guard let self else { return }
@@ -848,11 +900,6 @@ extension RootContainerViewController {
         
         alert.addAction(saveAction)
         alert.addAction(cancelAction)
-        
-        if let popover = alert.popoverPresentationController {
-            popover.sourceView = sourceView
-            popover.sourceRect = sourceView.bounds
-        }
         
         present(alert, animated: true)
     }

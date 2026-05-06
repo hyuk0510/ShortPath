@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct RoutePlace {
+struct RoutePlace: Hashable {
     let id: String
     let placeName: String
     let roadAddress: String

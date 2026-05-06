@@ -107,11 +107,12 @@ final class SearchTableViewCell: UITableViewCell {
 }
 
 extension SearchTableViewCell {
-    func bind(place: Place) {
+    func bind(place: Place, isFavorite: Bool) {
         let dis = DistanceFormatter.string(from: place.distance ?? 0)
         let add = place.roadAddress ?? ""
         let category = CategoryFormatter.string(from: place.category)
         
+        leftImageView.image = isFavorite ? UIImage(named: "FavoritePoiImage"): UIImage(named: "SearchTableViewCellLeftView")
         placeNameLabel.text = place.name
         categoryLabel.text = category
         distanceAddressLabel.text = add == "" ? dis: dis + " ･ " + add

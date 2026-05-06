@@ -14,17 +14,17 @@ final class RoutingTableViewCell: UITableViewCell {
     private var placeContainerStackView: UIStackView = {
         let view = UIStackView()
             
-        view.backgroundColor = .white
-        view.layer.borderColor = UIColor.systemGray4.cgColor
-        view.layer.borderWidth = 1
-        view.layer.cornerRadius = 12
+        view.backgroundColor = UIColor(hex: "0xF2F2F7")
+        view.layer.borderColor = UIColor.clear.cgColor
+        view.layer.borderWidth = 0
+        view.layer.cornerRadius = 14
         view.clipsToBounds = true
         view.isUserInteractionEnabled = true
         view.axis = .horizontal
-        view.spacing = 8
+        view.spacing = 10
         view.alignment = .center
         view.isLayoutMarginsRelativeArrangement = true
-        view.directionalLayoutMargins = .init(top: 0, leading: 8, bottom: 0, trailing: 0)
+        view.directionalLayoutMargins = .init(top: 0, leading: 14, bottom: 0, trailing: 0)
         
         return view
     }()
@@ -32,7 +32,7 @@ final class RoutingTableViewCell: UITableViewCell {
     private var separatorView: UIView = {
         let view = UIView()
         
-        view.backgroundColor = .black
+        view.backgroundColor = UIColor(hex: "0xE5E5EA")
         
         return view
     }()
@@ -42,6 +42,7 @@ final class RoutingTableViewCell: UITableViewCell {
         
         view.isUserInteractionEnabled = false
         view.lineBreakMode = .byTruncatingTail
+        view.font = .systemFont(ofSize: 15, weight: .semibold)
 
         return view
     }()
@@ -55,8 +56,8 @@ final class RoutingTableViewCell: UITableViewCell {
     private var addWayPointButton: UIButton = {
         let view = UIButton()
         
-        view.tintColor = .black
-        view.setImage(UIImage(systemName: "plus.circle"), for: .normal)
+        view.tintColor = UIColor(hex: "0x0A84FF")
+        view.setImage(UIImage(systemName: "plus.circle.fill"), for: .normal)
         
         return view
     }()
@@ -64,8 +65,8 @@ final class RoutingTableViewCell: UITableViewCell {
     private var deleteButton: UIButton = {
         let view = UIButton()
         
-        view.tintColor = .black
-        view.setImage(UIImage(systemName: "minus.circle"), for: .normal)
+        view.tintColor = UIColor(hex: "0xFF3B30")
+        view.setImage(UIImage(systemName: "minus.circle.fill"), for: .normal)
         
         return view
     }()
@@ -74,7 +75,7 @@ final class RoutingTableViewCell: UITableViewCell {
         let view = UIImageView()
     
         view.image = UIImage(named: "DragHandleImageView")?.withConfiguration(UIImage.SymbolConfiguration(pointSize: 24, weight: .regular))
-        view.tintColor = .black
+        view.tintColor = UIColor(hex: "0xC7C7CC")
         view.translatesAutoresizingMaskIntoConstraints = false
         view.contentMode = .center
         view.isUserInteractionEnabled = true
@@ -99,7 +100,7 @@ final class RoutingTableViewCell: UITableViewCell {
     
     private func configure() {
         backgroundColor = .clear
-        contentView.backgroundColor = UIColor(hex: "0xEFEFEF")
+        contentView.backgroundColor = .clear
         clipsToBounds = false
         selectionStyle = .none
         
@@ -132,14 +133,14 @@ final class RoutingTableViewCell: UITableViewCell {
         
         placeContainerStackView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(12)
-            make.trailing.equalTo(dragHandleImageView.snp.leading).offset(-12)
+            make.trailing.equalTo(dragHandleImageView.snp.leading).offset(-10)
             make.centerY.equalToSuperview()
             make.verticalEdges.equalToSuperview().inset(6)
         }
         
         separatorView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(12)
-            make.trailing.equalToSuperview().offset(-12)
+            make.leading.equalTo(placeContainerStackView.snp.leading).offset(14)
+            make.trailing.equalTo(placeContainerStackView.snp.trailing).offset(-14)
             make.bottom.equalToSuperview()
             make.height.equalTo(1 / UIScreen.main.scale)
         }
@@ -193,10 +194,10 @@ final class RoutingTableViewCell: UITableViewCell {
     
     func bind(with items: RouteSectionItem, _ isLast: Bool, _ isLastRow: Bool) {
         if let name = items.place?.name {
-            placeLabel.textColor = .black
+            placeLabel.textColor = UIColor(hex: "0x1C1C1E")
             placeLabel.text = name
         } else {
-            placeLabel.textColor = .gray
+            placeLabel.textColor = UIColor(hex: "0x8E8E93")
             placeLabel.text = items.role.placeHolder
         }
         
