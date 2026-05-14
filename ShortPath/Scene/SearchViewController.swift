@@ -90,7 +90,7 @@ final class SearchViewController: UIViewController {
         view.layer.shadowOpacity = 0.10
         view.layer.shadowRadius = 8
         view.layer.shadowOffset = CGSize(width: 0, height: 3)
-        view.adjustsImageWhenHighlighted = false
+//        view.adjustsImageWhenHighlighted = false
 
         return view
     }()

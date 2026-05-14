@@ -187,19 +187,19 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
         return view
     }()
     
-    private var openOnKakaoMapButton: UIButton = {
+    private var detailInfoButton: UIButton = {
         let view = UIButton()
         var configuration = UIButton.Configuration.filled()
         var container = AttributeContainer()
         
         container.font = .systemFont(ofSize: 14, weight: .semibold)
-        configuration.attributedTitle = AttributedString("카카오맵에서 열기", attributes: container)
+        configuration.attributedTitle = AttributedString("상세정보 보기", attributes: container)
         configuration.image = UIImage(systemName: "arrow.up.forward.app.fill")
         configuration.imagePlacement = .leading
         configuration.imagePadding = 8
         configuration.cornerStyle = .capsule
-        configuration.baseBackgroundColor = .init(hex: "FEE500")
-        configuration.baseForegroundColor = .black
+        configuration.baseBackgroundColor = UIColor(hex: "1C1C1E")
+        configuration.baseForegroundColor = .white
         
         view.configuration = configuration
         
@@ -450,7 +450,7 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
         verticalStack.axis = .vertical
         verticalStack.spacing = 10
         
-        [stack, openOnKakaoMapButton].forEach { view in
+        [stack, detailInfoButton].forEach { view in
             verticalStack.addArrangedSubview(view)
         }
         
@@ -460,7 +460,7 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
             }
         }
 
-        openOnKakaoMapButton.snp.makeConstraints { make in
+        detailInfoButton.snp.makeConstraints { make in
             make.height.equalTo(48)
         }
         
@@ -468,7 +468,7 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
         wayPointButton.addTarget(self, action: #selector(wayPointButtonPressed), for: .touchUpInside)
         destinationButton.addTarget(self, action: #selector(destinationButtonPrseed), for: .touchUpInside)
         callButton.addTarget(self, action: #selector(callButtonPressed), for: .touchUpInside)
-        openOnKakaoMapButton.addTarget(self, action: #selector(openOnKakaoMapButtonPressed), for: .touchUpInside)
+        detailInfoButton.addTarget(self, action: #selector(detailInfoButtonPressed), for: .touchUpInside)
         
         if place.phone?.isEmpty ?? true {
             callButton.isHidden = true
@@ -524,26 +524,73 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
     }
     
     @objc
-    private func openOnKakaoMapButtonPressed() {
+    private func detailInfoButtonPressed() {
         guard buttonEnabled else { return }
 
+        let alert = UIAlertController(title: place.name, message: "지도 앱에서 상세정보를 볼 수 있어요.", preferredStyle: .actionSheet)
+        
+        alert.addAction(UIAlertAction(title: "네이버지도에서 보기", style: .default) { [weak self] _ in
+            self?.openNaverMapDetail()
+        })
+        
+        alert.addAction(UIAlertAction(title: "카카오맵에서 보기", style: .default) { [weak self] _ in
+            self?.openKakaoMapDetail()
+        })
+        
+        alert.addAction(UIAlertAction(title: "Apple 지도에서 보기", style: .default) { [weak self] _ in
+            self?.openAppleMapDetail()
+        })
+        
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        
+        if let popoverController = alert.popoverPresentationController {
+            popoverController.sourceView = detailInfoButton
+            popoverController.sourceRect = detailInfoButton.bounds
+        }
+        
+        present(alert, animated: true)
+    }
+    
+    private func openNaverMapDetail() {
+        let appName = Bundle.main.bundleIdentifier ?? "ShortPath"
+        let encodedName = place.name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? place.name
+        let encodedAppName = appName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? appName
+        
+        guard let appURL = URL(string: "nmap://place?lat=\(place.latitude)&lng=\(place.longitude)&name=\(encodedName)&appname=\(encodedAppName)") else { return }
+        
+        openMapApp(appURL: appURL, appStoreURLString: "itms-apps://itunes.apple.com/app/id311867728")
+    }
+    
+    private func openKakaoMapDetail() {
         let appURL: URL?
-        let webURL: URL?
         
         if !place.id.isEmpty {
             appURL = URL(string: "kakaomap://place?id=\(place.id)")
-            webURL = URL(string: "https://map.kakao.com/link/map/\(place.id)")
         } else {
-            let encodedName = place.name.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? place.name
             appURL = URL(string: "kakaomap://look?p=\(place.latitude),\(place.longitude)")
-            webURL = URL(string: "https://map.kakao.com/link/map/\(encodedName),\(place.latitude),\(place.longitude)")
         }
         
-        if let appURL, UIApplication.shared.canOpenURL(appURL) {
+        guard let appURL else { return }
+        
+        openMapApp(appURL: appURL, appStoreURLString: "itms-apps://itunes.apple.com/app/id304608425")
+    }
+    
+    private func openAppleMapDetail() {
+        let encodedName = place.name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? place.name
+        
+        guard let url = URL(string: "http://maps.apple.com/?ll=\(place.latitude),\(place.longitude)&q=\(encodedName)") else { return }
+        
+        UIApplication.shared.open(url)
+    }
+    
+    private func openMapApp(appURL: URL, appStoreURLString: String) {
+        if UIApplication.shared.canOpenURL(appURL) {
             UIApplication.shared.open(appURL)
-        } else if let webURL {
-            UIApplication.shared.open(webURL)
+            return
         }
+        
+        guard let appStoreURL = URL(string: appStoreURLString) else { return }
+        UIApplication.shared.open(appStoreURL)
     }
     
     private func setUpAddressSection() {

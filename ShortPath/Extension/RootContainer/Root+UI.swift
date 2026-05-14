@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import MapKit
 
 enum RecentRouteSaveType {
     case currentLocation(destination: Place)
@@ -174,10 +175,10 @@ extension RootContainerViewController {
             self.routingButtonPressed()
         }
         
-        routingBottomActionContainer.routeToKakaoButtonPressed = { [weak self] in
+        routingBottomActionContainer.walkingRouteButtonPressed = { [weak self] in
             guard let self else { return }
             
-            self.routeToKakaoButtonPressed()
+            self.showWalkingRouteActionSheet()
         }
         
         routingContainer.delegate = self
@@ -236,6 +237,136 @@ extension RootContainerViewController {
         }
     }
     
+    private func showWalkingRouteActionSheet() {
+        let alert = UIAlertController(title: "도보 경로 보기", message: nil, preferredStyle: .actionSheet)
+        
+        let naverMap = UIAlertAction(title: "네이버지도에서 열기", style: .default) { [weak self] _ in
+            guard let self else { return }
+            
+            self.routeToNaverButtonPressed()
+        }
+        
+        let kakaoMap = UIAlertAction(title: "카카오맵에서 열기", style: .default) { [weak self] _ in
+            guard let self else { return }
+            
+            self.routeToKakaoButtonPressed()
+        }
+        
+        let appleMap = UIAlertAction(title: "Apple 지도에서 열기", style: .default) { [weak self] _ in
+            guard let self else { return }
+
+            self.routeToAppleButtonPressed()
+        }
+        
+        let cancel = UIAlertAction(title: "취소", style: .cancel)
+        
+        alert.addAction(naverMap)
+        alert.addAction(kakaoMap)
+        alert.addAction(appleMap)
+        alert.addAction(cancel)
+        
+        present(alert, animated: true)
+    }
+    
+    private func routeToNaverButtonPressed() {
+        guard let start = routingViewModel.startPlace.place, let destination = routingViewModel.destination.place else { return }
+        
+        var components = URLComponents()
+        
+        components.scheme = "nmap"
+        components.host = "route"
+        components.path = "/walk"
+        
+        var items: [URLQueryItem] = [
+            URLQueryItem(name: "slat", value: "\(start.latitude)"),
+            URLQueryItem(name: "slng", value: "\(start.longitude)"),
+            URLQueryItem(name: "sname", value: start.name),
+            URLQueryItem(name: "dlat", value: "\(destination.latitude)"),
+            URLQueryItem(name: "dlng", value: "\(destination.longitude)"),
+            URLQueryItem(name: "dname", value: destination.name),
+            URLQueryItem(name: "appname", value: Bundle.main.bundleIdentifier ?? "ShortPath")
+        ]
+        
+        if let wayPoints = routingViewModel.wayPoints {
+            for (index, wayPoint) in wayPoints.prefix(5).enumerated() {
+                guard let point = wayPoint.place else { return }
+                let number = index + 1
+                
+                items.append(URLQueryItem(name: "v\(number)lat", value: "\(point.latitude)"))
+                items.append(URLQueryItem(name: "v\(number)lng", value: "\(point.longitude)"))
+                items.append(URLQueryItem(name: "v\(number)name", value: point.name))
+            }
+        }
+        
+        components.queryItems = items
+        
+        guard let url = components.url else { return }
+        
+        if UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url)
+        } else {
+            openAppStore(urlString: "http://itunes.apple.com/app/id311867728?mt=8")
+        }
+    }
+    
+    private func routeToAppleButtonPressed() {
+        guard let start = routingViewModel.startPlace.place,
+              let destination = routingViewModel.destination.place else { return }
+        
+        let hasWayPoints = !(routingViewModel.wayPoints?.isEmpty ?? true)
+        
+        if hasWayPoints {
+            let alert = UIAlertController(
+                title: "Apple 지도에서는 경유지를 제외하고 열립니다",
+                message: "Apple 지도 외부 실행은 경유지를 포함한 도보 경로를 안정적으로 지원하지 않아 출발지와 도착지만 연결합니다.",
+                preferredStyle: .alert
+            )
+            
+            let openAction = UIAlertAction(title: "경유지 없이 열기", style: .default) { [weak self] _ in
+                self?.openAppleWalkingRoute(start: start, destination: destination)
+            }
+            
+            let cancelAction = UIAlertAction(title: "취소", style: .cancel)
+            
+            alert.addAction(openAction)
+            alert.addAction(cancelAction)
+            
+            present(alert, animated: true)
+            return
+        }
+        
+        openAppleWalkingRoute(start: start, destination: destination)
+    }
+    
+    private func openAppleWalkingRoute(start: Place, destination: Place) {
+        let startCoordinate = CLLocationCoordinate2D(
+            latitude: start.latitude,
+            longitude: start.longitude
+        )
+        
+        let destinationCoordinate = CLLocationCoordinate2D(
+            latitude: destination.latitude,
+            longitude: destination.longitude
+        )
+        
+        let startItem = MKMapItem(
+            placemark: MKPlacemark(coordinate: startCoordinate)
+        )
+        startItem.name = start.name
+        
+        let destinationItem = MKMapItem(
+            placemark: MKPlacemark(coordinate: destinationCoordinate)
+        )
+        destinationItem.name = destination.name
+        
+        MKMapItem.openMaps(
+            with: [startItem, destinationItem],
+            launchOptions: [
+                MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeWalking
+            ]
+        )
+    }
+    
     private func routeToKakaoButtonPressed() {
         guard let start = routingViewModel.startPlace.place, let destination = routingViewModel.destination.place else { return }
         
@@ -263,23 +394,18 @@ extension RootContainerViewController {
         
         components.queryItems = items
         
-        guard let appURL = components.url else { return }
+        guard let url = components.url else { return }
         
-        // 카카오맵 앱 설치 여부 확인 후 앱 우선 오픈
-        if UIApplication.shared.canOpenURL(appURL) {
-            UIApplication.shared.open(appURL)
-            return
+        if UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url)
+        } else {
+            openAppStore(urlString: "https://apps.apple.com/kr/app/id304608425")
         }
-        
-        // 앱이 없으면 모바일 웹으로 폴백
-        var webComponents = URLComponents()
-        webComponents.scheme = "http"
-        webComponents.host = "m.map.kakao.com"
-        webComponents.path = "/scheme/route"
-        webComponents.queryItems = items
-        
-        guard let webURL = webComponents.url else { return }
-        UIApplication.shared.open(webURL)
+    }
+
+    private func openAppStore(urlString: String) {
+        guard let url = URL(string: urlString) else { return }
+        UIApplication.shared.open(url)
     }
     
     func bindRouting() {

@@ -10,10 +10,10 @@ import UIKit
 final class RoutingBottomActionView: UIView {
     
     let routeButton = RoutingButton()
-    let walkingRouteTokakaoButton = RouteToKakaoButton()
+    let walkingRouteButton = WalkingRouteButton()
     
     var routingButtonPressed: (() -> Void)?
-    var routeToKakaoButtonPressed: (() -> Void)?
+    var walkingRouteButtonPressed: (() -> Void)?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -29,15 +29,15 @@ final class RoutingBottomActionView: UIView {
         isHidden = true
         setShadow()
         
-        [routeButton, walkingRouteTokakaoButton].forEach { view in
+        [routeButton, walkingRouteButton].forEach { view in
             addSubview(view)
         }
         
         routeButton.isEnabled = false
-        walkingRouteTokakaoButton.isEnabled = false
+        walkingRouteButton.isEnabled = false
         
         routeButton.addTarget(self, action: #selector(routeButtonPressed), for: .touchUpInside)
-        walkingRouteTokakaoButton.addTarget(self, action: #selector(walkingRouteTokakaoButtonPressed), for: .touchUpInside)
+        walkingRouteButton.addTarget(self, action: #selector(walkingRouteButtonTapped), for: .touchUpInside)
         
         routeButton.snp.makeConstraints { make in
             make.bottom.equalTo(safeAreaLayoutGuide).inset(12)
@@ -45,9 +45,10 @@ final class RoutingBottomActionView: UIView {
             make.height.equalTo(52)
         }
         
-        walkingRouteTokakaoButton.snp.makeConstraints { make in
-            make.bottom.equalTo(safeAreaLayoutGuide).inset(12)
+        
+        walkingRouteButton.snp.makeConstraints { make in
             make.horizontalEdges.equalToSuperview().inset(16)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(12)
             make.height.equalTo(44)
         }
     }
@@ -58,25 +59,25 @@ final class RoutingBottomActionView: UIView {
     }
     
     @objc
-    private func walkingRouteTokakaoButtonPressed() {
-        routeToKakaoButtonPressed?()
+    private func walkingRouteButtonTapped() {
+        walkingRouteButtonPressed?()
     }
     
     func setByMode(_ routingMode: RoutingMode) {
         switch routingMode {
         case .none:
             routeButton.isHidden = true
-            walkingRouteTokakaoButton.isHidden = true
+            walkingRouteButton.isHidden = true
         case .editing:
             routeButton.isEnabled = true
             routeButton.isHidden = false
-            walkingRouteTokakaoButton.isHidden = true
-            walkingRouteTokakaoButton.isEnabled = false
+            walkingRouteButton.isHidden = true
+            walkingRouteButton.isEnabled = false
         case .ready:
             routeButton.isHidden = true
             routeButton.isEnabled = false
-            walkingRouteTokakaoButton.isEnabled = true
-            walkingRouteTokakaoButton.isHidden = false
+            walkingRouteButton.isEnabled = true
+            walkingRouteButton.isHidden = false
         }
     }
 }
