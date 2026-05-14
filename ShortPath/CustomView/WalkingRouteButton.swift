@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class RouteToKakaoButton: UIButton {
+final class WalkingRouteButton: UIButton {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -23,7 +23,7 @@ final class RouteToKakaoButton: UIButton {
         var container = AttributeContainer()
         
         container.font = .systemFont(ofSize: 15, weight: .semibold)
-        config.attributedTitle = AttributedString("카카오맵에서 도보 경로 보기", attributes: container)
+        config.attributedTitle = AttributedString("도보 경로 보기", attributes: container)
         config.cornerStyle = .capsule
         config.baseBackgroundColor = UIColor(hex: "0xF5F5F5")
         config.baseForegroundColor = .black
