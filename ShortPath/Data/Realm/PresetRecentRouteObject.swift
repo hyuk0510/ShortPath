@@ -18,7 +18,8 @@ final class PresetRecentRouteObject: Object {
     
     @Persisted var bounds: RouteBoundsObject?
     @Persisted var pathPoints: List<RoutePathPointObject>
-    @Persisted var distance: Int
+    @Persisted var distance: Int = 0
+    @Persisted var duration: Int = 0
     
     convenience init(route: PresetRecentRoute) {
         self.init()
@@ -31,7 +32,8 @@ final class PresetRecentRouteObject: Object {
         
         self.bounds = route.bounds?.toObject()
         self.pathPoints.append(objectsIn: route.pathPoints.toObjects())
-        self.distance = distance
+        self.distance = route.distance
+        self.duration = route.duration
     }
     
     func toDomain() -> PresetRecentRoute {
@@ -39,7 +41,8 @@ final class PresetRecentRouteObject: Object {
             start: start?.toRoutePlace(),
             waypoints: waypoints.map { $0.toRoutePlace() },
             destination: destination?.toRoutePlace(),
-            distance: distance
+            distance: distance,
+            duration: duration
         )
         
         return PresetRecentRoute(
@@ -48,6 +51,7 @@ final class PresetRecentRouteObject: Object {
             bounds: routeBounds,
             pathPoints: routePathPoints,
             distance: distance,
+            duration: duration,
             createdAt: createdAt
         )
     }

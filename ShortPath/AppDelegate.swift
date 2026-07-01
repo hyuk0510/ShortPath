@@ -7,6 +7,7 @@
 
 import UIKit
 import KakaoMapsSDK
+import RealmSwift
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -16,9 +17,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
-        SDKInitializer.InitSDK(appKey: APIKey.kakaoMap)
+        configureRealm()
+        SDKInitializer.InitSDK(appKey: APIKey.releaseKakaoMap)
 
         return true
+    }
+    
+    private func configureRealm() {
+        let config = Realm.Configuration(schemaVersion: 1) { _, _ in }
+        Realm.Configuration.defaultConfiguration = config
     }
 
     // MARK: UISceneSession Lifecycle

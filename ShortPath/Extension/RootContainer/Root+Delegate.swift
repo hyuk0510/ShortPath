@@ -224,6 +224,8 @@ extension RootContainerViewController: FavoriteViewControllerDelegate {
         let items = route.routeDraft.toRouteSectionItems()
         
         routingViewModel.setAllItems(items)
+        routingViewModel.currentRoute = nil
+        routingBottomActionContainer.bind(summary: nil)
         
         mapVC.moveToRoute(routeBounds)
         mapVC.createRouteLine(route.routePathPoints)
@@ -379,6 +381,11 @@ extension RootContainerViewController: HomeTabViewControllerDelegate {
             let items = presetRecentRoute.routeDraft.toRouteSectionItems()
             
             routingViewModel.setAllItems(items)
+            routingViewModel.currentRoute = nil
+            routingBottomActionContainer.bind(
+                distance: presetRecentRoute.distance,
+                duration: presetRecentRoute.duration
+            )
             
             mapVC.moveToRoute(routeBounds)
             mapVC.createRouteLine(presetRecentRoute.pathPoints)

@@ -143,7 +143,12 @@ final class RoutingViewModel {
         
         let wayPointsRoutePlace = items.dropFirst().dropLast().compactMap { $0.place?.toRoutePlace() }
         
-        // 해야할일(searchVC에서 최근검색 장소 탭하면 거리정보 안뜬다, 그리고 최근사용경로 distance값 최소한 근사치는 갖도록 수정해야함 ㅎㅇㅌ~)
-        return RouteDraft(start: startRoutePlace, waypoints: wayPointsRoutePlace, destination: destinationRoutePlace, distance: currentRoute?.summary.distance ?? 0)
+        return RouteDraft(
+            start: startRoutePlace,
+            waypoints: wayPointsRoutePlace,
+            destination: destinationRoutePlace,
+            distance: currentRoute?.summary.distance ?? 0,
+            duration: currentRoute?.summary.duration ?? 0
+        )
     }
 }

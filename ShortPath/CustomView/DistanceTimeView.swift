@@ -103,8 +103,11 @@ final class DistanceTimeView: UIView {
     func bind(distance: Int, duration: Int) {
         let distanceText = DistanceFormatter.string(from: distance)
         let minutes = max(Int(ceil(Double(duration) / 60.0)), 1)
+        let hours = minutes / 60
+        let remainingMinutes = minutes % 60
+        let timeText = hours > 0 ? "약 \(hours)시간 \(remainingMinutes)분" : "약 \(minutes)분"
 
-        timeLabel.text = "약 \(minutes)분"
+        timeLabel.text = timeText
         detailLabel.text = "\(distanceText) ･ 차량 기준"
     }
 }

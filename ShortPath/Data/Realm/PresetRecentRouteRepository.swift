@@ -36,6 +36,7 @@ final class PresetRecentRouteRepository {
         object.bounds = bounds?.toObject()
         object.pathPoints.append(objectsIn: pathPoints.toObjects())
         object.distance = routeDraft.distance
+        object.duration = routeDraft.duration
         
         try realm.write {
             realm.add(object, update: .modified)
@@ -100,6 +101,8 @@ final class PresetRecentRouteRepository {
             
             object.pathPoints.removeAll()
             object.pathPoints.append(objectsIn: pathPoints.toObjects())
+            object.distance = routeDraft.distance
+            object.duration = routeDraft.duration
         }
     }
     

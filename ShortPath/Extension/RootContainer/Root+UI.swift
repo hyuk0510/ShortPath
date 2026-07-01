@@ -197,7 +197,7 @@ extension RootContainerViewController {
         routingBottomActionContainer.snp.makeConstraints { make in
             make.bottom.equalToSuperview()
             make.horizontalEdges.equalToSuperview()
-            make.height.equalTo(100)
+            make.height.equalTo(172)
         }
         
         routingViewModel.onChange = { [weak self] in
@@ -224,11 +224,10 @@ extension RootContainerViewController {
     private func routingButtonPressed() {
         if routingViewModel.canRouting, !routingViewModel.isSamePlaceInARow {
             self.mapVC.removePlaceDetailPoi()
-            self.requestRoute()
             self.mapVC.removeRoutePois()
             self.mapVC.routePoisID = Array(repeating: "", count: 7)
             self.mapVC.createRoutePois(routingViewModel.items)
-            self.updateSheetState(.routing(.ready))
+            self.requestRoute()
             
         } else if routingViewModel.isSamePlaceInARow {
             errorAlert(title: "연속된 장소 설정", message: "루트에 연속되어 같은 장소가 설정되었는지 확인해주세요.")
@@ -966,9 +965,10 @@ extension RootContainerViewController {
                 let recentRouteSaveType = makeRouteSaveCase(isCurrentLocationStart: isCurrentLocationStart)
                                 
                 await MainActor.run {
-                    
+                    self.routingBottomActionContainer.bind(summary: currentRoute.summary)
                     self.mapVC.moveToRoute(geometry.bounds)
                     self.mapVC.createRouteLine(geometry.pathPoints)
+                    self.updateSheetState(.routing(.ready))
                 }
                 
                 guard let recentRouteSaveType else { return }

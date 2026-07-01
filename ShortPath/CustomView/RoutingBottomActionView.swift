@@ -9,6 +9,8 @@ import UIKit
 
 final class RoutingBottomActionView: UIView {
     
+    private let distanceTimeView = DistanceTimeView()
+    private var hasDistanceTime = false
     let routeButton = RoutingButton()
     let walkingRouteButton = WalkingRouteButton()
     
@@ -29,7 +31,7 @@ final class RoutingBottomActionView: UIView {
         isHidden = true
         setShadow()
         
-        [routeButton, walkingRouteButton].forEach { view in
+        [routeButton, walkingRouteButton, distanceTimeView].forEach { view in
             addSubview(view)
         }
         
@@ -51,6 +53,12 @@ final class RoutingBottomActionView: UIView {
             make.bottom.equalTo(safeAreaLayoutGuide).inset(12)
             make.height.equalTo(44)
         }
+        
+        distanceTimeView.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview().inset(16)
+            make.bottom.equalTo(walkingRouteButton.snp.top).offset(-10)
+            make.height.equalTo(64)
+        }
     }
     
     @objc
@@ -66,18 +74,42 @@ final class RoutingBottomActionView: UIView {
     func setByMode(_ routingMode: RoutingMode) {
         switch routingMode {
         case .none:
+            distanceTimeView.isHidden = true
             routeButton.isHidden = true
             walkingRouteButton.isHidden = true
         case .editing:
+            distanceTimeView.isHidden = true
             routeButton.isEnabled = true
             routeButton.isHidden = false
             walkingRouteButton.isHidden = true
             walkingRouteButton.isEnabled = false
         case .ready:
+            distanceTimeView.isHidden = !hasDistanceTime
             routeButton.isHidden = true
             routeButton.isEnabled = false
             walkingRouteButton.isEnabled = true
             walkingRouteButton.isHidden = false
         }
+    }
+    
+    func bind(summary: Summary?) {
+        guard let summary else {
+            bind(distance: 0, duration: 0)
+            return
+        }
+
+        bind(distance: summary.distance, duration: summary.duration)
+    }
+    
+    func bind(distance: Int, duration: Int) {
+        guard distance > 0, duration > 0 else {
+            hasDistanceTime = false
+            distanceTimeView.isHidden = true
+            return
+        }
+        
+        hasDistanceTime = true
+        distanceTimeView.bind(distance: distance, duration: duration)
+        distanceTimeView.isHidden = false
     }
 }

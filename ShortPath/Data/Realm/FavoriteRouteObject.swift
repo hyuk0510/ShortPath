@@ -64,7 +64,8 @@ extension FavoriteRouteObject {
             start: start,
             waypoints: waypoints,
             destination: destination,
-            distance: distance
+            distance: distance,
+            duration: 0
         )
     }
     

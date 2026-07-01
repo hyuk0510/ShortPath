@@ -53,5 +53,6 @@ struct PresetRecentRoute: Hashable, Equatable {
     let bounds: RouteBounds?
     let pathPoints: [RoutePathPoint]
     let distance: Int
+    let duration: Int
     let createdAt: Date
 }
