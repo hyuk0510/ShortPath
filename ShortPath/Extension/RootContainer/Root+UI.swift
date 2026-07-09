@@ -31,7 +31,7 @@ extension RootContainerViewController {
         let height: CGFloat = UIScreen.main.bounds.height - Const.bottomSheetYPosition(.tip, .home) + view.safeAreaInsets.bottom
         
         view.addSubview(customTabBar)
-        view.bringSubviewToFront(customTabBar)
+        keepTabBarVisible()
         
         customTabBar.tabButtonDelegate = self
         
@@ -40,6 +40,11 @@ extension RootContainerViewController {
             make.bottom.equalToSuperview()
             make.height.equalTo(height)
         }
+    }
+    
+    private func keepTabBarVisible() {
+        guard customTabBar.superview != nil else { return }
+        view.bringSubviewToFront(customTabBar)
     }
     
     func setUpBottomSheet() {
@@ -499,6 +504,7 @@ extension RootContainerViewController {
         case .changed:
             sheetTopConstraint.update(offset: clampedY)
             view.layoutIfNeeded()
+            keepTabBarVisible()
             
             let bottomSheetheight = view.bounds.height - clampedY
             
@@ -583,6 +589,12 @@ extension RootContainerViewController {
         currentBottomSheetVC = newVC
         scrollViewTracking()
         updateScrollPermission(for: mode)
+
+        // SwiftUI hosted views create UIScrollView asynchronously after layout
+        DispatchQueue.main.async {
+            self.scrollViewTracking()
+            self.updateScrollPermission(for: self.mode)
+        }
     }
     
     func moveBottomSheet(to targetMode: Mode, animated: Bool = true) {
@@ -591,6 +603,7 @@ extension RootContainerViewController {
         let bototmSheetMove = {
             self.sheetTopConstraint.update(offset: targetTop)
             self.view.layoutIfNeeded()
+            self.keepTabBarVisible()
         }
         
         if animated {
@@ -599,7 +612,7 @@ extension RootContainerViewController {
                 delay: 0,
                 usingSpringWithDamping: 0.9,
                 initialSpringVelocity: 0.4,
-                options: [.allowUserInteraction, .curveEaseOut]
+                options: [.allowUserInteraction, .beginFromCurrentState, .curveEaseOut]
             ) {
                 bototmSheetMove()
             }
@@ -816,6 +829,7 @@ extension RootContainerViewController {
                 
                 sheetTopConstraint.update(offset: clampedTop)
                 view.layoutIfNeeded()
+                keepTabBarVisible()
             } else {
                 isScrollDragged = false
             }

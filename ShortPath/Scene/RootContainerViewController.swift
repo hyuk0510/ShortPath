@@ -33,9 +33,9 @@ final class RootContainerViewController: UIViewController {
     let homeVC = HomeTabViewController()
     let favoriteVC = FavoriteTabViewController()
     let settingVC = {
-        let vc = UIHostingController(rootView: SettingView())
+        let vc = SettingHostingController(rootView: SettingView())
         vc.view.backgroundColor = .clear
-        
+
         return vc
     }()
     

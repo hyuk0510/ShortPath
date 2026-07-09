@@ -33,7 +33,7 @@ enum Buttons: CaseIterable {
             return image
         }
     }
-    
+
     var selectedImage: UIImage {
         switch self {
         case .home:
@@ -59,7 +59,7 @@ final class CustomTabBar: UIView {
         view.alignment = .center
         view.backgroundColor = .white
         view.isLayoutMarginsRelativeArrangement = true
-        view.layoutMargins = UIEdgeInsets(top: 16, left: 20, bottom: 0, right: 20)
+        view.layoutMargins = UIEdgeInsets(top: 8, left: 20, bottom: 0, right: 20)
         
         return view
     }()
@@ -82,6 +82,10 @@ final class CustomTabBar: UIView {
     }
     
     private func setUpView() {
+        backgroundColor = .white
+        isOpaque = true
+        clipsToBounds = false
+        
         addSubview(stackView)
         translatesAutoresizingMaskIntoConstraints = false
         

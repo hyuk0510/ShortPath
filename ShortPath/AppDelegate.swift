@@ -8,6 +8,8 @@
 import UIKit
 import KakaoMapsSDK
 import RealmSwift
+import FirebaseCore
+import GoogleSignIn
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -19,13 +21,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         configureRealm()
         SDKInitializer.InitSDK(appKey: APIKey.releaseKakaoMap)
-
+        FirebaseApp.configure()
+        
         return true
     }
     
     private func configureRealm() {
         let config = Realm.Configuration(schemaVersion: 1) { _, _ in }
         Realm.Configuration.defaultConfiguration = config
+    }
+
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        return GIDSignIn.sharedInstance.handle(url)
     }
 
     // MARK: UISceneSession Lifecycle

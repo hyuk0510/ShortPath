@@ -7,6 +7,7 @@
 
 import SwiftUI
 import WebKit
+import FirebaseAuth
 
 enum OpenSourceLicenseType: Hashable {
     case localText(fileName: String)
@@ -35,34 +36,38 @@ enum LicenseTextLoader {
 }
 
 struct SettingView: View {
-    
+
+    @State private var showLogoutAlert = false
+
     var body: some View {
         VStack {
             barView
-            
+
             NavigationStack {
-                
-                ZStack {
-                    
-                    VStack(alignment: .leading, spacing: 24) {
-                        appInfoSection
-                        supportSection
-                        
-                        Spacer()
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 24) {
+                            appInfoSection
+                                .id("top")
+                            supportSection
+                            accountSection
+
+                            Spacer()
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.top, 16)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 16)
+                    .onAppear {
+                        proxy.scrollTo("top", anchor: .top)
+                    }
                 }
                 .background(Color.white)
             }
             .background(Color.white)
-            
         }
         .background(Color.white)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
-    
-    
 }
     
 private extension SettingView {
@@ -150,6 +155,43 @@ private extension SettingView {
         }
     }
     
+    var accountSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("계정")
+                .font(.headline)
+                .foregroundColor(.black)
+                .padding(.horizontal, 4)
+
+            VStack(spacing: 0) {
+                Button {
+                    showLogoutAlert = true
+                } label: {
+                    HStack {
+                        Text("로그아웃")
+                            .foregroundColor(.red)
+                        Spacer()
+                    }
+                    .padding(.horizontal, 16)
+                    .frame(height: 52)
+                    .contentShape(Rectangle())
+                }
+                .alert("로그아웃", isPresented: $showLogoutAlert) {
+                    Button("로그아웃", role: .destructive) {
+                        try? Auth.auth().signOut()
+                        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                              let sceneDelegate = scene.delegate as? SceneDelegate else { return }
+                        sceneDelegate.showLogin()
+                    }
+                    Button("취소", role: .cancel) {}
+                } message: {
+                    Text("로그아웃하시겠어요?")
+                }
+            }
+            .background(Color(UIColor(hex: "0xF5F5F5")))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+    }
+
     func infoRow(title: String, value: String) -> some View {
         HStack {
             Text(title)
