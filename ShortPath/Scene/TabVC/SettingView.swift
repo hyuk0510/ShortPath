@@ -38,6 +38,9 @@ enum LicenseTextLoader {
 struct SettingView: View {
 
     @State private var showLogoutAlert = false
+    @State private var showDeleteAccountAlert = false
+    @State private var showAccountDeletedAlert = false
+    @State private var deleteAccountErrorMessage: String?
 
     var body: some View {
         VStack {
@@ -186,9 +189,71 @@ private extension SettingView {
                 } message: {
                     Text("로그아웃하시겠어요?")
                 }
+
+                Divider()
+                    .padding(.leading, 16)
+
+                Button {
+                    showDeleteAccountAlert = true
+                } label: {
+                    HStack {
+                        Text("계정 삭제")
+                            .foregroundColor(.red)
+                        Spacer()
+                    }
+                    .padding(.horizontal, 16)
+                    .frame(height: 52)
+                    .contentShape(Rectangle())
+                }
+                .alert("계정 삭제", isPresented: $showDeleteAccountAlert) {
+                    Button("삭제", role: .destructive) {
+                        deleteAccount()
+                    }
+                    Button("취소", role: .cancel) {}
+                } message: {
+                    Text("계정과 즐겨찾기, 최근 기록 등 모든 데이터가 삭제되며 되돌릴 수 없어요.")
+                }
+                .alert("삭제 실패", isPresented: .constant(deleteAccountErrorMessage != nil)) {
+                    Button("확인") { deleteAccountErrorMessage = nil }
+                } message: {
+                    Text(deleteAccountErrorMessage ?? "")
+                }
+                .alert("계정이 삭제되었습니다", isPresented: $showAccountDeletedAlert) {
+                    Button("확인") {
+                        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                              let sceneDelegate = scene.delegate as? SceneDelegate else { return }
+                        sceneDelegate.showLogin()
+                    }
+                }
             }
             .background(Color(UIColor(hex: "0xF5F5F5")))
             .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+    }
+
+    func deleteAccount() {
+        guard let user = Auth.auth().currentUser else { return }
+
+        FavoriteRepository.shared.fetchAlltoFavoritePlace().forEach {
+            FavoriteRepository.shared.deletePlace(placeID: $0.id)
+        }
+        FavoriteRouteRepository.shared.fetchAll().forEach {
+            try? FavoriteRouteRepository.shared.delete(id: $0.id)
+        }
+        try? RecentPlaceRepository.shared.deleteAll()
+        try? CurrentLocationRecentRouteRepository.shared.deleteAll()
+        try? PresetRecentRouteRepository.shared.deleteAll()
+
+        user.delete { error in
+            if let error {
+                let nsError = error as NSError
+                deleteAccountErrorMessage = nsError.code == AuthErrorCode.requiresRecentLogin.rawValue
+                    ? "보안을 위해 재로그인이 필요해요. 로그아웃 후 다시 로그인한 뒤 삭제를 시도해주세요."
+                    : error.localizedDescription
+                return
+            }
+
+            showAccountDeletedAlert = true
         }
     }
 

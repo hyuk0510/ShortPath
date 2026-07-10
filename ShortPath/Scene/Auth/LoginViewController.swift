@@ -170,7 +170,9 @@ final class LoginViewController: UIViewController {
         GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
         GIDSignIn.sharedInstance.signIn(withPresenting: self) { [weak self] result, error in
             if let error {
-                self?.showAlert(error.localizedDescription)
+                if (error as NSError).code != GIDSignInError.canceled.rawValue {
+                    self?.showAlert(error.localizedDescription)
+                }
                 return
             }
 
