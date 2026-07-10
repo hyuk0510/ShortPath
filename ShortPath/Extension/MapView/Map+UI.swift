@@ -133,15 +133,15 @@ extension MapViewController {
         
     }
     
-    func moveToRoute(_ bound: RouteBounds) {
+    func moveToRoute(_ bound: RouteBounds, topInset: CGFloat = 100, bottomInset: CGFloat = 100) {
         guard let kakaoMap = kakaoMap else { return }
-        
+
         let southWestPoint = MapPoint(longitude: bound.minLng, latitude: bound.minLat)
         let northEastPoint = MapPoint(longitude: bound.maxLng, latitude: bound.maxLat)
-        
+
         let cameraUpdate = CameraUpdate.make(area: AreaRect(southWest: southWestPoint, northEast: northEastPoint))
-        
-        kakaoMap.setMargins(UIEdgeInsets(top: 100, left: 100, bottom: 100, right: 100))
+
+        kakaoMap.setMargins(UIEdgeInsets(top: topInset, left: 100, bottom: bottomInset, right: 100))
         positionLogo(128)
         kakaoMap.animateCamera(cameraUpdate: cameraUpdate, options: CameraAnimationOptions(autoElevation: true, consecutive: true, durationInMillis: 500))
     }

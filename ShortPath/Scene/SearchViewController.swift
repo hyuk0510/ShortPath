@@ -268,7 +268,9 @@ final class SearchViewController: UIViewController {
         
         searchListMode = .result
         
-        searchTask = Task {
+        searchTask = Task { [weak self] in
+            guard let self else { return }
+            
             try? await Task.sleep(nanoseconds: 300000000)
             guard !Task.isCancelled else { return }
             guard let coord = coordinate else { return }
@@ -283,7 +285,7 @@ final class SearchViewController: UIViewController {
                 
                 await MainActor.run {
                     self.places = sortedPlaces
-                    searchResultTableView.reloadData()
+                    self.searchResultTableView.reloadData()
                 }
             } catch {
                 print(error)

@@ -227,7 +227,11 @@ extension RootContainerViewController: FavoriteViewControllerDelegate {
         routingViewModel.currentRoute = nil
         routingBottomActionContainer.bind(summary: nil)
         
-        mapVC.moveToRoute(routeBounds)
+        mapVC.moveToRoute(
+            routeBounds,
+            topInset: routingContainer.frame.height + 16,
+            bottomInset: routingBottomActionContainer.frame.height + 16
+        )
         mapVC.createRouteLine(route.routePathPoints)
         mapVC.createRoutePois(routingViewModel.items)
         updateSheetState(.routing(.ready))
@@ -387,7 +391,11 @@ extension RootContainerViewController: HomeTabViewControllerDelegate {
                 duration: presetRecentRoute.duration
             )
             
-            mapVC.moveToRoute(routeBounds)
+            mapVC.moveToRoute(
+                routeBounds,
+                topInset: routingContainer.frame.height + 16,
+                bottomInset: routingBottomActionContainer.frame.height + 16
+            )
             mapVC.createRouteLine(presetRecentRoute.pathPoints)
             mapVC.createRoutePois(routingViewModel.items)
             updateSheetState(.routing(.ready))

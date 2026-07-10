@@ -965,7 +965,9 @@ extension RootContainerViewController {
     func requestRoute() {
         routeTask?.cancel()
         
-        routeTask = Task {
+        routeTask = Task { [weak self] in
+            guard let self else { return }
+            
             do {
                 let route = try await KakaoLocalManager.shared.fetchRoute(routingViewModel.items)
                 
@@ -980,7 +982,11 @@ extension RootContainerViewController {
                                 
                 await MainActor.run {
                     self.routingBottomActionContainer.bind(summary: currentRoute.summary)
-                    self.mapVC.moveToRoute(geometry.bounds)
+                    self.mapVC.moveToRoute(
+                        geometry.bounds,
+                        topInset: self.routingContainer.frame.height + 16,
+                        bottomInset: self.routingBottomActionContainer.frame.height + 16
+                    )
                     self.mapVC.createRouteLine(geometry.pathPoints)
                     self.updateSheetState(.routing(.ready))
                 }
