@@ -18,6 +18,16 @@
 		D877AAAE2FF91E5D00E481BC /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D877AAAD2FF91E5D00E481BC /* GoogleSignInSwift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		D8943329303497A200221947 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D856AFD32EDAE2CB0053E159 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D856AFDA2EDAE2CB0053E159;
+			remoteInfo = ShortPath;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		D86181152F76A879008CF4DD /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -34,6 +44,7 @@
 
 /* Begin PBXFileReference section */
 		D856AFDB2EDAE2CB0053E159 /* ShortPath.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShortPath.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D8943325303497A200221947 /* ShortPathTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShortPathTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -55,6 +66,11 @@
 			path = ShortPath;
 			sourceTree = "<group>";
 		};
+		D8943326303497A200221947 /* ShortPathTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ShortPathTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,6 +89,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D8943322303497A200221947 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -80,6 +103,7 @@
 			isa = PBXGroup;
 			children = (
 				D856B06B2EE5635F0053E159 /* ShortPath */,
+				D8943326303497A200221947 /* ShortPathTests */,
 				D856AFDC2EDAE2CB0053E159 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,6 +112,7 @@
 			isa = PBXGroup;
 			children = (
 				D856AFDB2EDAE2CB0053E159 /* ShortPath.app */,
+				D8943325303497A200221947 /* ShortPathTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -126,6 +151,29 @@
 			productReference = D856AFDB2EDAE2CB0053E159 /* ShortPath.app */;
 			productType = "com.apple.product-type.application";
 		};
+		D8943324303497A200221947 /* ShortPathTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D894332D303497A200221947 /* Build configuration list for PBXNativeTarget "ShortPathTests" */;
+			buildPhases = (
+				D8943321303497A200221947 /* Sources */,
+				D8943322303497A200221947 /* Frameworks */,
+				D8943323303497A200221947 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D894332A303497A200221947 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				D8943326303497A200221947 /* ShortPathTests */,
+			);
+			name = ShortPathTests;
+			packageProductDependencies = (
+			);
+			productName = ShortPathTests;
+			productReference = D8943325303497A200221947 /* ShortPathTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -133,11 +181,15 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1620;
+				LastSwiftUpdateCheck = 2660;
 				LastUpgradeCheck = 2650;
 				TargetAttributes = {
 					D856AFDA2EDAE2CB0053E159 = {
 						CreatedOnToolsVersion = 16.2;
+					};
+					D8943324303497A200221947 = {
+						CreatedOnToolsVersion = 26.6;
+						TestTargetID = D856AFDA2EDAE2CB0053E159;
 					};
 				};
 			};
@@ -164,12 +216,20 @@
 			projectRoot = "";
 			targets = (
 				D856AFDA2EDAE2CB0053E159 /* ShortPath */,
+				D8943324303497A200221947 /* ShortPathTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		D856AFD92EDAE2CB0053E159 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D8943323303497A200221947 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -186,7 +246,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D8943321303497A200221947 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D894332A303497A200221947 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D856AFDA2EDAE2CB0053E159 /* ShortPath */;
+			targetProxy = D8943329303497A200221947 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		D856AFEF2EDAE2D10053E159 /* Debug */ = {
@@ -382,6 +457,50 @@
 			};
 			name = Release;
 		};
+		D894332B303497A200221947 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = AM9D6522QR;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Sun.ShortPathTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ShortPath.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ShortPath";
+			};
+			name = Debug;
+		};
+		D894332C303497A200221947 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = AM9D6522QR;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Sun.ShortPathTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ShortPath.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ShortPath";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -399,6 +518,15 @@
 			buildConfigurations = (
 				D856AFEF2EDAE2D10053E159 /* Debug */,
 				D856AFF02EDAE2D10053E159 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D894332D303497A200221947 /* Build configuration list for PBXNativeTarget "ShortPathTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D894332B303497A200221947 /* Debug */,
+				D894332C303497A200221947 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
