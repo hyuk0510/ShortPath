@@ -8,8 +8,16 @@
 import UIKit
 
 final class RecentRouteViewModel {
-    private let currentRouteRepo = CurrentLocationRecentRouteRepository.shared
-    private let presetRouteRepo = PresetRecentRouteRepository.shared
+    private let currentRouteRepo: CurrentLocationRecentRouteRepositoryProtocol
+    private let presetRouteRepo: PresetRecentRouteRepositoryProtocol
+    
+    init(
+        currentRouteRepo: CurrentLocationRecentRouteRepositoryProtocol = CurrentLocationRecentRouteRepository.shared,
+        presetRouteRepo: PresetRecentRouteRepositoryProtocol = PresetRecentRouteRepository.shared
+    ) {
+        self.currentRouteRepo = currentRouteRepo
+        self.presetRouteRepo = presetRouteRepo
+    }
     
     func fetchRecentRouteItems(limit: Int = 10) throws -> [RecentRouteItem] {
         let currentRoutes = try currentRouteRepo.fetchAll()

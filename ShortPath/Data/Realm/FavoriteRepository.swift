@@ -8,7 +8,7 @@
 import Foundation
 import RealmSwift
 
-final class FavoriteRepository {
+final class FavoriteRepository: FavoriteRepositoryProtocol {
     static let shared = FavoriteRepository()
     
     private let realm: Realm

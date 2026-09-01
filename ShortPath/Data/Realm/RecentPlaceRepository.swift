@@ -8,7 +8,7 @@
 import Foundation
 import RealmSwift
 
-final class RecentPlaceRepository {
+final class RecentPlaceRepository: RecentPlaceRepositoryProtocol {
     static let shared = RecentPlaceRepository()
         
 //    private init() {

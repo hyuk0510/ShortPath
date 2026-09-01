@@ -13,7 +13,7 @@ enum RepositoryError: Error {
     case invalidData
 }
 
-final class CurrentLocationRecentRouteRepository {
+final class CurrentLocationRecentRouteRepository: CurrentLocationRecentRouteRepositoryProtocol {
     static let shared = CurrentLocationRecentRouteRepository()
     
     private let realm: Realm

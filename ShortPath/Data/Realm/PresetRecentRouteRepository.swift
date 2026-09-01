@@ -8,7 +8,7 @@
 import Foundation
 import RealmSwift
 
-final class PresetRecentRouteRepository {
+final class PresetRecentRouteRepository: PresetRecentRouteRepositoryProtocol {
     static let shared = PresetRecentRouteRepository()
     
     private let realm: Realm

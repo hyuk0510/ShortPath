@@ -9,8 +9,13 @@ import UIKit
 import RealmSwift
 
 final class RecentPlaceViewModel {
-    private let recentPlaceRepo = RecentPlaceRepository.shared
-    private let favoritePlaceRepo = FavoriteRepository.shared
+    private let recentPlaceRepo: RecentPlaceRepositoryProtocol
+    private let favoritePlaceRepo: FavoriteRepositoryProtocol
+    
+    init(recentPlaceRepo: RecentPlaceRepositoryProtocol = RecentPlaceRepository.shared, favoritePlaceRepo: FavoriteRepositoryProtocol = FavoriteRepository.shared) {
+        self.recentPlaceRepo = recentPlaceRepo
+        self.favoritePlaceRepo = favoritePlaceRepo
+    }
     
     func fetchRecentPlaceItems() throws -> [RecentPlaceItem] {
         let recentPlaces = try recentPlaceRepo.fetchAll()
