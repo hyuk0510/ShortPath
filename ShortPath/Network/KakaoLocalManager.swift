@@ -24,7 +24,7 @@ final class KakaoLocalManager: PlaceSearchServiceProtocol {
             URLQueryItem(name: "query", value: text),
             URLQueryItem(name: "x", value: "\(coordinate.longitude)"),
             URLQueryItem(name: "y", value: "\(coordinate.latitude)"),
-            URLQueryItem(name: "sort", value: "distance")
+            URLQueryItem(name: "sort", value: "accuracy")
         ]
         
         guard let url = urlComponents?.url else { throw NetworkError.invalidURL }

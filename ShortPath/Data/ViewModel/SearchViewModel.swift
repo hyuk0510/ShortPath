@@ -81,6 +81,7 @@ final class SearchViewModel {
         let roadAddress = normalize(place.roadAddress ?? "")
         let address = normalize(place.address)
         
+        if name == query { return 400 }
         if name.hasPrefix(query) { return 300 }
         if name.contains(query) { return 200 }
         if roadAddress.contains(query) { return 100 }

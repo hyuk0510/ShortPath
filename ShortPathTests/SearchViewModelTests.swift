@@ -84,4 +84,20 @@ struct SearchViewModelTests {
         #expect(viewModel.isFavorite(placeID: "1") == true)
         #expect(viewModel.isFavorite(placeID: "2") == false)
     }
+    
+    @Test func search은_이름이_완전히_일치하면_다른_결과보다_우선한다() async throws {
+        let documents = [
+            makeDocument(id: "cafe1", placeName: "스타벅스 강남역점"),
+            makeDocument(id: "cafe2", placeName: "스타벅스")
+        ]
+        let placeInfo = PlaceInfo(documents: documents, meta: Meta(totalCount: 2))
+        let fakeService = FakePlaceSearchService(result: placeInfo)
+        let viewModel = SearchViewModel(placeSearchService: fakeService, favoritePlaceRepo: FakeFavoriteRepository())
+
+        viewModel.search(text: "스타벅스", coordinate: CLLocation(latitude: 37.5, longitude: 127.0))
+
+        try await Task.sleep(nanoseconds: 500_000_000)
+
+        #expect(viewModel.places.first?.id == "cafe2")
+    }
 }
