@@ -14,7 +14,7 @@ enum NetworkError: Error {
     case invalidResponse
 }
 
-final class KakaoLocalManager {
+final class KakaoLocalManager: PlaceSearchServiceProtocol {
     static let shared = KakaoLocalManager()
     
     func fetchKeywordSearch(text: String, coordinate: CLLocationCoordinate2D) async throws -> PlaceInfo  {

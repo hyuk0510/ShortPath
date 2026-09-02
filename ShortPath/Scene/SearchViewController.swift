@@ -95,9 +95,7 @@ final class SearchViewController: UIViewController {
         return view
     }()
     
-    private var places: [Place] = []
-    
-    private var searchTask: Task<Void, Never>?
+    private let viewModel = SearchViewModel()
     
     weak var delegate: SearchViewControllerDelegate?
     var coordinate: CLLocation?
@@ -130,7 +128,6 @@ final class SearchViewController: UIViewController {
     
     private var recentPlaces: [RecentPlaceItem] = []
 
-    private let favoritePlaceRepo = FavoriteRepository.shared
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -140,6 +137,7 @@ final class SearchViewController: UIViewController {
         configureNavView()
         setCurrentLocationButton()
         setTableView()
+        bindViewModel()
         fetchRecentPlaces()
         updateUI()
     }
@@ -162,15 +160,21 @@ final class SearchViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-        if !places.isEmpty {
-            places.removeAll()
-        }
+        viewModel.search(text: "", coordinate: nil)
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
         navView.searchTextField.text = ""
+    }
+    
+    private func bindViewModel() {
+        viewModel.onChange = { [weak self] in
+            Task { @MainActor in
+                self?.searchResultTableView.reloadData()
+            }
+        }
     }
     
     private func configureNavView() {
@@ -251,73 +255,10 @@ final class SearchViewController: UIViewController {
     }
     
     func debounceSearch(text: String) {
-        searchTask?.cancel()
-        
         let query = text.trimmingCharacters(in: .whitespacesAndNewlines)
-            
-        guard !query.isEmpty else {
-            Task { @MainActor in
-                self.places = []
-                self.searchListMode = .recent
-                self.searchResultTableView.reloadData()
-                self.recentSearchTableView.reloadData()
-            }
-            
-            return
-        }
         
-        searchListMode = .result
-        
-        searchTask = Task { [weak self] in
-            guard let self else { return }
-            
-            try? await Task.sleep(nanoseconds: 300000000)
-            guard !Task.isCancelled else { return }
-            guard let coord = coordinate else { return }
-            
-            do {
-                let result = try await KakaoLocalManager.shared.fetchKeywordSearch(text: query, coordinate: coord.coordinate)
-                
-                guard !Task.isCancelled else { return }
-                            
-                let mappedPlaces = result.documents.map { $0.toPlace() }
-                let sortedPlaces = self.sortPlaces(mappedPlaces, query: query)
-                
-                await MainActor.run {
-                    self.places = sortedPlaces
-                    self.searchResultTableView.reloadData()
-                }
-            } catch {
-                print(error)
-            }
-        }
-    }
-    
-    private func sortPlaces(_ places: [Place], query: String) -> [Place] {
-        let normalizedQuery = normalize(query)
-        
-        return places.sorted { lhs, rhs in
-            score(for: lhs, query: normalizedQuery) > score(for: rhs, query: normalizedQuery)
-        }
-    }
-
-    private func score(for place: Place, query: String) -> Int {
-        let name = normalize(place.name)
-        let roadAddress = normalize(place.roadAddress ?? "")
-        let address = normalize(place.address)
-        
-        if name.hasPrefix(query) { return 300 }
-        if name.contains(query) { return 200 }
-        if roadAddress.contains(query) { return 100 }
-        if address.contains(query) { return 80 }
-        
-        return 0
-    }
-
-    private func normalize(_ text: String) -> String {
-        text
-            .lowercased()
-            .replacingOccurrences(of: " ", with: "")
+        searchListMode = query.isEmpty ? .recent: .result
+        viewModel.search(text: text, coordinate: coordinate)
     }
     
     private func updateUI() {
@@ -414,7 +355,7 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
         if tableView == recentSearchTableView {
             return recentPlaces.count
         } else if tableView == searchResultTableView {
-            return places.count
+            return viewModel.places.count
         }
         
         return 0
@@ -452,8 +393,8 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
         } else if tableView == searchResultTableView {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: SearchTableViewCell.identifier, for: indexPath) as? SearchTableViewCell else { return SearchTableViewCell() }
             
-            let place = places[indexPath.row]
-            let isFavorite = favoritePlaceRepo.isFavorite(placeID: place.id)
+            let place = viewModel.places[indexPath.row]
+            let isFavorite = viewModel.isFavorite(placeID: place.id)
             
             cell.bind(place: place, isFavorite: isFavorite)
             
@@ -467,7 +408,7 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
         if tableView == recentSearchTableView {
             delegate?.didSelectedPlace(place: recentPlaces[indexPath.row].place, mode: mode)
         } else if tableView == searchResultTableView {
-            delegate?.didSelectedPlace(place: places[indexPath.row], mode: mode)
+            delegate?.didSelectedPlace(place: viewModel.places[indexPath.row], mode: mode)
             NotificationCenter.default.post(name: .recentPlaceItemsDidChange, object: nil)
         }
     }
