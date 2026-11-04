@@ -234,6 +234,21 @@ private extension SettingView {
     func deleteAccount() {
         guard let user = Auth.auth().currentUser else { return }
 
+        user.delete { error in
+            if let error {
+                let nsError = error as NSError
+                deleteAccountErrorMessage = nsError.code == AuthErrorCode.requiresRecentLogin.rawValue
+                    ? "보안을 위해 재로그인이 필요해요. 로그아웃 후 다시 로그인한 뒤 삭제를 시도해주세요."
+                    : error.localizedDescription
+                return
+            }
+            
+            deleteLocalData()
+            showAccountDeletedAlert = true
+        }
+    }
+    
+    private func deleteLocalData() {
         FavoriteRepository.shared.fetchAlltoFavoritePlace().forEach {
             FavoriteRepository.shared.deletePlace(placeID: $0.id)
         }
@@ -243,18 +258,6 @@ private extension SettingView {
         try? RecentPlaceRepository.shared.deleteAll()
         try? CurrentLocationRecentRouteRepository.shared.deleteAll()
         try? PresetRecentRouteRepository.shared.deleteAll()
-
-        user.delete { error in
-            if let error {
-                let nsError = error as NSError
-                deleteAccountErrorMessage = nsError.code == AuthErrorCode.requiresRecentLogin.rawValue
-                    ? "보안을 위해 재로그인이 필요해요. 로그아웃 후 다시 로그인한 뒤 삭제를 시도해주세요."
-                    : error.localizedDescription
-                return
-            }
-
-            showAccountDeletedAlert = true
-        }
     }
 
     func infoRow(title: String, value: String) -> some View {
