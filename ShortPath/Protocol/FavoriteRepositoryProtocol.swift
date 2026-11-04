@@ -14,4 +14,9 @@ protocol FavoriteRepositoryProtocol {
     func fetchAlltoFavoritePlace() -> [FavoritePlace]
     func fetchAlltoPlace() -> [Place]
     func fetch(placeID: String) -> Place?
+    func updateFolder(placeID: String, folderName: String)
+    func fetchAllFolderNames() -> [String]
+    func fetchPlaces(inFolder folderName: String) -> [Place]
+    func createFolder(name: String)
+    func deleteFolder(name: String)
 }

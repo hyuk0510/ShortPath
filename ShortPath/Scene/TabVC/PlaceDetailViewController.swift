@@ -418,14 +418,21 @@ final class PlaceDetailViewController: UIViewController, BottomSheetInteractable
         
         let isFavorite = repository.isFavorite(placeID: place.id)
         
-        delegate?.favoriteButtonPressed(place: place, isFavorite: isFavorite)
         
         if isFavorite {
+            delegate?.favoriteButtonPressed(place: place, isFavorite: isFavorite)
             repository.deletePlace(placeID: place.id)
             handleUnFavorite()
         } else {
-            repository.savePlace(place: place)
-            handleFavorite()
+            let saveFavoriteVC = SaveFavoriteViewController(place: place)
+            saveFavoriteVC.onComplete = { [weak self] in
+                guard let self else { return }
+                
+                delegate?.favoriteButtonPressed(place: place, isFavorite: isFavorite)
+                handleFavorite()
+            }
+            
+            present(saveFavoriteVC, animated: true)
         }
     }
     

@@ -7,6 +7,11 @@
 
 import UIKit
 
+enum FavoritePlaceListMode {
+    case folderList
+    case folderDetail(String)
+}
+
 final class FavoriteTabViewController: UIViewController, BottomSheetInteractable {
     
     var scrollView: UIScrollView {
@@ -27,6 +32,9 @@ final class FavoriteTabViewController: UIViewController, BottomSheetInteractable
     
     var places: [FavoritePlace] = []
     var routes: [FavoriteRouteObject] = []
+    
+    private var placeListMode: FavoritePlaceListMode = .folderList
+    private let repository: FavoriteRepositoryProtocol = FavoriteRepository.shared
     
     var isBottomSheetInteracting = false
     var lastBottomSheetInteractionDate: Date?
@@ -70,12 +78,14 @@ final class FavoriteTabViewController: UIViewController, BottomSheetInteractable
         favoriteTableView.rowHeight = UITableView.automaticDimension
         favoriteTableView.estimatedRowHeight = 76
         favoriteTableView.register(FavoritePlaceCell.self, forCellReuseIdentifier: FavoritePlaceCell.identifier)
+        favoriteTableView.register(FolderCell.self, forCellReuseIdentifier: FolderCell.identifier)
 
         segmentView.onTabChanged = { [weak self] tab in
             guard let self else { return }
             
             switch tab {
             case .place:
+                placeListMode = .folderList
                 favoriteTableView.register(FavoritePlaceCell.self, forCellReuseIdentifier: FavoritePlaceCell.identifier)
             case .route:
                 favoriteTableView.register(FavoriteRouteCell.self, forCellReuseIdentifier: FavoriteRouteCell.identifier)
@@ -94,7 +104,7 @@ final class FavoriteTabViewController: UIViewController, BottomSheetInteractable
                 guard let self else { return }
                 guard let place = place else { return }
                 
-                places.remove(at: row)
+                places.removeAll{ $0.id == place.id }
                 delegate?.removePlace(place)
                 view.showToast("즐겨찾기에서 삭제됨")
                 
@@ -131,6 +141,21 @@ final class FavoriteTabViewController: UIViewController, BottomSheetInteractable
     func updateData(places: [FavoritePlace], routes: [FavoriteRouteObject]) {
         self.places = places
         self.routes = routes
+        placeListMode = .folderList
+        favoriteTableView.reloadData()
+    }
+    
+    private var folderNames: [String] {
+        repository.fetchAllFolderNames()
+    }
+
+    private func places(inFolder folderName: String) -> [FavoritePlace] {
+        places.filter { $0.folderName == folderName }
+    }
+
+    @objc
+    private func folderBackButtonPressed() {
+        placeListMode = .folderList
         favoriteTableView.reloadData()
     }
 }
@@ -150,16 +175,47 @@ extension FavoriteTabViewController: UITableViewDelegate, UITableViewDataSource 
         
         switch segmentView.selectedTab {
         case .place:
-            titleLabel.text = "저장된 장소 \(places.count)개"
+            switch placeListMode {
+            case .folderList:
+                titleLabel.text = "폴더 \(folderNames.count)개"
+                
+                titleLabel.snp.makeConstraints { make in
+                    make.leading.equalToSuperview().offset(16)
+                    make.top.trailing.equalToSuperview()
+                    make.bottom.equalToSuperview().inset(8)
+                }
+                
+            case .folderDetail(let folderName):
+                let backButton = UIButton(type: .system)
+                backButton.setImage(UIImage(systemName: "chevron.left"), for: .normal)
+                backButton.tintColor = .black
+                backButton.addTarget(self, action: #selector(folderBackButtonPressed), for: .touchUpInside)
+                
+                containerView.addSubview(backButton)
+                
+                titleLabel.text = "\(folderName) \(places(inFolder: folderName).count)개"
+                
+                backButton.snp.makeConstraints { make in
+                    make.leading.equalToSuperview().offset(12)
+                    make.centerY.equalTo(titleLabel)
+                    make.width.height.equalTo(24)
+                }
+                
+                titleLabel.snp.makeConstraints { make in
+                    make.leading.equalTo(backButton.snp.trailing).offset(4)
+                    make.top.trailing.equalToSuperview()
+                    make.bottom.equalToSuperview().inset(8)
+                }
+            }
         case .route:
             titleLabel.text = "저장된 경로 \(routes.count)개"
+            titleLabel.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(16)
+                make.top.trailing.equalToSuperview()
+                make.bottom.equalToSuperview().inset(8)
+            }
         }
         
-        titleLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(16)
-            make.top.trailing.equalToSuperview()
-            make.bottom.equalToSuperview().inset(8)
-        }
         
         return containerView
     }
@@ -167,7 +223,12 @@ extension FavoriteTabViewController: UITableViewDelegate, UITableViewDataSource 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch segmentView.selectedTab {
         case .place:
-            return places.count
+            switch placeListMode {
+            case .folderList:
+                return folderNames.count
+            case .folderDetail(let folderName):
+                return places(inFolder: folderName).count
+            }
         case .route:
             return routes.count
         }
@@ -176,20 +237,40 @@ extension FavoriteTabViewController: UITableViewDelegate, UITableViewDataSource 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         switch segmentView.selectedTab {
         case .place:
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: FavoritePlaceCell.identifier, for: indexPath) as? FavoritePlaceCell else { return FavoritePlaceCell() }
-            
-            let place = places[indexPath.row]
-            let distance = delegate?.calculatedDistance((place.longitude, place.latitude))
-            
-            cell.selectionStyle = .none
-            cell.bind(place, distance)
-            cell.onTapMenuButton = { [weak self] in
-                guard let self else { return }
+            switch placeListMode {
+            case .folderList:
+                guard let cell = tableView.dequeueReusableCell(withIdentifier: FolderCell.identifier, for: indexPath) as? FolderCell else { return FolderCell() }
+                let folderName = folderNames[indexPath.row]
+                let count = places(inFolder: folderName).count
                 
-                showActionSheet(from: cell, place.toPlace(), "", indexPath.row)
+                cell.bind(name: folderName, count: count, showDeleteButton: folderName != "기본")
+                cell.accessoryType = .disclosureIndicator
+                cell.onTapDelete = { [weak self] in
+                    guard let self else { return }
+                    
+                    repository.deleteFolder(name: folderName)
+                    favoriteTableView.reloadData()
+                }
+                
+                return cell
+                
+            case .folderDetail(let folderName):
+                guard let cell = tableView.dequeueReusableCell(withIdentifier: FavoritePlaceCell.identifier, for: indexPath) as? FavoritePlaceCell else { return FavoritePlaceCell() }
+                
+                let place = places(inFolder: folderName)[indexPath.row]
+                let distance = delegate?.calculatedDistance((place.longitude, place.latitude))
+                
+                cell.selectionStyle = .none
+                cell.bind(place, distance)
+                cell.onTapMenuButton = { [weak self] in
+                    guard let self else { return }
+                    
+                    showActionSheet(from: cell, place.toPlace(), "", indexPath.row)
+                }
+                
+                return cell
             }
-            
-            return cell
+        
             
         case .route:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: FavoriteRouteCell.identifier, for: indexPath) as? FavoriteRouteCell else { return FavoriteRouteCell() }
@@ -213,7 +294,15 @@ extension FavoriteTabViewController: UITableViewDelegate, UITableViewDataSource 
         
         switch segmentView.selectedTab {
         case .place:
-            delegate?.didTabPlaceCell(places[indexPath.row])
+            switch placeListMode {
+            case .folderList:
+                let folderName = folderNames[indexPath.row]
+                placeListMode = .folderDetail(folderName)
+                favoriteTableView.reloadData()
+                
+            case .folderDetail(let folderName):
+                delegate?.didTabPlaceCell(places(inFolder: folderName)[indexPath.row])
+            }
         case .route:
             delegate?.didTabRouteCell(routes[indexPath.row])
         }

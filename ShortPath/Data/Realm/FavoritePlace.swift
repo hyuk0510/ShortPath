@@ -19,6 +19,7 @@ final class FavoritePlace: Object {
     @Persisted var phone: String?
     @Persisted var placeURL: String?
     @Persisted var createdAt = Date()
+    @Persisted var folderName: String = "기본"
     
     convenience init(place: Place) {
         self.init()
